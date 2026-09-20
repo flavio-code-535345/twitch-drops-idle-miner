@@ -56,10 +56,17 @@ class MaintenanceService:
         2. If the trigger is a campaign timing change, request channel cleanup
         3. After reaching the next hour boundary, request inventory reload
         """
+        # A zero, negative, or missing interval would make next_period <= now below,
+        # so the loop would exit immediately and request another reload right away -
+        # a tight reload loop hammering Twitch's API with no delay between requests.
+        minutes = self._twitch.settings.minimum_refresh_interval_minutes
+        if not minutes or minutes < 1:
+            minutes = self._twitch.settings.minimum_refresh_interval_minutes = 1
+        elif minutes > 1440:
+            minutes = self._twitch.settings.minimum_refresh_interval_minutes = 1440
+
         now = datetime.now(timezone.utc)
-        next_period = now + timedelta(
-            minutes=self._twitch.settings.minimum_refresh_interval_minutes
-        )
+        next_period = now + timedelta(minutes=minutes)
 
         while True:
             # exit if there's no need to repeat the loop

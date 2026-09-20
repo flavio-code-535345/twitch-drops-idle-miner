@@ -1,15 +1,42 @@
-.auth-page { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: var(--bg-secondary); }
-.auth-card { width: 100%; max-width: 440px; background: var(--bg-panel); padding: 32px; border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 8px 32px #0000000d; }
-.auth-card h1 { color: var(--accent-color); font-size: 23px; margin-bottom: 20px; }
-.auth-card h2 { font-size: 19px; margin-bottom: 20px; }
-.auth-form { display: flex; flex-direction: column; gap: 12px; max-width: 480px; }
-.auth-form input[type="password"] { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-primary); color: var(--text-primary); font: inherit; }
-.auth-form label.auth-remember { display: flex; align-items: center; gap: 8px; }
-.auth-form button, #web-auth-logout { padding: 10px 16px; border-radius: 6px; border: 0; background: var(--accent-color); color: white; cursor: pointer; font: inherit; }
-.auth-form button:disabled { opacity: .6; cursor: wait; }
-.auth-form .auth-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); }
+.auth-page { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+/* This page loads before login, so it can't read the user's in-app dark_mode
+   setting (only login/status/healthz are reachable pre-auth) - fall back to the
+   OS/browser preference instead of always rendering light. */
+@media (prefers-color-scheme: dark) {
+    .auth-page:not(.dark-mode) {
+        --bg-primary: #100e18;
+        --bg-secondary: #1c1829;
+        --bg-panel: #1a1725;
+        --bg-panel-alt: #201c2d;
+        --text-primary: #eeebf8;
+        --text-secondary: #a19cbd;
+        --border-color: #2f2a41;
+        --secondary-bg: #1c1829;
+        --hover-bg: #262035;
+        --progress-bg: #262035;
+        --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
+        --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.35);
+        --shadow-md: 0 8px 26px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.55);
+        --shadow-focus: 0 0 0 3px rgba(169, 112, 255, 0.28);
+    }
+}
+.auth-card { width: 100%; max-width: 440px; background: var(--bg-panel); padding: 36px; border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); }
+.auth-card h1 { display: inline-flex; align-items: center; gap: 10px; font-size: 1.4em; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 20px; }
+.auth-card h2 { font-size: 19px; font-weight: 700; margin-bottom: 20px; color: var(--text-primary); }
+.auth-form { display: flex; flex-direction: column; gap: 14px; max-width: 480px; }
+.auth-form label { font-size: 14px; color: var(--text-secondary); font-weight: 600; }
+.auth-form input[type="password"] { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-secondary); color: var(--text-primary); font: inherit; transition: border-color var(--transition-fast), box-shadow var(--transition-fast); }
+.auth-form input[type="password"]:focus { outline: none; border-color: var(--accent-color); box-shadow: var(--shadow-focus); }
+.auth-form label.auth-remember { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+.auth-form button, #web-auth-logout { padding: 11px 16px; border-radius: var(--radius-sm); border: 0; background: linear-gradient(135deg, var(--accent-color), var(--accent-strong)); color: white; cursor: pointer; font: inherit; font-weight: 700; box-shadow: 0 4px 10px rgba(145, 70, 255, 0.3); transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast); }
+.auth-form button:hover:not(:disabled), #web-auth-logout:hover { filter: brightness(1.08); transform: translateY(-1px); box-shadow: 0 6px 14px rgba(145, 70, 255, 0.4); }
+.auth-form button:active:not(:disabled) { transform: translateY(0); }
+.auth-form button:disabled { opacity: .6; cursor: wait; transform: none; box-shadow: none; }
+.auth-form .auth-secondary { background: var(--secondary-bg); color: var(--text-primary); border: 1px solid var(--border-color); box-shadow: none; }
+.auth-form .auth-secondary:hover { filter: none; border-color: var(--accent-color); }
 .auth-form [hidden], #web-auth-logout[hidden] { display: none; }
-.auth-form [role="status"] { min-height: 1.6em; color: var(--error-color); }
+.auth-form [role="status"] { min-height: 1.6em; color: var(--error-color); font-size: 13px; }
 #web-auth-logout-result { color: var(--error-color); }
 .auth-form input:focus-visible, .auth-form button:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 2px; }
 @media (max-width: 600px) { .auth-card { padding: 24px; } .header-top, .header-controls { flex-wrap: wrap; gap: 12px; } }
