@@ -2711,11 +2711,7 @@ function renderHistoryPage(page) {
     historyMessage = null;
     slice.forEach((entry, idx) => {
         const tr = document.createElement('tr');
-        tr.style.cssText =
-            'border-bottom: 1px solid var(--border-color, #333);' +
-            (idx % 2 === 0
-                ? 'background: var(--bg-row-even, transparent);'
-                : 'background: var(--bg-row-odd, rgba(255,255,255,0.02));');
+        if (idx % 2 === 1) tr.classList.add('history-row-alt');
 
         const claimedAt = new Date(entry.claimed_at);
         const dateStr = isNaN(claimedAt) ? entry.claimed_at : claimedAt.toLocaleString();
@@ -2727,7 +2723,7 @@ function renderHistoryPage(page) {
         appendHistoryCell(
             tr,
             Array.isArray(entry.benefits) ? entry.benefits.join(', ') : entry.benefits,
-            'color:var(--text-muted,#888); font-size:0.85em'
+            'color:var(--text-secondary); font-size:0.85em'
         );
         appendHistoryCell(tr, String(entry.required_minutes), 'text-align:right');
 
@@ -2737,7 +2733,7 @@ function renderHistoryPage(page) {
 
 function appendHistoryCell(tr, text, extraStyle) {
     const td = document.createElement('td');
-    td.style.cssText = 'padding: 8px 12px;' + (extraStyle || '');
+    if (extraStyle) td.style.cssText = extraStyle;
     td.textContent = text;
     tr.appendChild(td);
 }
@@ -2751,7 +2747,7 @@ function setHistoryTbodyMessage(key, values = {}) {
     const tr = document.createElement('tr');
     const td = document.createElement('td');
     td.colSpan = 6;
-    td.style.cssText = 'padding:24px; text-align:center; color:var(--text-muted,#888)';
+    td.className = 'history-table-empty';
     td.textContent = historyText(key, values);
     tr.appendChild(td);
     tbody.appendChild(tr);
@@ -2796,8 +2792,7 @@ function renderHistoryPagination() {
                 scrollHistoryToTable();
             });
             if (p === historyCurrentPage) {
-                btn.style.background = 'var(--accent,#7287fd)';
-                btn.style.color = '#fff';
+                btn.classList.add('history-page-btn-active');
             }
             container.appendChild(btn);
         }
@@ -2816,9 +2811,7 @@ function renderHistoryPagination() {
 function makeHistoryPageBtn(label, onClick) {
     const btn = document.createElement('button');
     btn.textContent = label;
-    btn.style.cssText =
-        'padding:5px 12px; border-radius:6px; border:1px solid var(--border-color,#444);' +
-        'background:var(--bg-button,#313244); color:var(--text-primary,#cdd6f4); cursor:pointer;';
+    btn.className = 'history-page-btn';
     btn.addEventListener('click', onClick);
     return btn;
 }
@@ -2889,7 +2882,7 @@ function renderHistoryStats(data) {
         while (gameEl.firstChild) gameEl.removeChild(gameEl.firstChild);
 
         const label = makeElement('div', {
-            style: 'font-size:0.75rem; color:var(--text-muted,#888); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;'
+            style: 'font-size:0.75rem; color:var(--text-secondary); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;'
         }, historyText('by_game'));
         gameEl.appendChild(label);
 
@@ -2899,7 +2892,7 @@ function renderHistoryStats(data) {
             });
             row.appendChild(makeElement('span', {}, game));
             row.appendChild(makeElement('span', {
-                style: 'font-weight:700; color:var(--accent,#7287fd)'
+                style: 'font-weight:700; color:var(--accent-color)'
             }, count));
             gameEl.appendChild(row);
         });
@@ -2910,7 +2903,7 @@ function renderHistoryStats(data) {
         while (monthEl.firstChild) monthEl.removeChild(monthEl.firstChild);
 
         const label = makeElement('div', {
-            style: 'font-size:0.75rem; color:var(--text-muted,#888); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;'
+            style: 'font-size:0.75rem; color:var(--text-secondary); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;'
         }, historyText('by_month'));
         monthEl.appendChild(label);
 
@@ -2920,7 +2913,7 @@ function renderHistoryStats(data) {
             });
             row.appendChild(makeElement('span', {}, month));
             row.appendChild(makeElement('span', {
-                style: 'font-weight:700; color:var(--accent,#7287fd)'
+                style: 'font-weight:700; color:var(--accent-color)'
             }, count));
             monthEl.appendChild(row);
         });
