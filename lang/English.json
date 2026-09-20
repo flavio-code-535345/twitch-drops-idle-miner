@@ -226,7 +226,9 @@
         "footer": {
             "version": "Version:",
             "loading": "Loading...",
-            "update_available": "Update Available:"
+            "update_available": "Update Available:",
+            "upstream": "Upstream:",
+            "upstream_update_available": "Upstream Update:"
         },
         "badges": {
             "manual": {

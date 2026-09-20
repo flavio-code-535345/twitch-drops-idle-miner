@@ -258,7 +258,9 @@
         "footer": {
             "version": "Versi:",
             "loading": "Memuat...",
-            "update_available": "Pembaruan Tersedia:"
+            "update_available": "Pembaruan Tersedia:",
+            "upstream": "Upstream:",
+            "upstream_update_available": "Pembaruan Upstream:"
         },
         "badges": {
             "manual": {

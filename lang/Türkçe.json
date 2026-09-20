@@ -258,7 +258,9 @@
         "footer": {
             "version": "Sürüm:",
             "loading": "Yükleniyor...",
-            "update_available": "Güncelleme Mevcut:"
+            "update_available": "Güncelleme Mevcut:",
+            "upstream": "Üst Kaynak:",
+            "upstream_update_available": "Üst Kaynak Güncellemesi:"
         },
         "badges": {
             "manual": {

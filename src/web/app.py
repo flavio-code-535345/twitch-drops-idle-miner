@@ -305,37 +305,52 @@ async def test_telegram(request: TelegramTestRequest):
             "success": False,
             "message": f"Telegram error: {str(e)}"
         }
+async def _fetch_latest_release(session, repo: str) -> tuple[str | None, str | None]:
+    """Return (tag version without leading 'v', release html_url) for a repo's latest release."""
+    async with session.get(
+        f"https://api.github.com/repos/{repo}/releases/latest", timeout=5
+    ) as response:
+        if response.status != 200:
+            return None, None
+        data = await response.json()
+        return data.get("tag_name", "").lstrip("v") or None, data.get("html_url")
+
+
 @app.get("/api/version")
 async def get_version():
-    """Get current application version and check for updates"""
+    """Get current application version and check for updates, for both this fork and upstream"""
     import aiohttp
 
-    from src.version import __version__
+    from src.version import UPSTREAM_VERSION, __version__
 
     current_version = __version__
     latest_version = None
     update_available = False
     download_url = None
 
-    try:
-        # Check GitHub API for latest release of this fork
-        async with (
-            aiohttp.ClientSession() as session,
-            session.get(
-                "https://api.github.com/repos/flavio-code-535345/twitch-drops-idle-miner/releases/latest",
-                timeout=5,
-            ) as response,
-        ):
-            if response.status == 200:
-                data = await response.json()
-                latest_version = data.get("tag_name", "").lstrip("v")
-                download_url = data.get("html_url")
+    upstream_version = UPSTREAM_VERSION
+    upstream_latest_version = None
+    upstream_update_available = False
+    upstream_url = None
 
-                # Compare versions (simple string comparison works for semantic versioning)
-                if latest_version and latest_version > current_version:
-                    update_available = True
-    except Exception as e:
-        logger.warning(f"Failed to check for updates: {str(e)}")
+    async with aiohttp.ClientSession() as session:
+        try:
+            latest_version, download_url = await _fetch_latest_release(
+                session, "flavio-code-535345/twitch-drops-idle-miner"
+            )
+            if latest_version and latest_version > current_version:
+                update_available = True
+        except Exception as e:
+            logger.warning(f"Failed to check for updates: {str(e)}")
+
+        try:
+            upstream_latest_version, upstream_url = await _fetch_latest_release(
+                session, "rangermix/TwitchDropsMiner"
+            )
+            if upstream_latest_version and upstream_latest_version > upstream_version:
+                upstream_update_available = True
+        except Exception as e:
+            logger.warning(f"Failed to check for upstream updates: {str(e)}")
 
     return {
         "current_version": current_version,
@@ -343,6 +358,10 @@ async def get_version():
         "update_available": update_available,
         "download_url": download_url
         or "https://github.com/flavio-code-535345/twitch-drops-idle-miner/releases",
+        "upstream_version": upstream_version,
+        "upstream_latest_version": upstream_latest_version,
+        "upstream_update_available": upstream_update_available,
+        "upstream_url": upstream_url or "https://github.com/rangermix/TwitchDropsMiner/releases",
     }
 
 

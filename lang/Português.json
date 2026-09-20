@@ -258,7 +258,9 @@
         "footer": {
             "version": "Versão:",
             "loading": "Carregando...",
-            "update_available": "Atualização disponível:"
+            "update_available": "Atualização disponível:",
+            "upstream": "Upstream:",
+            "upstream_update_available": "Atualização upstream:"
         },
         "badges": {
             "manual": {

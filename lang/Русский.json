@@ -258,7 +258,9 @@
         "footer": {
             "version": "Версия:",
             "loading": "Загрузка...",
-            "update_available": "Доступно обновление:"
+            "update_available": "Доступно обновление:",
+            "upstream": "Апстрим:",
+            "upstream_update_available": "Обновление апстрима:"
         },
         "badges": {
             "manual": {

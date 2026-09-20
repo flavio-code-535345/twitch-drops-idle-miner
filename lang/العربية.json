@@ -258,7 +258,9 @@
         "footer": {
             "version": "النسخة:",
             "loading": "جاري التحميل...",
-            "update_available": "تحديث متوفر:"
+            "update_available": "تحديث متوفر:",
+            "upstream": "المصدر الأصلي:",
+            "upstream_update_available": "تحديث المصدر الأصلي:"
         },
         "badges": {
             "manual": {

@@ -1747,7 +1747,8 @@ header h1 {
     color: var(--text-secondary);
 }
 
-#current-version {
+#current-version,
+#upstream-version {
     font-weight: 500;
     color: var(--text-primary);
 }
@@ -1770,8 +1771,16 @@ header h1 {
     text-decoration: underline;
 }
 
-#latest-version {
+/* Informational (upstream has a newer release) rather than urgent (this fork is outdated) */
+.update-indicator.upstream-indicator {
+    background: var(--accent-color);
+    animation: none;
+}
+
+#latest-version,
+#upstream-latest-version {
     font-weight: 500;
+    color: white;
 }
 
 @keyframes pulse {

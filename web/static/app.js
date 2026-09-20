@@ -151,6 +151,47 @@ async function fetchAndDisplayVersion() {
                 console.log(`Update available: ${data.latest_version} (current: ${data.current_version})`);
             }
         }
+
+        // Display upstream (rangermix/TwitchDropsMiner) version this fork is based on
+        const upstreamVersionElement = document.getElementById('upstream-version');
+        if (upstreamVersionElement) {
+            upstreamVersionElement.textContent = data.upstream_version || 'Unknown';
+
+            const footerUpstreamText = document.getElementById('footer-upstream-text');
+            if (footerUpstreamText && state.translations.gui?.footer) {
+                const upstreamLabel = state.translations.gui.footer.upstream || 'Upstream:';
+                const span = footerUpstreamText.querySelector('span');
+                footerUpstreamText.textContent = upstreamLabel + ' ';
+                footerUpstreamText.appendChild(span);
+            }
+        }
+
+        // Display notification if upstream has a release newer than what this fork is based on
+        if (data.upstream_update_available && data.upstream_latest_version) {
+            const upstreamUpdateIndicator = document.getElementById('footer-upstream-update-indicator');
+            const upstreamLatestVersionSpan = document.getElementById('upstream-latest-version');
+            const upstreamUpdateLink = document.getElementById('footer-upstream-update-link');
+
+            if (upstreamUpdateIndicator && upstreamLatestVersionSpan && upstreamUpdateLink) {
+                upstreamLatestVersionSpan.textContent = data.upstream_latest_version;
+                upstreamUpdateLink.href = data.upstream_url;
+                upstreamUpdateIndicator.style.display = 'inline-block';
+
+                if (state.translations.gui?.footer) {
+                    const upstreamUpdateLabel =
+                        state.translations.gui.footer.upstream_update_available || 'Upstream Update:';
+                    const linkText = document.createTextNode(` ⚠ ${upstreamUpdateLabel} `);
+                    const span = upstreamUpdateLink.querySelector('span'); // upstream-latest-version span
+                    upstreamUpdateLink.textContent = '';
+                    upstreamUpdateLink.appendChild(linkText);
+                    upstreamUpdateLink.appendChild(span);
+                }
+
+                console.log(
+                    `Upstream update available: ${data.upstream_latest_version} (fork based on: ${data.upstream_version})`
+                );
+            }
+        }
     } catch (error) {
         console.warn('Could not fetch version information:', error);
         // Set placeholder text if fetch fails
@@ -158,6 +199,10 @@ async function fetchAndDisplayVersion() {
         const loadingText = state.translations.gui?.footer?.loading || 'Loading...';
         if (versionElement && versionElement.textContent === loadingText) {
             versionElement.textContent = 'Unknown';
+        }
+        const upstreamVersionElement = document.getElementById('upstream-version');
+        if (upstreamVersionElement && upstreamVersionElement.textContent === loadingText) {
+            upstreamVersionElement.textContent = 'Unknown';
         }
     }
 }

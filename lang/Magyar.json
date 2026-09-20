@@ -226,7 +226,9 @@
         "footer": {
             "version": "Verzió:",
             "loading": "Betöltés...",
-            "update_available": "Frissítés elérhető:"
+            "update_available": "Frissítés elérhető:",
+            "upstream": "Upstream:",
+            "upstream_update_available": "Upstream frissítés:"
         },
         "badges": {
             "manual": {

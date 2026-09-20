@@ -258,7 +258,9 @@
         "footer": {
             "version": "Verze:",
             "loading": "Načítání...",
-            "update_available": "Dostupná aktualizace:"
+            "update_available": "Dostupná aktualizace:",
+            "upstream": "Upstream:",
+            "upstream_update_available": "Aktualizace upstream:"
         },
         "badges": {
             "manual": {

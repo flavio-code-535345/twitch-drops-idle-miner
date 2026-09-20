@@ -258,7 +258,9 @@
         "footer": {
             "version": "版本:",
             "loading": "加载中...",
-            "update_available": "可用更新:"
+            "update_available": "可用更新:",
+            "upstream": "上游版本:",
+            "upstream_update_available": "上游更新:"
         },
         "badges": {
             "manual": {
