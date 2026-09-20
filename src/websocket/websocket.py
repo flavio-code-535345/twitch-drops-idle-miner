@@ -138,7 +138,6 @@ class Websocket:
                 self.topics.clear()
                 self._topics_changed.set()
                 # TODO: WebsocketStatusManager doesn't have a remove() method yet
-                # self._twitch.gui.websockets.remove(self._idx)
 
     def stop_nowait(self, *, remove: bool = False):
         """

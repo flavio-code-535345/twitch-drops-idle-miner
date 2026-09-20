@@ -194,7 +194,6 @@ class WatchService:
                 self.stop_watching()
                 continue
 
-            # logger.log(CALL, f"Sending watch payload to: {channel.name}")
             succeeded: bool = await channel.send_watch()
             last_sent: float = time()
 

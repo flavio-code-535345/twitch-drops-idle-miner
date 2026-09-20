@@ -72,7 +72,6 @@ class MessageHandlerService:
                 viewers = message["viewers"]
                 channel.viewers = viewers
                 channel.display()
-                # logger.debug(f"{channel.name} viewers: {viewers}")
         elif msg_type == "stream-down":
             channel.set_offline()
         elif msg_type == "stream-up":

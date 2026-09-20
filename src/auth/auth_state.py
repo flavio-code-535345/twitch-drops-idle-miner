@@ -107,13 +107,6 @@ class _AuthState:
                 async with self._twitch.request(
                     "POST", "https://id.twitch.tv/oauth2/device", headers=headers, data=payload
                 ) as response:
-                    # {
-                    #     "device_code": "40 chars [A-Za-z0-9]",
-                    #     "expires_in": 1800,
-                    #     "interval": 5,
-                    #     "user_code": "8 chars [A-Z]",
-                    #     "verification_uri": "https://www.twitch.tv/activate?device-code=ABCDEFGH"
-                    # }
                     response_json: JsonType = await response.json()
                     device_code: str = response_json["device_code"]
                     user_code: str = response_json["user_code"]
@@ -143,12 +136,6 @@ class _AuthState:
                         if response.status != 200:
                             continue
                         response_json = await response.json()
-                        # {
-                        #     "access_token": "40 chars [A-Za-z0-9]",
-                        #     "refresh_token": "40 chars [A-Za-z0-9]",
-                        #     "scope": [...],
-                        #     "token_type": "bearer"
-                        # }
                         self.access_token = cast(str, response_json["access_token"])
                         return self.access_token
             except RequestInvalid:
@@ -179,8 +166,6 @@ class _AuthState:
             headers["User-Agent"] = user_agent
         if hasattr(self, "session_id"):
             headers["Client-Session-Id"] = self.session_id
-        # if hasattr(self, "client_version"):
-        # headers["Client-Version"] = self.client_version
         if hasattr(self, "device_id"):
             headers["X-Device-Id"] = self.device_id
         if gql:
@@ -221,10 +206,6 @@ class _AuthState:
             ) as response:
                 page_html = await response.text("utf8")
                 assert page_html is not None
-            #     match = re.search(r'twilightBuildID="([-a-z0-9]+)"', page_html)
-            # if match is None:
-            #     raise MinerException("Unable to extract client_version")
-            # self.client_version = match.group(1)
             # doing the request ends up setting the "unique_id" value in the cookie
             cookie = jar.filter_cookies(client_info.CLIENT_URL)
             self.device_id = cookie["unique_id"].value
