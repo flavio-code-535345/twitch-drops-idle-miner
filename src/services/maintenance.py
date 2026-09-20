@@ -48,13 +48,15 @@ class MaintenanceService:
         Execute the maintenance task loop.
 
         This task monitors time triggers for channel cleanup and performs
-        periodic inventory reloads approximately every 60 minutes. The task
+        periodic inventory reloads every minimum_refresh_interval_minutes
+        (Settings > General; default 30, clamped to [1, 1440]). The task
         exits after each reload cycle and is restarted by fetch_inventory.
 
         The maintenance logic:
-        1. Wait until the next trigger (either a campaign time trigger or next hour)
+        1. Wait until the next trigger (either a campaign time trigger or the
+           next scheduled reload)
         2. If the trigger is a campaign timing change, request channel cleanup
-        3. After reaching the next hour boundary, request inventory reload
+        3. After reaching the scheduled reload point, request inventory reload
         """
         # A zero, negative, or missing interval would make next_period <= now below,
         # so the loop would exit immediately and request another reload right away -

@@ -350,7 +350,8 @@ Persisted operations are defined in `src/config/operations.py` as `GQL_OPERATION
 Runs in background to trigger:
 
 - Channel cleanup when drops start/end (based on time_triggers)
-- Inventory reload every ~60 minutes
+- Inventory reload every `minimum_refresh_interval_minutes` (Settings > General;
+  default 30, clamped to [1, 1440] in `MaintenanceService.run_maintenance_task`)
 
 ### Translation System
 
