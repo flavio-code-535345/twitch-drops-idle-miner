@@ -318,11 +318,12 @@ async def get_version():
     download_url = None
 
     try:
-        # Check GitHub API for latest release
+        # Check GitHub API for latest release of this fork
         async with (
             aiohttp.ClientSession() as session,
             session.get(
-                "https://api.github.com/repos/rangermix/TwitchDropsMiner/releases/latest", timeout=5
+                "https://api.github.com/repos/flavio-code-535345/twitch-drops-idle-miner/releases/latest",
+                timeout=5,
             ) as response,
         ):
             if response.status == 200:
@@ -340,7 +341,8 @@ async def get_version():
         "current_version": current_version,
         "latest_version": latest_version,
         "update_available": update_available,
-        "download_url": download_url or "https://github.com/rangermix/TwitchDropsMiner/releases",
+        "download_url": download_url
+        or "https://github.com/flavio-code-535345/twitch-drops-idle-miner/releases",
     }
 
 

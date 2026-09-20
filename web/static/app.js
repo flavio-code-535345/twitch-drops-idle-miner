@@ -2220,7 +2220,7 @@ function applyTranslations(t) {
                         : [];
                 })(),
                 makeElement('div', { class: 'help-links' }, '', el =>
-                    el.appendChild(makeElement('a', { href: 'https://github.com/rangermix/TwitchDropsMiner', target: '_blank', rel: 'noopener noreferrer' }, t.gui.help.github_repo || 'GitHub Repository'))
+                    el.appendChild(makeElement('a', { href: 'https://github.com/flavio-code-535345/twitch-drops-idle-miner', target: '_blank', rel: 'noopener noreferrer' }, t.gui.help.github_repo || 'GitHub Repository'))
                 ),
             );
         }
