@@ -168,13 +168,21 @@ header h1 {
     font-size: 1.6em;
     font-weight: 800;
     letter-spacing: -0.01em;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-icon {
+    font-size: 1em;
+    line-height: 1;
+}
+
+.header-title {
     background: linear-gradient(120deg, var(--accent-color), var(--accent-soft) 60%, var(--accent-color));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
 }
 
 .header-controls {
@@ -312,6 +320,29 @@ header h1 {
 
 .secondary-btn:active {
     transform: translateY(1px);
+}
+
+.primary-btn {
+    padding: 9px 14px;
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-strong));
+    border: none;
+    border-radius: var(--radius-sm);
+    color: white;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+    box-shadow: 0 4px 10px rgba(145, 70, 255, 0.3);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
+}
+
+.primary-btn:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(145, 70, 255, 0.4);
+}
+
+.primary-btn:active {
+    transform: translateY(0);
 }
 
 .button-group {
@@ -961,6 +992,7 @@ header h1 {
 .campaign-game {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 12px;
     font-weight: bold;
     font-size: 16px;
@@ -999,15 +1031,14 @@ header h1 {
 }
 
 .campaign-badge {
-    position: absolute;
-    right: 15px;
+    margin-left: auto;
     padding: 4px 10px;
     border-radius: var(--radius-pill);
     font-size: 11px;
     font-weight: 700;
+    white-space: nowrap;
     cursor: pointer;
     transition: all var(--transition-fast);
-    z-index: 10;
 }
 
 .campaign-badge.linked {
@@ -2050,6 +2081,7 @@ header h1 {
 
 .history-table th {
     padding: 10px 14px;
+    white-space: nowrap;
 }
 
 .history-table th.align-right {
