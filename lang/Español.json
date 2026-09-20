@@ -153,7 +153,9 @@
                 "emote": "Emote",
                 "other": "Otro",
                 "clear": "Limpiar Filtros",
-                "search_placeholder": "Buscar juegos..."
+                "search_placeholder": "Buscar juegos...",
+                "use_tracked_games": "Usar juegos seguidos",
+                "no_tracked_games": "Aún no hay juegos seguidos en Configuración > Juegos a vigilar."
             }
         },
         "settings": {

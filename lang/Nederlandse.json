@@ -153,7 +153,9 @@
                 "emote": "Emote",
                 "other": "Overig",
                 "clear": "Filters wissen",
-                "search_placeholder": "Zoek spellen..."
+                "search_placeholder": "Zoek spellen...",
+                "use_tracked_games": "Gevolgde games gebruiken",
+                "no_tracked_games": "Nog geen gevolgde games in Instellingen > Games om te volgen."
             }
         },
         "settings": {

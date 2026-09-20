@@ -153,7 +153,9 @@
                 "emote": "Emotka",
                 "other": "Inne",
                 "clear": "Wyczyść filtry",
-                "search_placeholder": "Szukaj gier..."
+                "search_placeholder": "Szukaj gier...",
+                "use_tracked_games": "Użyj śledzonych gier",
+                "no_tracked_games": "Brak śledzonych gier w Ustawienia > Gry do obserwowania."
             }
         },
         "settings": {

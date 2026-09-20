@@ -801,6 +801,30 @@ function onInventoryFilterChange() {
     renderInventory();
 }
 
+function useTrackedGamesFilter() {
+    const tracked = state.settings.games_to_watch || [];
+    if (tracked.length === 0) {
+        const t = state.translations;
+        const msg = t.gui?.inventory?.filters?.no_tracked_games || 'No tracked games in Settings > Games to Watch yet.';
+        showToast(msg, 'warning');
+        return;
+    }
+
+    const existingLower = new Set(selectedInventoryGames.map(g => g.toLowerCase()));
+    tracked.forEach(gameName => {
+        const key = gameName.toLowerCase();
+        if (!existingLower.has(key)) {
+            selectedInventoryGames.push(gameName);
+            existingLower.add(key);
+        }
+    });
+
+    updateGameTagsDisplay();
+    renderGameDropdown(document.getElementById('inventory-game-search').value);
+    saveSettings();
+    renderInventory();
+}
+
 function clearInventoryFilters() {
     // Uncheck all filter checkboxes
     document.getElementById('filter-active').checked = false;
@@ -2338,6 +2362,9 @@ function applyTranslations(t) {
         const clearBtn = document.getElementById('clear-filters-btn');
         if (clearBtn) clearBtn.textContent = f.clear;
 
+        const useTrackedBtn = document.getElementById('use-tracked-games-btn');
+        if (useTrackedBtn && f.use_tracked_games) useTrackedBtn.textContent = f.use_tracked_games;
+
         const searchInput = document.getElementById('games-filter');
         if (searchInput) searchInput.placeholder = f.search_placeholder;
 
@@ -2514,6 +2541,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('filter-benefit-emote').addEventListener('change', onInventoryFilterChange);
     document.getElementById('filter-benefit-other').addEventListener('change', onInventoryFilterChange);
     document.getElementById('clear-filters-btn').addEventListener('click', clearInventoryFilters);
+    document.getElementById('use-tracked-games-btn').addEventListener('click', useTrackedGamesFilter);
 
     // Mining benefit settings
     document.getElementById('mining-benefit-item').addEventListener('change', saveSettings);

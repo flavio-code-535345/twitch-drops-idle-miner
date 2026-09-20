@@ -153,7 +153,9 @@
                 "emote": "表情",
                 "other": "其他",
                 "clear": "清除过滤器",
-                "search_placeholder": "搜索游戏..."
+                "search_placeholder": "搜索游戏...",
+                "use_tracked_games": "使用已跟踪的游戏",
+                "no_tracked_games": "设置 > 关注的游戏中还没有已跟踪的游戏。"
             }
         },
         "settings": {

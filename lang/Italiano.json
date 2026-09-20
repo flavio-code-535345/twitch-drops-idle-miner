@@ -153,7 +153,9 @@
                 "emote": "Emote",
                 "other": "Altro",
                 "clear": "Pulisci Filtri",
-                "search_placeholder": "Cerca giochi..."
+                "search_placeholder": "Cerca giochi...",
+                "use_tracked_games": "Usa giochi monitorati",
+                "no_tracked_games": "Nessun gioco monitorato ancora in Impostazioni > Giochi da guardare."
             }
         },
         "settings": {

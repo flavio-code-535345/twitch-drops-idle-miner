@@ -153,7 +153,9 @@
                 "emote": "Émote",
                 "other": "Autre",
                 "clear": "Effacer les filtres",
-                "search_placeholder": "Rechercher des jeux..."
+                "search_placeholder": "Rechercher des jeux...",
+                "use_tracked_games": "Utiliser les jeux suivis",
+                "no_tracked_games": "Aucun jeu suivi pour l'instant dans Paramètres > Jeux à surveiller."
             }
         },
         "settings": {

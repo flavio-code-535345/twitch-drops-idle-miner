@@ -274,7 +274,9 @@
                 "emote": "Emotikon",
                 "other": "Egyéb",
                 "clear": "Szűrők törlése",
-                "search_placeholder": "Írjon a játékok kereséséhez..."
+                "search_placeholder": "Írjon a játékok kereséséhez...",
+                "use_tracked_games": "Követett játékok használata",
+                "no_tracked_games": "Még nincs követett játék a Beállítások > Figyelendő játékok között."
             }
         },
         "history": {

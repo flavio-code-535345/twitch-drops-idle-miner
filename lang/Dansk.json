@@ -153,7 +153,9 @@
                 "emote": "Emote",
                 "other": "Andet",
                 "clear": "Ryd filtre",
-                "search_placeholder": "Søg efter spil..."
+                "search_placeholder": "Søg efter spil...",
+                "use_tracked_games": "Brug sporede spil",
+                "no_tracked_games": "Ingen sporede spil under Indstillinger > Spil at overvåge endnu."
             }
         },
         "settings": {

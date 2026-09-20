@@ -274,7 +274,9 @@
                 "emote": "Emote",
                 "other": "Other",
                 "clear": "Clear Filters",
-                "search_placeholder": "Type to search games..."
+                "search_placeholder": "Type to search games...",
+                "use_tracked_games": "Use Tracked Games",
+                "no_tracked_games": "No tracked games in Settings > Games to Watch yet."
             }
         },
         "history": {

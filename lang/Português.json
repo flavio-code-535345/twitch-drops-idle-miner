@@ -153,7 +153,9 @@
                 "emote": "Emote",
                 "other": "Outro",
                 "clear": "Limpar Filtros",
-                "search_placeholder": "Pesquisar jogos..."
+                "search_placeholder": "Pesquisar jogos...",
+                "use_tracked_games": "Usar jogos rastreados",
+                "no_tracked_games": "Ainda não há jogos rastreados em Configurações > Jogos para observar."
             }
         },
         "settings": {

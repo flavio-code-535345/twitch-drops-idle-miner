@@ -153,7 +153,9 @@
                 "emote": "Emote",
                 "other": "Lainnya",
                 "clear": "Hapus Filter",
-                "search_placeholder": "Cari game..."
+                "search_placeholder": "Cari game...",
+                "use_tracked_games": "Gunakan Game yang Dilacak",
+                "no_tracked_games": "Belum ada game yang dilacak di Pengaturan > Game untuk Ditonton."
             }
         },
         "settings": {

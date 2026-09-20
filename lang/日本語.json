@@ -153,7 +153,9 @@
                 "emote": "エモート",
                 "other": "その他",
                 "clear": "フィルター解除",
-                "search_placeholder": "ゲームを検索..."
+                "search_placeholder": "ゲームを検索...",
+                "use_tracked_games": "追跡中のゲームを使用",
+                "no_tracked_games": "設定 > 監視するゲームに追跡中のゲームがまだありません。"
             }
         },
         "settings": {

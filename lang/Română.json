@@ -153,7 +153,9 @@
                 "emote": "Emoticon",
                 "other": "Altele",
                 "clear": "Șterge filtre",
-                "search_placeholder": "Caută jocuri..."
+                "search_placeholder": "Caută jocuri...",
+                "use_tracked_games": "Folosește jocurile urmărite",
+                "no_tracked_games": "Niciun joc urmărit încă în Setări > Jocuri de urmărit."
             }
         },
         "settings": {

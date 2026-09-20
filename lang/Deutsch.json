@@ -153,7 +153,9 @@
                 "emote": "Emote",
                 "other": "Andere",
                 "clear": "Filter löschen",
-                "search_placeholder": "Spiele suchen..."
+                "search_placeholder": "Spiele suchen...",
+                "use_tracked_games": "Verfolgte Spiele verwenden",
+                "no_tracked_games": "Noch keine verfolgten Spiele unter Einstellungen > Zu beobachtende Spiele."
             }
         },
         "settings": {
