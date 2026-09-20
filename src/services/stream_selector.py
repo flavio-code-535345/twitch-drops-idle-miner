@@ -102,13 +102,18 @@ class StreamSelector:
                 wanted_games.append(entry)
 
         if settings.farm_mode:
-            farm_game_names = sorted(
-                {
-                    campaign.game.name
-                    for campaign in campaigns
-                    if campaign.game.name.lower() not in watched_names_lower
-                }
-            )
+            # Dedupe case-insensitively (keyed by lowercased name, keeping the first-seen
+            # casing) rather than by the raw string: Twitch's campaign payloads don't
+            # guarantee identical display-name casing for the same category across
+            # different campaigns, and deduping on the exact string would otherwise
+            # produce two duplicate tree entries - each independently matching (and
+            # showing) every campaign for that game - for what is really one game.
+            farm_games_by_key: dict[str, str] = {}
+            for campaign in campaigns:
+                key = campaign.game.name.lower()
+                if key not in watched_names_lower and key not in farm_games_by_key:
+                    farm_games_by_key[key] = campaign.game.name
+            farm_game_names = sorted(farm_games_by_key.values(), key=str.lower)
             for game_name in farm_game_names:
                 entry = self._build_game_entry(
                     game_name, campaigns, FARM_MODE_BENEFITS, now, next_hour

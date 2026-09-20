@@ -93,6 +93,22 @@ class TestFarmMode(unittest.TestCase):
 
         self.assertEqual([g.name for g in wanted_games], ["Tracked Game"])
 
+    def test_farm_mode_merges_same_game_with_inconsistent_campaign_casing(self):
+        # Twitch's campaign payloads don't guarantee identical display-name casing for the
+        # same category across separate campaigns; farm mode must still treat them as one game.
+        self.settings.farm_mode = True
+        campaigns = [
+            _campaign(2, "Escape from Tarkov", BenefitType.BADGE, drop_name="Drop A"),
+            _campaign(2, "ESCAPE FROM TARKOV", BenefitType.EMOTE, drop_name="Drop B"),
+        ]
+
+        tree = self.selector.get_wanted_game_tree(self.settings, campaigns)
+        wanted_games = self.selector.get_wanted_games(self.settings, campaigns)
+
+        self.assertEqual(len(tree), 1)
+        self.assertEqual(len(tree[0]["campaigns"]), 2)
+        self.assertEqual(len(wanted_games), 1)
+
     def test_farm_mode_tree_entries_are_tagged_for_the_ui(self):
         self.settings.farm_mode = True
         campaigns = [
