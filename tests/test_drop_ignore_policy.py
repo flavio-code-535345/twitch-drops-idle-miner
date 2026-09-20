@@ -210,6 +210,7 @@ def test_shared_prerequisite_remains_mineable_for_a_nonignored_branch():
     settings = SimpleNamespace(
         games_to_watch=["Test Game"],
         mining_benefits={"DIRECT_ENTITLEMENT": True},
+        farm_mode=False,
     )
     wanted_tree = StreamSelector().get_wanted_game_tree(settings, [campaign])
     assert [
@@ -242,6 +243,7 @@ def test_wanted_tree_rejects_expired_and_non_mineable_drops_together():
     settings = SimpleNamespace(
         games_to_watch=["Test Game"],
         mining_benefits={"DIRECT_ENTITLEMENT": True},
+        farm_mode=False,
     )
     wanted_tree = StreamSelector().get_wanted_game_tree(settings, [campaign])
 

@@ -213,6 +213,9 @@
             "clear_all_cache_help": "Cancella lo stato locale di campagne, canali e i dati derivati del miner; mantiene l’accesso e le impostazioni, quindi ricarica i dati da Twitch.",
             "mining_benefits": "Vantaggi Minatori",
             "mining_benefits_help": "Seleziona quali tipi di drop vuoi minare.",
+            "farm_mode": "Modalità Farming",
+            "farm_mode_label": "Farma tutti i badge e le emote disponibili",
+            "farm_mode_help": "Estrae anche drop di badge ed emote da qualsiasi altra campagna disponibile, oltre ai Giochi da guardare. I Giochi da guardare mantengono sempre la priorità per gli slot dei canali.",
             "multiple_games_found": "Più giochi trovati per la tua ricerca. Per favore, sii più specifico.",
             "manual_game_warning": "\"{game}\" non è nell’elenco delle campagne disponibili. Aggiungerlo comunque ai giochi da guardare?",
             "deselect_all_warning": "Sei sicuro di voler rimuovere tutti i giochi dalla tua lista di osservazione?",
@@ -277,7 +280,9 @@
         },
         "wanted": {
             "name": "Coda Drops Desiderati",
-            "none": "Nessun drop desiderato in coda..."
+            "none": "Nessun drop desiderato in coda...",
+            "farm_mode_tag": "FARM",
+            "farm_mode_tag_title": "Farmato opportunisticamente - non presente in Giochi da guardare"
         },
         "history": {
             "title": "Cronologia dei drop",

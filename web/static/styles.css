@@ -1135,6 +1135,19 @@ header h1 {
     text-align: center;
 }
 
+/* Opportunistically farmed game (not in Games to Watch), shown lower priority than tracked games */
+.wanted-game-farm-tag {
+    background: rgba(240, 160, 32, 0.15);
+    color: var(--warning-color);
+    border: 1px solid var(--warning-color);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 2px 7px;
+    border-radius: var(--radius-pill);
+    margin-left: auto;
+}
+
 .wanted-game-icon {
     width: 30px;
     height: 40px;

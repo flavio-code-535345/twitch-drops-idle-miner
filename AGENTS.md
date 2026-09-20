@@ -215,6 +215,20 @@ lang/                # Translation JSON files (20 languages)
   ranks to the list bounds; reject blank/fractional values without changing settings.
   Keep priority and remove-control labels translated and accessible. Regression tests in
   `tests/test_game_priority.py` cover order, bounds, invalid inputs, and persistence calls.
+- `farm_mode` (bool, default `False`, Settings > Farm Mode): when enabled, mines badge and
+  emote drops from every other campaign already in `self.inventory` (Twitch returns the
+  account's *entire* campaign list on every fetch regardless of `games_to_watch`, so no
+  extra discovery is needed - see `InventoryService.fetch_inventory`). Implemented in
+  `StreamSelector._get_wanted_game_tree` (`src/services/stream_selector.py`): games from
+  `games_to_watch` are resolved first, filtered by the Mining Benefits settings as usual;
+  farm-mode games are appended afterwards, filtered by a fixed `{BADGE, EMOTE}`-only
+  allowlist regardless of Mining Benefits, and tagged `"farm_mode": True` in the tree (the
+  web UI shows a "FARM" pill on these in the Wanted Drops Queue). Because channel priority
+  (`ChannelService.get_priority`) is just `wanted_games.index(game)`, appending farm-mode
+  games after the explicit list is sufficient to keep Games to Watch always winning channel
+  slots - no separate priority mechanism was needed. Claiming is unaffected either way:
+  `GAMES_UPDATE` claims any completed drop across the whole inventory regardless of
+  `wanted_games` membership. Covered by `tests/test_farm_mode.py`.
 - Connection quality multiplier
 - Language selection
 - Proxy support (including verification)

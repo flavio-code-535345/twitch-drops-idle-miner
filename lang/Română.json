@@ -213,6 +213,9 @@
             "clear_all_cache_help": "Șterge starea locală a campaniilor, canalelor și datele derivate ale minerului; păstrează autentificarea și setările, apoi reîncarcă datele de pe Twitch.",
             "mining_benefits": "Beneficii Minerit",
             "mining_benefits_help": "Selectați ce tipuri de drops doriți să minați.",
+            "farm_mode": "Mod Farm",
+            "farm_mode_label": "Farmează toate insignele și emote-urile disponibile",
+            "farm_mode_help": "De asemenea, minează insigne și emote-uri din orice altă campanie disponibilă, dincolo de Jocuri de urmărit. Jocuri de urmărit păstrează întotdeauna prioritatea pentru sloturile de canale.",
             "multiple_games_found": "Au fost găsite mai multe jocuri pentru căutarea dvs. Vă rugăm să fiți mai specific.",
             "manual_game_warning": "„{game}” nu se află în lista campaniilor disponibile. Îl adaugi totuși la jocurile de urmărit?",
             "deselect_all_warning": "Sunteți sigur că doriți să eliminați toate jocurile din lista dvs. de urmărire?",
@@ -277,7 +280,9 @@
         },
         "wanted": {
             "name": "Coadă Drops Dorite",
-            "none": "Niciun drop dorit în coadă..."
+            "none": "Niciun drop dorit în coadă...",
+            "farm_mode_tag": "FARM",
+            "farm_mode_tag_title": "Farmat oportunist - nu este în Jocuri de urmărit"
         },
         "history": {
             "title": "Istoricul dropurilor",

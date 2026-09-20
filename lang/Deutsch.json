@@ -213,6 +213,9 @@
             "add_game_hint": " Click \"Add Game\" to add it manually.",
             "mining_benefits": "Mining-Vorteile",
             "mining_benefits_help": "Wählen Sie, welche Arten von Drops Sie minen möchten.",
+            "farm_mode": "Farm-Modus",
+            "farm_mode_label": "Alle verfügbaren Abzeichen & Emotes farmen",
+            "farm_mode_help": "Schürft zusätzlich Abzeichen- und Emote-Drops aus jeder anderen verfügbaren Kampagne, über die Zu beobachtenden Spiele hinaus. Zu beobachtende Spiele behalten immer Vorrang bei Kanal-Plätzen.",
             "multiple_games_found": "Mehrere Spiele für deine Suche gefunden. Bitte sei spezifischer.",
             "manual_game_warning": "\"{game}\" steht nicht in der Liste verfügbarer Kampagnen. Trotzdem zu den anzusehenden Spielen hinzufügen?",
             "deselect_all_warning": "Bist du sicher, dass du alle Spiele aus deiner Beobachtungsliste entfernen möchtest?",
@@ -277,7 +280,9 @@
         },
         "wanted": {
             "name": "Wunsch-Drops Warteschlange",
-            "none": "Keine Wunsch-Drops in der Warteschlange..."
+            "none": "Keine Wunsch-Drops in der Warteschlange...",
+            "farm_mode_tag": "FARM",
+            "farm_mode_tag_title": "Opportunistisch gefarmt - nicht in Zu beobachtende Spiele"
         },
         "history": {
             "title": "Drop-Verlauf",

@@ -213,6 +213,9 @@
             "add_game_hint": " Click \"Add Game\" to add it manually.",
             "mining_benefits": "Avantages du Minage",
             "mining_benefits_help": "Sélectionnez les types de drops que vous souhaitez miner.",
+            "farm_mode": "Mode Farming",
+            "farm_mode_label": "Farmer tous les badges et emotes disponibles",
+            "farm_mode_help": "Mine également les drops de badges et d'emotes de toute autre campagne disponible, au-delà de Jeux à surveiller. Jeux à surveiller garde toujours la priorité pour les emplacements de chaînes.",
             "multiple_games_found": "Plusieurs jeux trouvés pour votre recherche. Veuillez être plus précis.",
             "manual_game_warning": "« {game} » ne figure pas dans la liste des campagnes disponibles. L’ajouter quand même aux jeux à regarder ?",
             "deselect_all_warning": "Êtes-vous sûr de vouloir retirer tous les jeux de votre liste à surveiller ?",
@@ -277,7 +280,9 @@
         },
         "wanted": {
             "name": "File d'attente Drops souhaités",
-            "none": "Aucun drop souhaité en file d'attente..."
+            "none": "Aucun drop souhaité en file d'attente...",
+            "farm_mode_tag": "FARM",
+            "farm_mode_tag_title": "Farmé de manière opportuniste - absent de Jeux à surveiller"
         },
         "history": {
             "title": "Historique des drops",

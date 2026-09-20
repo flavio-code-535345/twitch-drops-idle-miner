@@ -131,6 +131,9 @@
             },
             "mining_benefits": "Mining Benefits",
             "mining_benefits_help": "Select which types of drops you want to mine.",
+            "farm_mode": "Farm Mode",
+            "farm_mode_label": "Farm all available badges & emotes",
+            "farm_mode_help": "Also mine badge and emote drops from every other available campaign, beyond Games to Watch. Games to Watch always keep priority for channel slots.",
             "reload": "Reload Campaigns",
             "reload_campaigns": "Reload Campaigns",
             "drop_name_blacklist": "Ignored Drop Keywords",
@@ -243,7 +246,9 @@
         },
         "wanted": {
             "name": "Wanted Drops Queue",
-            "none": "No wanted drops queued..."
+            "none": "No wanted drops queued...",
+            "farm_mode_tag": "FARM",
+            "farm_mode_tag_title": "Opportunistically farmed - not in Games to Watch"
         },
         "inventory": {
             "no_campaigns": "No campaigns loaded yet...",

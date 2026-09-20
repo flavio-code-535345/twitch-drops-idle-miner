@@ -16,6 +16,7 @@ class TestWantedGamesFilter(unittest.TestCase):
             "BADGE": True,
             "DIRECT_ENTITLEMENT": True,
         }  # both allowed by default
+        self.settings.farm_mode = False
 
     def test_filter_wanted_campaigns(self):
         # Setup Campaigns

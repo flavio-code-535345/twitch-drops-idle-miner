@@ -132,6 +132,8 @@ class GUIBadges(TypedDict):
 class GUIWanted(TypedDict):
     name: str
     none: str
+    farm_mode_tag: str
+    farm_mode_tag_title: str
 
 
 class GUIInvFilters(TypedDict):
@@ -200,6 +202,9 @@ class GUISettings(TypedDict):
     telegram: GUITelegramSettings
     mining_benefits: str
     mining_benefits_help: str
+    farm_mode: str
+    farm_mode_label: str
+    farm_mode_help: str
     reload: str
     reload_campaigns: str
     drop_name_blacklist: str

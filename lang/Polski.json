@@ -213,6 +213,9 @@
             "clear_all_cache_help": "Usuwa lokalny stan kampanii, kanałów i pochodne dane minera; zachowuje logowanie i ustawienia, a następnie ponownie pobiera dane z Twitcha.",
             "mining_benefits": "Korzyści z Minowania",
             "mining_benefits_help": "Wybierz rodzaje dropów, które chcesz zdobywać.",
+            "farm_mode": "Tryb farmienia",
+            "farm_mode_label": "Farm wszystkich dostępnych odznak i emotek",
+            "farm_mode_help": "Wydobywa też odznaki i emotki z każdej innej dostępnej kampanii, poza Grami do obserwowania. Gry do obserwowania zawsze mają pierwszeństwo w przydziale kanałów.",
             "multiple_games_found": "Znaleziono kilka gier dla twojego wyszukiwania. Proszę być bardziej precyzywnym.",
             "manual_game_warning": "„{game}” nie znajduje się na liście dostępnych kampanii. Mimo to dodać do gier do oglądania?",
             "deselect_all_warning": "Czy na pewno chcesz usunąć wszystkie gry ze swojej listy obserwowanych?",
@@ -277,7 +280,9 @@
         },
         "wanted": {
             "name": "Kolejka Pożądanych Dropów",
-            "none": "Brak pożądanych dropów w kolejce..."
+            "none": "Brak pożądanych dropów w kolejce...",
+            "farm_mode_tag": "FARMA",
+            "farm_mode_tag_title": "Farmowane okazjonalnie - poza listą Gry do obserwowania"
         },
         "history": {
             "title": "Historia dropów",

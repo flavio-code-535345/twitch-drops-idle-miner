@@ -1325,6 +1325,8 @@ function updateSettingsUI(settings) {
         if (document.getElementById('mining-benefit-unknown')) document.getElementById('mining-benefit-unknown').checked = settings.mining_benefits.UNKNOWN;
     }
 
+    if (document.getElementById('farm-mode')) document.getElementById('farm-mode').checked = !!settings.farm_mode;
+
 
     // Update games to watch lists
     renderGamesToWatch();
@@ -1957,7 +1959,8 @@ async function saveSettings() {
             "BADGE": document.getElementById('mining-benefit-badge')?.checked,
             "EMOTE": document.getElementById('mining-benefit-emote')?.checked,
             "UNKNOWN": document.getElementById('mining-benefit-unknown')?.checked
-        }
+        },
+        farm_mode: document.getElementById('farm-mode')?.checked || false
     };
 
     try {
@@ -2124,6 +2127,12 @@ function applyTranslations(t) {
         const benefitsHeader = document.getElementById('settings-benefits-header');
         if (benefitsHeader && t.gui.settings.mining_benefits) benefitsHeader.textContent = t.gui.settings.mining_benefits;
 
+        const farmModeHeader = document.getElementById('settings-farm-mode-header');
+        if (farmModeHeader && t.gui.settings.farm_mode) farmModeHeader.textContent = t.gui.settings.farm_mode;
+
+        const farmModeLabel = document.getElementById('settings-farm-mode-label');
+        if (farmModeLabel && t.gui.settings.farm_mode_label) farmModeLabel.textContent = t.gui.settings.farm_mode_label;
+
         const dropBlacklistHeader = document.getElementById('settings-drop-blacklist-header');
         if (dropBlacklistHeader) dropBlacklistHeader.textContent = t.gui.settings.drop_name_blacklist;
 
@@ -2163,6 +2172,9 @@ function applyTranslations(t) {
 
         const benefitsHelp = document.getElementById('settings-benefits-help');
         if (benefitsHelp && t.gui.settings.mining_benefits_help) benefitsHelp.textContent = t.gui.settings.mining_benefits_help;
+
+        const farmModeHelp = document.getElementById('settings-farm-mode-help');
+        if (farmModeHelp && t.gui.settings.farm_mode_help) farmModeHelp.textContent = t.gui.settings.farm_mode_help;
 
         const gamesHelp = document.getElementById('settings-games-help');
         if (gamesHelp) gamesHelp.textContent = t.gui.settings.games_help;
@@ -2548,6 +2560,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('mining-benefit-badge').addEventListener('change', saveSettings);
     document.getElementById('mining-benefit-emote').addEventListener('change', saveSettings);
     document.getElementById('mining-benefit-unknown').addEventListener('change', saveSettings);
+    document.getElementById('farm-mode').addEventListener('change', saveSettings);
 
 
     // Inventory game search dropdown
@@ -2616,6 +2629,10 @@ function renderWantedItems(tree) {
             headerChildren.push(makeImageElement(iconUrl, gameGroup.game_name, 'wanted-game-icon'));
         }
         headerChildren.push(makeElement('span', { class: 'wanted-game-title' }, gameGroup.game_name));
+        if (gameGroup.farm_mode) {
+            const farmLabel = state.translations.gui?.wanted?.farm_mode_tag || 'FARM';
+            headerChildren.push(makeElement('span', { class: 'wanted-game-farm-tag', title: state.translations.gui?.wanted?.farm_mode_tag_title || 'Opportunistically farmed - not in Games to Watch' }, farmLabel));
+        }
 
         const headerEl = makeElement('div', { class: 'wanted-game-header' }, '', el => {
             headerChildren.forEach(child => el.appendChild(child));

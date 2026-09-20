@@ -213,6 +213,9 @@
             "clear_all_cache_help": "Vymaže místní stav kampaní, kanálů a odvozený stav mineru; zachová přihlášení a nastavení a poté znovu načte data z Twitche.",
             "mining_benefits": "Výhody Těžby",
             "mining_benefits_help": "Vyberte typy dropů, které chcete těžit.",
+            "farm_mode": "Farm režim",
+            "farm_mode_label": "Farmit všechny dostupné odznaky a emote",
+            "farm_mode_help": "Také těží odznaky a emote drops z každé jiné dostupné kampaně, nad rámec Her ke sledování. Hry ke sledování si vždy zachovávají prioritu pro sloty kanálů.",
             "multiple_games_found": "Pro vaše hledání bylo nalezeno více her. Buďte prosím konkrétnější.",
             "manual_game_warning": "„{game}“ není v seznamu dostupných kampaní. Přesto jej přidat mezi hry ke sledování?",
             "deselect_all_warning": "Opravdu chcete odebrat všechny hry ze svého seznamu sledovaných?",
@@ -277,7 +280,9 @@
         },
         "wanted": {
             "name": "Fronta chtěných Dropů",
-            "none": "Žádné chtěné dropy ve frontě..."
+            "none": "Žádné chtěné dropy ve frontě...",
+            "farm_mode_tag": "FARM",
+            "farm_mode_tag_title": "Příležitostně farmováno - není v Hry ke sledování"
         },
         "history": {
             "title": "Historie dropů",

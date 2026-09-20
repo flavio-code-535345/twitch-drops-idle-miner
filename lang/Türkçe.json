@@ -213,6 +213,9 @@
             "clear_all_cache_help": "Yerel kampanya, kanal ve türetilmiş madenci durumunu temizler; oturum açma bilgilerini ve ayarları korur, ardından Twitch'ten yeniden yükler.",
             "mining_benefits": "Madencilik Avantajları",
             "mining_benefits_help": "Hangi tür dropları toplamak istediğinizi seçin.",
+            "farm_mode": "Farm Modu",
+            "farm_mode_label": "Mevcut tüm rozetleri ve emote'ları farmla",
+            "farm_mode_help": "İzlenecek Oyunlar dışındaki diğer tüm mevcut kampanyalardan rozet ve emote ödüllerini de kazır. İzlenecek Oyunlar, kanal slotlarında her zaman önceliğini korur.",
             "multiple_games_found": "Aramanız için birden fazla oyun bulundu. Lütfen daha belirgin olun.",
             "manual_game_warning": "\"{game}\" mevcut kampanyalar listesinde yok. Yine de izlenecek oyunlara eklensin mi?",
             "deselect_all_warning": "İzleme listenizdeki tüm oyunları kaldırmak istediğinize emin misiniz?",
@@ -277,7 +280,9 @@
         },
         "wanted": {
             "name": "İstenen Drop Kuyruğu",
-            "none": "Kuyrukta istenen drop yok..."
+            "none": "Kuyrukta istenen drop yok...",
+            "farm_mode_tag": "FARM",
+            "farm_mode_tag_title": "Fırsatçı şekilde farmlanıyor - İzlenecek Oyunlar'da değil"
         },
         "history": {
             "title": "Drop Geçmişi",

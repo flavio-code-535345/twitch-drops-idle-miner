@@ -131,6 +131,9 @@
             },
             "mining_benefits": "Bányászati előnyök",
             "mining_benefits_help": "Válassza ki, mely típusú jutalmakat szeretné bányászni.",
+            "farm_mode": "Farm mód",
+            "farm_mode_label": "Minden elérhető jelvény és emote farmolása",
+            "farm_mode_help": "A Figyelendő játékokon túl minden más elérhető kampányból is bányássza a jelvény- és emote-drop-okat. A Figyelendő játékok mindig elsőbbséget élveznek a csatornahelyeknél.",
             "reload": "Kampányok újratöltése",
             "reload_campaigns": "Kampányok újratöltése",
             "drop_name_blacklist": "Figyelmen kívül hagyott dropkulcsszavak",
@@ -243,7 +246,9 @@
         },
         "wanted": {
             "name": "Kívánt jutalmak sorban",
-            "none": "Nincsenek kívánt jutalmak sorban..."
+            "none": "Nincsenek kívánt jutalmak sorban...",
+            "farm_mode_tag": "FARM",
+            "farm_mode_tag_title": "Opportunista módon farmolva - nincs a Figyelendő játékok között"
         },
         "inventory": {
             "no_campaigns": "Még nincs betöltött kampány...",

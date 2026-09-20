@@ -213,6 +213,9 @@
             "clear_all_cache_help": "清除本機活動、頻道和挖礦器衍生狀態；保留登入資訊和設定，然後從 Twitch 重新載入。",
             "mining_benefits": "挖掘獎勵",
             "mining_benefits_help": "選擇您想要獲取的掉落類型。",
+            "farm_mode": "刷取模式",
+            "farm_mode_label": "刷取所有可取得的徽章與表情",
+            "farm_mode_help": "除了關注的遊戲之外，也會挖取其他所有可用活動中的徽章與表情掉落。關注的遊戲永遠優先佔用頻道名額。",
             "multiple_games_found": "您的搜尋找到了多個遊戲。請更具體一些。",
             "manual_game_warning": "可用活動清單中沒有「{game}」。仍要將其加入觀看遊戲清單嗎？",
             "deselect_all_warning": "您確定要從觀看清單中移除所有遊戲嗎？",
@@ -277,7 +280,9 @@
         },
         "wanted": {
             "name": "期望掉落隊列",
-            "none": "隊列中沒有期望的掉落..."
+            "none": "隊列中沒有期望的掉落...",
+            "farm_mode_tag": "刷取",
+            "farm_mode_tag_title": "機會性刷取 - 不在關注的遊戲清單中"
         },
         "history": {
             "title": "掉寶歷史",

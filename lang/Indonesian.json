@@ -213,6 +213,9 @@
             "clear_all_cache_help": "Menghapus status kampanye, channel, dan data turunan miner lokal; mempertahankan login dan pengaturan, lalu memuat ulang data dari Twitch.",
             "mining_benefits": "Manfaat Penambangan",
             "mining_benefits_help": "Pilih jenis drops yang ingin Anda tambang.",
+            "farm_mode": "Mode Farming",
+            "farm_mode_label": "Farming semua badge & emote yang tersedia",
+            "farm_mode_help": "Juga menambang drop badge dan emote dari setiap kampanye lain yang tersedia, di luar Game untuk Ditonton. Game untuk Ditonton selalu memiliki prioritas untuk slot saluran.",
             "multiple_games_found": "Beberapa game ditemukan untuk pencarian Anda. Harap lebih spesifik.",
             "manual_game_warning": "\"{game}\" tidak ada dalam daftar kampanye yang tersedia. Tetap tambahkan ke game untuk ditonton?",
             "deselect_all_warning": "Apakah Anda yakin ingin menghapus semua game dari daftar pantauan Anda?",
@@ -277,7 +280,9 @@
         },
         "wanted": {
             "name": "Antrean Drops yang Diinginkan",
-            "none": "Tidak ada drops yang diinginkan dalam antrean..."
+            "none": "Tidak ada drops yang diinginkan dalam antrean...",
+            "farm_mode_tag": "FARM",
+            "farm_mode_tag_title": "Di-farming secara oportunistik - tidak ada di Game untuk Ditonton"
         },
         "history": {
             "title": "Riwayat Drop",

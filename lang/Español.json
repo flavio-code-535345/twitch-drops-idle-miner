@@ -213,6 +213,9 @@
             "add_game_hint": " Click \"Add Game\" to add it manually.",
             "mining_benefits": "Beneficios de Minería",
             "mining_benefits_help": "Selecciona qué tipos de drops deseas minar.",
+            "farm_mode": "Modo Farmeo",
+            "farm_mode_label": "Farmear todas las insignias y emotes disponibles",
+            "farm_mode_help": "También mina drops de insignias y emotes de cualquier otra campaña disponible, más allá de Juegos a vigilar. Juegos a vigilar siempre mantiene prioridad en los espacios de canal.",
             "multiple_games_found": "Se encontraron múltiples juegos para tu búsqueda. Por favor, sé más específico.",
             "manual_game_warning": "\"{game}\" no está en la lista de campañas disponibles. ¿Añadirlo de todos modos a los juegos para ver?",
             "deselect_all_warning": "¿Estás seguro de que deseas eliminar todos los juegos de tu lista de seguimiento?",
@@ -277,7 +280,9 @@
         },
         "wanted": {
             "name": "Cola de Drops Deseados",
-            "none": "No hay drops deseados en cola..."
+            "none": "No hay drops deseados en cola...",
+            "farm_mode_tag": "FARMEO",
+            "farm_mode_tag_title": "Farmeado oportunistamente - no está en Juegos a vigilar"
         },
         "history": {
             "title": "Historial de drops",

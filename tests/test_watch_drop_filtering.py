@@ -196,6 +196,7 @@ def test_wanted_queue_hides_subscription_drops_and_sub_only_campaigns():
     settings = SimpleNamespace(
         games_to_watch=["Test Game"],
         mining_benefits={"DIRECT_ENTITLEMENT": True},
+        farm_mode=False,
     )
 
     result = StreamSelector().get_wanted_game_tree(settings, [sub_only, mixed])
@@ -244,6 +245,7 @@ def test_wanted_queue_hides_only_individually_expired_drops():
     settings = SimpleNamespace(
         games_to_watch=["Test Game"],
         mining_benefits={"DIRECT_ENTITLEMENT": True},
+        farm_mode=False,
     )
 
     result = StreamSelector().get_wanted_game_tree(settings, [campaign])
@@ -271,6 +273,7 @@ def test_wanted_queue_hides_campaign_when_all_individual_drops_expired():
     settings = SimpleNamespace(
         games_to_watch=["Test Game"],
         mining_benefits={"DIRECT_ENTITLEMENT": True},
+        farm_mode=False,
     )
 
     assert StreamSelector().get_wanted_game_tree(settings, [campaign]) == []

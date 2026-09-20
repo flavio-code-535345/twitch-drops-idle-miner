@@ -213,6 +213,9 @@
             "clear_all_cache_help": "Limpa o estado local de campanhas, canais e dados derivados do minerador; mantém o login e as configurações e depois recarrega os dados da Twitch.",
             "mining_benefits": "Benefícios de Mineração",
             "mining_benefits_help": "Selecione quais tipos de drops você deseja minerar.",
+            "farm_mode": "Modo Farm",
+            "farm_mode_label": "Farmar todos os emblemas e emotes disponíveis",
+            "farm_mode_help": "Também minera drops de emblemas e emotes de qualquer outra campanha disponível, além de Jogos para observar. Jogos para observar sempre mantêm prioridade nas vagas de canal.",
             "multiple_games_found": "Vários jogos encontrados para sua pesquisa. Por favor, seja mais específico.",
             "manual_game_warning": "\"{game}\" não está na lista de campanhas disponíveis. Adicionar aos jogos para assistir mesmo assim?",
             "deselect_all_warning": "Tem certeza de que deseja remover todos os jogos da sua lista de observação?",
@@ -277,7 +280,9 @@
         },
         "wanted": {
             "name": "Fila de Drops Desejados",
-            "none": "Nenhum drop desejado na fila..."
+            "none": "Nenhum drop desejado na fila...",
+            "farm_mode_tag": "FARM",
+            "farm_mode_tag_title": "Farmado oportunisticamente - não está em Jogos para observar"
         },
         "history": {
             "title": "Histórico de drops",
