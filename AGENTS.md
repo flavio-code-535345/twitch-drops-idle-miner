@@ -7,6 +7,28 @@ This file is the canonical harness for AI agents working in this repository.
 `CLAUDE.md` and `GEMINI.md` are relative symbolic links to `AGENTS.md` so every agent
 reads the same guidance. Maintain all shared and agent-specific instructions here.
 
+## About This Fork
+
+This repository (`flavio-code-535345/twitch-drops-idle-miner`) is a private, personal
+fork of [rangermix/TwitchDropsMiner](https://github.com/rangermix/TwitchDropsMiner). It is
+not published for public contribution, and the public-facing parts of the workflow below
+(issue triage, external PR review, contributor credit automation) describe the upstream
+project's process, not an active process here.
+
+- `src/version.py` tracks two numbers: `UPSTREAM_VERSION` (the upstream release this fork
+  was last synced with) and `MY_VERSION` (this fork's own version, independent of
+  upstream). `__version__` follows `MY_VERSION`; keep `pyproject.toml` and `uv.lock` in
+  sync with it (`tests/test_version_consistency.py` enforces this).
+- CI/CD is intentionally minimal: `.github/workflows/docker-publish.yml` is the only
+  workflow, and it just builds and pushes a `linux/amd64` image to Docker Hub
+  (`DOCKER_USERNAME`/`DOCKER_PASSWORD` secrets) on push to `main`. The upstream project's
+  semver release pipeline, contributor-credit automation, and PR validation workflow have
+  been removed along with their supporting `.github/scripts/`.
+- The `/api/version` endpoint (`src/web/app.py`) and footer UI check two things
+  independently: this fork's own latest GitHub release (compared against `MY_VERSION`)
+  and upstream's latest release (compared against `UPSTREAM_VERSION`), so it's visible
+  in the dashboard when upstream has shipped something not yet merged here.
+
 ## Mandatory Contribution Workflow
 
 Every coding agent MUST read [CONTRIBUTING.md](./CONTRIBUTING.md) before planning,
@@ -79,7 +101,7 @@ src/
 ├── core/            # Core client (Twitch client)
 ├── drop_history.py  # Claimed drop history store (JSON persistence + CSV/JSON export)
 ├── exceptions.py    # Custom exceptions
-├── version.py       # Version string
+├── version.py       # UPSTREAM_VERSION / MY_VERSION
 └── __main__.py      # Entry point
 
 lang/                # Translation JSON files (20 languages)
@@ -271,8 +293,8 @@ progress to an ignored drop while the miner intentionally targets another reward
   A failed initial auth-status request must leave login available for retry without a
   reload; settings controls stay disabled until auth state is known.
   Keep all UI strings in `gui.auth` across all locales and render them using textContent.
-  Local auth assets use the release version cache key; bump through the release workflow
-  before deploying changes to existing auth assets, as with app.js and styles.css.
+  Local auth assets use the same `__APP_VERSION__`/`MY_VERSION` cache key as app.js and
+  styles.css; bump `MY_VERSION` before deploying changes to existing auth assets.
 - `tests/test_web_auth.py` and `tests/test_web_auth_frontend.py` cover access control,
   credential persistence, cookie lifetimes, CSRF, rate limiting, revocation, and UI errors.
   Docker checks `/healthz`, not the protected `/api/status`. Recovery is local: stop the
@@ -378,7 +400,8 @@ login_text = _.t["login"]["status"]["logged_in"]  # Returns "Logged in"
   - **translator.py** - Translator class with typed translation schema (Translation TypedDict)
   - **__init__.py** - Exports translation types and `_` (Translator instance)
 - **lang/** - Translation JSON files for 20 languages (English.json is the single source of truth)
-- **src/version.py** - Version string
+- **src/version.py** - `UPSTREAM_VERSION` (upstream release last synced), `MY_VERSION`
+  (this fork's own version; `__version__` follows this)
 - **src/web/app.py** - FastAPI application with REST API and Socket.IO
 - **src/web/managers/cache.py** - ImageCache for campaign artwork caching
 - **web/** - Frontend assets (index.html, static/app.js, static/styles.css)
@@ -387,12 +410,37 @@ login_text = _.t["login"]["status"]["logged_in"]  # Returns "Logged in"
 
 **IMPORTANT: Always activate the virtual environment first!**
 
-The project uses a virtual environment located at `env/`. All Python commands must be run within this environment:
+The project uses a virtual environment located at `env/`, managed with `uv`. Create it
+once, then activate it before every Python command:
 
 ```bash
-# Activate the virtual environment (required before any Python commands)
-source env/bin/activate
+# First setup only
+uv venv env --python 3.12
+source env/bin/activate                 # Windows PowerShell: . .\env\Scripts\Activate.ps1
+uv sync --active --extra dev --locked --python 3.12
 ```
+
+`--locked` fails if `uv.lock` is out of date instead of silently rewriting it. After an
+intentional dependency change in `pyproject.toml`, run `uv lock`, review the diff, and
+sync again.
+
+### Linting, Type Checking, and Tests
+
+Run from the activated environment:
+
+```bash
+python -m ruff check src/          # lint (also covers import order, pyupgrade, bugbear, etc.)
+python -m ruff check --fix src/    # auto-fix what Ruff can
+python -m mypy src/                # type check (not currently enforced in CI; report new diagnostics)
+python -m pytest tests/            # full test suite
+python -m pytest tests/test_settings_api.py            # one file
+python -m pytest tests/test_settings_api.py::test_name -v  # one test, verbose
+```
+
+Frontend behavior tests (e.g. `tests/test_web_auth_frontend.py`,
+`tests/test_telegram_frontend.py`) drive `web/static/app.js` through Node.js via the
+shared `tests/javascript_helpers.py` helper — Node.js (v24 recommended) must be on
+`PATH` or those tests fail/are skipped.
 
 ### Running the Application
 
@@ -431,27 +479,22 @@ docker-compose up -d
 
 ### Automated Tests
 
-The project includes a test suite in the `tests/` directory:
-
-```bash
-# Activate virtual environment and run tests
-source env/bin/activate && python -m pytest tests/
-```
+The project includes a test suite in the `tests/` directory; see "Linting, Type
+Checking, and Tests" above for the commands to run it.
 
 The suite covers settings and proxy behavior, inventory-filter behavior, API filtering,
 GraphQL watch events, batched channel discovery, full-locale translation schema and
 placeholder consistency, frontend DOM safety, case-insensitive channel filtering,
 watch-drop count and expiry semantics, immediate claim refresh behavior, consecutive
-no-campaign console collapsing, contributor README automation, and the claimed-drop
-history store with CSV export and API endpoints. Frontend behavior tests
-share their JavaScript extraction helper and use Node.js;
-the validation workflow provisions Node 24 before running pytest. It also runs the release
-script contract tests under `.github/scripts/test/`. Ignore-list coverage includes
+no-campaign console collapsing, and the claimed-drop history store with CSV export and
+API endpoints. Frontend behavior tests share their JavaScript extraction helper and
+require Node.js (v24 recommended) to be installed locally. Ignore-list coverage includes
 normalization and settings persistence, dependency pruning, the combined expiry/ignore
 Wanted Queue guard, watch selection, truthful ignored/skipped inventory state, translated
-placeholder parity, and frontend rendering. Changes to `web/static/app.js` or
-`web/static/styles.css` still require the release workflow to bump the application version
-and asset cache key before deployment.
+placeholder parity, and frontend rendering. `web/index.html` loads `app.js` and
+`styles.css` with a `?v=__APP_VERSION__` cache-busting suffix that `src/web/app.py`
+replaces with `__version__` (i.e. `MY_VERSION`) at serve time; bump `MY_VERSION` in
+`src/version.py` when changing either file so existing clients pick up the new asset.
 
 `tests/test_special_game_watch.py` covers Special Events and IRL across streamed categories,
 missing category/drops flags, offline and nonparticipating channels, disabled or absent ACLs,
@@ -460,24 +503,12 @@ priority and failover. It uses mocked Twitch state and does not verify live Twit
 
 ### Continuous Integration
 
-- `.github/workflows/validation.yml` runs Ruff, Mypy, the Python test suite, language
-  JSON validation, `uv lock --check`, release-script tests, and Docker build validation
-  for pull requests and pushes to `main`.
-- Docker validation and release workflows pin the Node-24-native Docker Buildx v4.3.0
-  and Build Push v7.3.0 action commits. Update both workflows together when changing
-  either action so validation and release builds use the same trusted versions.
-- `.github/workflows/contributors.yml` credits the human author of each pull request
-  merged into `main`, including linked pull request numbers in the alphabetically sorted
-  Contributors table in `README.md`.
-- The contributor workflow runs with write access through `pull_request_target`. It must
-  only check out and execute trusted code from the default branch; never fetch or run
-  pull request head code in that workflow.
-- Keep the contributor table header and the `<!-- contributors:start -->` and
-  `<!-- contributors:end -->` markers in `README.md`; the updater fails closed if the
-  table header or either marker is missing, duplicated, or malformed.
-- `.github/workflows/version-release.yml` is the release entry point. It must provision
-  `uv`, update `src/version.py`, `pyproject.toml`, and `uv.lock` together, and validate all
-  three before creating a release branch or tag.
+There is no automated lint/type-check/test workflow in this fork — run Ruff, Mypy, and
+pytest locally before committing (see Development Commands below). The only workflow is
+`.github/workflows/docker-publish.yml`, which builds and pushes a `linux/amd64` Docker
+image to Docker Hub on push to `main` (or manual dispatch). Upstream's validation
+pipeline, contributor-credit automation, and version-release pipeline were intentionally
+removed; see "About This Fork" above.
 
 
 ### Manual Testing
