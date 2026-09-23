@@ -1,3 +1,18 @@
+# Release Notes - v1.3.2 (upstream sync)
+
+Fixes dashboard connections behind HTTPS reverse proxies with the optional
+`PUBLIC_BASE_URL=https://drops.example.com` environment setting. API writes and both
+Socket.IO transports validate against that public origin, and HTTPS public URLs set
+Secure session cookies even when the backend connection is HTTP or Host is rewritten.
+
+The README and Compose example document configuration and unchanged behavior when the
+setting is absent. Existing CSRF and session checks remain enforced. This setting does
+not enable forwarded-header trust or change client-IP rate limiting; trusting a proxy
+for client IPs remains a separate, explicitly scoped configuration.
+
+Synced from [upstream rangermix/TwitchDropsMiner v1.3.2](https://github.com/rangermix/TwitchDropsMiner/releases/tag/v1.3.2),
+which addresses [rangermix/TwitchDropsMiner#106](https://github.com/rangermix/TwitchDropsMiner/issues/106).
+
 # Release Notes - v1.3.1 (upstream sync)
 
 Fixes the `KeyError: 'device_code'` crash during fresh Twitch login by using the
