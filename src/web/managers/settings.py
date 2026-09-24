@@ -124,9 +124,14 @@ class SettingsManager:
                 True,
                 lambda proxy: self._log_change("Proxy cleared") if proxy == "" else None,
             )
+        refresh_interval = settings_data.get("minimum_refresh_interval_minutes")
+        if refresh_interval is not None:
+            # Same bounds the maintenance task enforces, so the saved value, the Settings
+            # field, and the real reload cadence can't disagree (the input's min/max
+            # attributes don't stop typed values).
+            refresh_interval = min(max(refresh_interval, 1), 1440)
         should_trigger_update |= self.check_and_update_setting(
-            "minimum_refresh_interval_minutes",
-            settings_data.get("minimum_refresh_interval_minutes"),
+            "minimum_refresh_interval_minutes", refresh_interval
         )
         if "telegram_bot_token" in settings_data:
             new_token = str(settings_data.get("telegram_bot_token") or "").strip()

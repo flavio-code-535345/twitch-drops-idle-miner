@@ -318,6 +318,17 @@ async def _fetch_latest_release(session, repo: str) -> tuple[str | None, str | N
         return data.get("tag_name", "").lstrip("v") or None, data.get("html_url")
 
 
+def _is_newer_version(candidate: str | None, current: str) -> bool:
+    # Compare numerically: as plain strings "1.3.10" < "1.3.9", hiding real updates and
+    # reporting false ones once any version component reaches two digits.
+    try:
+        return candidate is not None and (
+            tuple(map(int, candidate.split("."))) > tuple(map(int, current.split(".")))
+        )
+    except ValueError:
+        return False
+
+
 @app.get("/api/version")
 async def get_version():
     """Get current application version and check for updates, for both this fork and upstream"""
@@ -340,8 +351,7 @@ async def get_version():
             latest_version, download_url = await _fetch_latest_release(
                 session, "flavio-code-535345/twitch-drops-idle-miner"
             )
-            if latest_version and latest_version > current_version:
-                update_available = True
+            update_available = _is_newer_version(latest_version, current_version)
         except Exception as e:
             logger.warning(f"Failed to check for updates: {str(e)}")
 
@@ -349,8 +359,9 @@ async def get_version():
             upstream_latest_version, upstream_url = await _fetch_latest_release(
                 session, "rangermix/TwitchDropsMiner"
             )
-            if upstream_latest_version and upstream_latest_version > upstream_version:
-                upstream_update_available = True
+            upstream_update_available = _is_newer_version(
+                upstream_latest_version, upstream_version
+            )
         except Exception as e:
             logger.warning(f"Failed to check for upstream updates: {str(e)}")
 
