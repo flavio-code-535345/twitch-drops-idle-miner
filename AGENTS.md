@@ -216,9 +216,9 @@ lang/                # Translation JSON files (20 languages)
   Keep priority and remove-control labels translated and accessible. Regression tests in
   `tests/test_game_priority.py` cover order, bounds, invalid inputs, and persistence calls.
 - `farm_mode` (bool, default `False`, Settings > Farm Mode): when enabled, mines badge and
-  emote drops from every other campaign already in `self.inventory` (Twitch returns the
-  account's *entire* campaign list on every fetch regardless of `games_to_watch`, so no
-  extra discovery is needed - see `InventoryService.fetch_inventory`). Implemented in
+  emote drops from every other campaign already in `self.inventory` (when Twitch returns
+  the catalog, it contains every campaign regardless of `games_to_watch`; while the
+  catalog is withheld, see the campaign catalog fallback below). Implemented in
   `StreamSelector._get_wanted_game_tree` (`src/services/stream_selector.py`): games from
   `games_to_watch` are resolved first, filtered by the Mining Benefits settings as usual;
   farm-mode games are appended afterwards, filtered by a fixed `{BADGE, EMOTE}`-only
@@ -354,6 +354,22 @@ Persisted operations are defined in `src/config/operations.py` as `GQL_OPERATION
 - **ClaimDrop** - Claim a completed drop
 - **AvailableDrops** - Check which campaigns a channel qualifies for (badge validation)
 - **NotificationsDelete** - Delete Twitch notifications
+
+**Campaign catalog fallback (fork-specific):** under the `SMARTBOX` client, Twitch returns
+`dropCampaigns: null` for **Campaigns** and a null `dropCampaign` for **CampaignDetails**
+(upstream rangermix/TwitchDropsMiner#118), while **Inventory**, **SlugRedirect**,
+**GameDirectory** and **AvailableDrops** still work. When the catalog is null,
+`InventoryService._discover_campaigns_from_channels` asks up to 20 live drops-enabled
+channels per Games to Watch entry which campaigns they offer, and
+`_campaign_from_offer` reshapes each offer into CampaignDetails form. Offers omit
+linking, reward types, preconditions and progress, so discovered campaigns are assumed
+linked, their rewards are typed `UNKNOWN` ("Other" in Mining Benefits), and their ACL is
+exactly the channels that reported them. Earlier claims still resolve through the
+Inventory's `gameEventDrops` benefit IDs. Once watching starts, Twitch lists the
+campaign in `dropCampaignsInProgress`, and the next fetch uses that complete data instead
+(in-progress IDs are skipped during discovery). Farm Mode cannot discover games outside
+Games to Watch while the catalog is null. `tests/test_channel_campaign_discovery.py`
+covers discovery, ACLs, claimed rewards, per-game failure isolation and the non-null path.
 
 ### Channel Selection Priority
 

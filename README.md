@@ -84,6 +84,13 @@ client. After upgrading from an older version, you may need to authorize the min
 once more at `twitch.tv/activate`; the new session is saved for later runs. Channel
 pages still use the public Twitch website to discover the watch-event endpoint.
 
+Twitch currently withholds its full campaign list from the Smart TV login. When that
+happens, the miner finds campaigns for your **Games to Watch** by asking their live
+drops-enabled channels which campaigns they offer, then watches only channels confirmed to
+participate. Reward types aren't known until watching starts, so keep **Other** enabled
+under Mining Benefits. Until Twitch returns the full list again, **Farm Mode** can't
+discover games outside Games to Watch.
+
 In **Games to Watch**, drag games to reorder them or type a priority number to move a
 game directly. Priority 1 is highest; out-of-range numbers are clamped to the list ends.
 Blank or fractional values leave the order unchanged. Priority controls and remove buttons
