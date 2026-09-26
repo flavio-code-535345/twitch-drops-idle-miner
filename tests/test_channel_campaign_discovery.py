@@ -246,6 +246,7 @@ async def test_remembered_campaigns_are_dropped_once_they_end():
 @pytest.mark.asyncio
 async def test_directory_is_paged_until_the_channel_cap(monkeypatch):
     monkeypatch.setattr(inventory_service, "DISCOVERY_CHANNELS_PER_GAME", 3)
+    monkeypatch.setattr(inventory_service, "DIRECTORY_PAGE_SIZE", 2)
     gql = FakeTwitchGQL(
         pages=[["1", "2"], ["3", "4"], ["5"]],
         offers={"3": [_offer("small")]},
@@ -257,6 +258,33 @@ async def test_directory_is_paged_until_the_channel_cap(monkeypatch):
 
     assert gql.cursors == [None, "1"]  # stops once 3 channels are collected
     assert [c.name for c in twitch.inventory] == ["small"]
+
+
+@pytest.mark.asyncio
+async def test_directory_repeating_the_same_channels_stops_paging():
+    # Live behaviour: Twitch kept reporting another page while resending the same ~18
+    # channels, so paging never reached the channel target and never ended.
+    gql = FakeTwitchGQL(
+        pages=[["11", "22"]] * 1000,
+        offers={"11": [_offer("weekend")]},
+        details={"11": [_details("weekend")]},
+    )
+    twitch = _make_twitch(gql, [GAME])
+
+    await _fetch(InventoryService(cast(Twitch, twitch)), twitch)
+
+    assert len(gql.cursors) == 2  # the second page added nothing new
+    assert [c.name for c in twitch.inventory] == ["weekend"]
+
+
+@pytest.mark.asyncio
+async def test_directory_that_never_ends_is_capped():
+    gql = FakeTwitchGQL(pages=[[str(i)] for i in range(1000)], offers={}, details={})
+    twitch = _make_twitch(gql, [GAME])
+
+    await _fetch(InventoryService(cast(Twitch, twitch)), twitch)
+
+    assert len(gql.cursors) == 4  # ceil(100 channels / 30 per page)
 
 
 @pytest.mark.asyncio

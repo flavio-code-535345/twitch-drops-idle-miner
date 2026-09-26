@@ -370,7 +370,9 @@ Persisted operations are defined in `src/config/operations.py` as `GQL_OPERATION
 `channel.viewerDropCampaigns` still work. When the catalog is null,
 `InventoryService._discover_campaigns_from_channels` pages the drops-enabled directory for
 each Games to Watch entry (up to `DISCOVERY_CHANNELS_PER_GAME`, following `pageInfo`
-cursors), asks those channels which campaigns they offer via batched **AvailableDrops**, then
+cursors for at most `ceil(DISCOVERY_CHANNELS_PER_GAME / DIRECTORY_PAGE_SIZE)` pages and
+stopping once a page adds no new channel: Twitch was observed reporting `hasNextPage`
+forever while re-sending channels, which hung the fetch), asks those channels which campaigns they offer via batched **AvailableDrops**, then
 sends one raw `CHANNEL_CAMPAIGNS_QUERY` (`src/config/operations.py`, `GQLRawQuery`) per
 offering channel for the complete data: account linking, reward `distributionType`, ACL,
 preconditions and per-drop progress. Nothing is assumed. Discovered campaigns are

@@ -33,6 +33,7 @@ logger = logging.getLogger("TwitchDrops")
 # Live drops-enabled channels asked per Games to Watch entry while the catalog is withheld.
 # Directory order is most relevant first, so small participating channels need depth.
 DISCOVERY_CHANNELS_PER_GAME = 100
+DIRECTORY_PAGE_SIZE = 30
 
 
 class InventoryService:
@@ -147,9 +148,10 @@ class InventoryService:
         slug = ((response["data"] or {}).get("game") or {}).get("slug")
         channel_ids: dict[str, None] = {}  # ordered set: pages can overlap
         cursor: str | None = None
-        while slug and len(channel_ids) < DISCOVERY_CHANNELS_PER_GAME:
+        max_pages = -(-DISCOVERY_CHANNELS_PER_GAME // DIRECTORY_PAGE_SIZE)
+        for _page in range(max_pages if slug else 0):
             variables: JsonType = {
-                "limit": 30,
+                "limit": DIRECTORY_PAGE_SIZE,
                 "slug": slug,
                 "options": {
                     "includeRestricted": ["SUB_ONLY_LIVE"],
@@ -163,11 +165,18 @@ class InventoryService:
             )
             streams = ((response["data"] or {}).get("game") or {}).get("streams") or {}
             edges = streams.get("edges") or []
+            known = len(channel_ids)
             for edge in edges:
                 if edge["node"]["broadcaster"] is not None:
                     channel_ids[str(edge["node"]["broadcaster"]["id"])] = None
             cursor = edges[-1].get("cursor") if edges else None
-            if not cursor or not (streams.get("pageInfo") or {}).get("hasNextPage"):
+            # Twitch can keep reporting another page while only repeating channels it sent.
+            if (
+                len(channel_ids) == known
+                or len(channel_ids) >= DISCOVERY_CHANNELS_PER_GAME
+                or not cursor
+                or not (streams.get("pageInfo") or {}).get("hasNextPage")
+            ):
                 break
         return list(channel_ids)[:DISCOVERY_CHANNELS_PER_GAME]
 
