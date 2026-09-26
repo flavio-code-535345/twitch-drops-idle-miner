@@ -339,12 +339,17 @@ class InventoryService:
         campaigns.sort(key=lambda c: c.upcoming and c.starts_at or c.ends_at)
         campaigns.sort(key=lambda c: c.eligible, reverse=True)
 
+        # Claims that landed while this fetch awaited Twitch aren't in its (older) data.
+        previous_drops = dict(self._twitch._drops)
         self._clear_inventory_state()
         switch_triggers: set[datetime] = set()
         next_hour = datetime.now(timezone.utc) + timedelta(hours=1)
 
         # add the campaigns to the internal inventory
         for campaign in campaigns:
+            for drop in campaign.drops:
+                if (previous := previous_drops.get(drop.id)) is not None:
+                    drop.adopt_claim(previous)
             self._twitch._drops.update({drop.id: drop for drop in campaign.drops})
             if campaign.can_earn_within(next_hour):
                 switch_triggers.update(campaign.time_triggers)

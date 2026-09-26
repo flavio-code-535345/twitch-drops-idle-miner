@@ -190,11 +190,10 @@ class DropsCampaign:
 
     @property
     def first_drop(self) -> TimedDrop | None:
-        drops: list[TimedDrop] = sorted(
-            (drop for drop in self.watch_drops if drop.can_earn()),
-            key=lambda d: d.remaining_minutes,
-        )
-        return drops[0] if drops else None
+        earnable = [drop for drop in self.watch_drops if drop.can_earn()]
+        # A finished drop only awaits its claim; show the one still gaining minutes.
+        progressing = [drop for drop in earnable if drop.remaining_minutes > 0] or earnable
+        return min(progressing, key=lambda d: d.remaining_minutes, default=None)
 
     def _update_real_minutes(self, delta: int) -> None:
         for drop in self.drops:

@@ -341,6 +341,20 @@ class TimedDrop(BaseDrop):
         self.extra_current_minutes = 0
         self._on_state_changed()
 
+    def adopt_claim(self, previous: TimedDrop) -> None:
+        """
+        Keep a claim recorded on an earlier object for this drop; claims never revert.
+
+        An inventory refresh can rebuild drops from data fetched just before a claim
+        landed, which would otherwise show a claimed drop as finished but unclaimed.
+        """
+        if self.claim_id is None:
+            self.claim_id = previous.claim_id
+        if previous.is_claimed and not self.is_claimed:
+            self.is_claimed = True
+            self.real_current_minutes = self.required_minutes
+            self.extra_current_minutes = 0
+
     def _bump_minutes(self, channel: Channel | None) -> bool:
         if self.can_earn(channel):
             self.extra_current_minutes += 1

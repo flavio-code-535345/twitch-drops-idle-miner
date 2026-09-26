@@ -252,6 +252,14 @@ lang/                # Translation JSON files (20 languages)
 - Telegram alerts originate in the shared `BaseDrop.claim()` successful unclaimed-to-claimed
   transition, covering websocket, startup, and inventory-refresh claims without duplicate
   alerts for repeated events. Telegram failures must not change a successful Twitch claim.
+- Claim state never reverts. An inventory refresh can build drops from data fetched just
+  before a websocket claim landed, so `fetch_inventory` carries `is_claimed`/`claim_id`
+  over from the drop objects it replaces (`TimedDrop.adopt_claim`), and the websocket
+  claim handler applies a claim that finished on a replaced object to the current one. A
+  claim event for an unknown drop requests an inventory refresh so the sweep claims it.
+  `DropsCampaign.first_drop` prefers drops still gaining minutes over finished ones
+  awaiting a claim, so progress shows the drop actually being mined. Tests:
+  `tests/test_claim_state_consistency.py`.
 - The Telegram form reuses the saved token when its input is blank. Clearing the chat ID
   and saving disables alerts. Test Connection waits for settings persistence before showing
   success; HTTP, network, and application save failures must remain visible as errors.

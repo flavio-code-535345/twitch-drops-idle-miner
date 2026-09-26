@@ -203,11 +203,19 @@ class MessageHandlerService:
                     f"Received a drop claim ID for a non-existing drop: {drop_id}\n"
                     f"Drop claim ID: {message['data']['drop_instance_id']}"
                 )
+                # Its campaign isn't known yet; the next fetch lists it and claims the drop.
+                self._twitch.request_inventory_refresh()
                 return
 
             drop.update_claim(message["data"]["drop_instance_id"])
-            campaign = drop.campaign
             await drop.claim()
+            # An inventory refresh during the claim may have replaced this drop's object.
+            current: TimedDrop | None = self._twitch._drops.get(drop_id)
+            if current is not None and current is not drop:
+                current.adopt_claim(drop)
+                self._twitch.gui.inv.update_drop(current)
+                drop = current
+            campaign = drop.campaign
             drop.display()
 
             # About 4-20s after claiming the drop, next drop can be started
