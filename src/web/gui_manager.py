@@ -58,7 +58,7 @@ class WebGUIManager:
 
         # Callback to trigger game update when relevant settings change
         def on_settings_change() -> None:
-            self._twitch.request_games_update()
+            self._twitch.request_policy_update()
 
         self.settings = SettingsManager(
             self._broadcaster, twitch.settings, self.output, on_change=on_settings_change

@@ -25,6 +25,7 @@ from .constants import (
     WS_TOPICS_LIMIT,
     GQLOperation,
     GQLQuery,
+    GQLRawQuery,
     GQLRequest,
     JsonType,
     State,
@@ -32,7 +33,7 @@ from .constants import (
     URLType,
     WebsocketTopic,
 )
-from .operations import GQL_OPERATIONS
+from .operations import CHANNEL_CAMPAIGNS_QUERY, GQL_OPERATIONS
 from .paths import (
     COOKIES_PATH,
     DATA_DIR,
@@ -55,6 +56,7 @@ __all__ = [
     "TopicProcess",
     "GQLOperation",
     "GQLQuery",
+    "GQLRawQuery",
     "GQLRequest",
     "MAX_INT",
     "MAX_EXTRA_MINUTES",
@@ -80,4 +82,5 @@ __all__ = [
     "ClientType",
     # operations.py
     "GQL_OPERATIONS",
+    "CHANNEL_CAMPAIGNS_QUERY",
 ]

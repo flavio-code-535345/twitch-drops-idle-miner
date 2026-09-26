@@ -121,9 +121,12 @@ class GQLClient:
                                 "service error",
                                 "PersistedQueryNotFound",
                             ):
+                                # Raw queries carry no operationName in their extensions.
+                                operation = (response_json.get("extensions") or {}).get(
+                                    "operationName", "raw query"
+                                )
                                 logger.error(
-                                    f"Retrying a {error_dict['message']} for "
-                                    f"{response_json['extensions']['operationName']}"
+                                    f"Retrying a {error_dict['message']} for {operation}"
                                 )
                                 single_retry = False
                                 if delay < 5:

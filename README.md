@@ -85,11 +85,13 @@ once more at `twitch.tv/activate`; the new session is saved for later runs. Chan
 pages still use the public Twitch website to discover the watch-event endpoint.
 
 Twitch currently withholds its full campaign list from the Smart TV login. When that
-happens, the miner finds campaigns for your **Games to Watch** by asking their live
-drops-enabled channels which campaigns they offer, then watches only channels confirmed to
-participate. Reward types aren't known until watching starts, so keep **Other** enabled
-under Mining Benefits. Until Twitch returns the full list again, **Farm Mode** can't
-discover games outside Games to Watch.
+happens, the miner searches up to 100 live drops-enabled channels per **Games to Watch**
+entry for the campaigns they offer, then loads each campaign's complete details (account
+linking, reward types, participating channels and progress). Found campaigns are
+remembered until they end, so the miner can switch as soon as a participating channel goes
+live. Adding a game triggers a new search immediately. A campaign can only be found while at
+least one of its channels is live within that search. Until Twitch returns the full list
+again, **Farm Mode** can't discover games outside Games to Watch.
 
 In **Games to Watch**, drag games to reorder them or type a priority number to move a
 game directly. Priority 1 is highest; out-of-range numbers are clamped to the list ends.

@@ -37,7 +37,7 @@ FILE_FORMATTER = logging.Formatter(
 JsonType = dict[str, Any]
 URLType = NewType("URLType", str)
 TopicProcess: TypeAlias = "abc.Callable[[int, JsonType], Any]"
-GQLRequest: TypeAlias = "GQLOperation | GQLQuery"
+GQLRequest: TypeAlias = "GQLOperation | GQLQuery | GQLRawQuery"
 
 # Core constants
 MAX_INT = sys.maxsize
@@ -114,6 +114,13 @@ class GQLQuery(JsonType):
                 }
             },
         )
+
+
+class GQLRawQuery(JsonType):
+    """Raw GraphQL query with plain variables, for fields no persisted operation returns."""
+
+    def __init__(self, query: str, variables: JsonType):
+        super().__init__(query=query, variables=variables)
 
 
 class WebsocketTopic:

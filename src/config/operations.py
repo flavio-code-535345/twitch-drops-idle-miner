@@ -5,6 +5,29 @@ from __future__ import annotations
 from .constants import GQLOperation
 
 
+# Raw query (no persisted hash), sent with {"id": channel ID}. The persisted AvailableDrops
+# omits account linking, reward types, ACLs, preconditions and progress, and CampaignDetails
+# is withheld from the Smart TV client, so campaign discovery asks for the full field set.
+CHANNEL_CAMPAIGNS_QUERY = """
+query ChannelDropCampaigns($id: ID!) {
+  channel(id: $id) {
+    viewerDropCampaigns {
+      id name status startAt endAt accountLinkURL
+      self { isAccountConnected }
+      allow { isEnabled channels { id name displayName } }
+      game { id name displayName boxArtURL }
+      timeBasedDrops {
+        id name startAt endAt requiredMinutesWatched
+        preconditionDrops { id }
+        self { currentMinutesWatched isClaimed dropInstanceID }
+        benefitEdges { entitlementLimit benefit { id name distributionType imageAssetURL } }
+      }
+    }
+  }
+}
+"""
+
+
 GQL_OPERATIONS: dict[str, GQLOperation] = {
     # returns stream information for a particular channel
     "GetStreamInfo": GQLOperation(

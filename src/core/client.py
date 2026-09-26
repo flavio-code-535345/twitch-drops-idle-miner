@@ -6,7 +6,7 @@ from collections import OrderedDict, abc, deque
 from datetime import datetime, timedelta, timezone
 from functools import partial
 from time import time
-from typing import TYPE_CHECKING, Any, Final, Literal
+from typing import TYPE_CHECKING, Any, Final, Literal, overload
 
 import aiohttp
 
@@ -165,6 +165,12 @@ class Twitch:
         self._games_update_pending = True
         self._state_change.set()
         return True
+
+    def request_policy_update(self) -> bool:
+        """Apply changed mining settings, fetching again when new games need discovery."""
+        if self._inventory_service.needs_discovery(self.settings.games_to_watch):
+            return self.request_inventory_refresh()
+        return self.request_games_update()
 
     def _activate_pending_games_update(self) -> None:
         """Prioritize a queued settings recalculation before the next wait."""
@@ -674,6 +680,12 @@ class Twitch:
         """Get authentication state (validates token if needed)."""
         await self._auth_state.validate()
         return self._auth_state
+
+    @overload
+    async def gql_request(self, ops: GQLRequest) -> JsonType: ...
+
+    @overload
+    async def gql_request(self, ops: list[GQLRequest]) -> list[JsonType]: ...
 
     async def gql_request(self, ops: GQLRequest | list[GQLRequest]) -> JsonType | list[JsonType]:
         """

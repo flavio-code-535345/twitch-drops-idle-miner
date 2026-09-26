@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any
 from dateutil.parser import isoparse
 
 from src.api import GQLClient
-from src.config import GQL_OPERATIONS
+from src.config import CHANNEL_CAMPAIGNS_QUERY, GQL_OPERATIONS, GQLRawQuery
 from src.exceptions import ExitRequest, MinerException
 from src.i18n import _
 from src.models import DropsCampaign
@@ -29,6 +29,10 @@ if TYPE_CHECKING:
 
 
 logger = logging.getLogger("TwitchDrops")
+
+# Live drops-enabled channels asked per Games to Watch entry while the catalog is withheld.
+# Directory order is most relevant first, so small participating channels need depth.
+DISCOVERY_CHANNELS_PER_GAME = 100
 
 
 class InventoryService:
@@ -50,6 +54,10 @@ class InventoryService:
             twitch: The Twitch client instance
         """
         self._twitch = twitch
+        # Campaigns found through channel discovery, remembered until they end.
+        self._discovered: dict[str, JsonType] = {}
+        # Lowercased games covered by the last discovery; None while the catalog is served.
+        self._discovered_games: set[str] | None = None
 
     def _clear_inventory_state(self) -> None:
         """Clear derived campaign and drop state before replacing inventory."""
@@ -74,6 +82,8 @@ class InventoryService:
 
         self._twitch.clear_manual_mode("Local cache cleared")
         self._twitch.wanted_games.clear()
+        self._discovered.clear()
+        self._discovered_games = None
         self._clear_inventory_state()
         self._twitch.gui.set_games(set())
         self._twitch.gui.broadcast_wanted_items()
@@ -118,14 +128,62 @@ class InventoryService:
 
         return GQLClient.merge_data(campaign_ids, fetched_data)
 
+    def needs_discovery(self, games_to_watch: list[str]) -> bool:
+        """
+        Return whether some tracked games have never been through campaign discovery.
+
+        While Twitch withholds the campaign catalog, a game's campaigns only exist after
+        an inventory fetch has searched its channels, so adding a game needs a new fetch.
+        """
+        return self._discovered_games is not None and any(
+            name.lower() not in self._discovered_games for name in games_to_watch
+        )
+
+    async def _live_drops_channel_ids(self, game_name: str) -> list[str]:
+        """Return IDs of up to DISCOVERY_CHANNELS_PER_GAME live drops-enabled channels."""
+        response = await self._twitch.gql_request(
+            GQL_OPERATIONS["SlugRedirect"].with_variables({"name": game_name})
+        )
+        slug = ((response["data"] or {}).get("game") or {}).get("slug")
+        channel_ids: dict[str, None] = {}  # ordered set: pages can overlap
+        cursor: str | None = None
+        while slug and len(channel_ids) < DISCOVERY_CHANNELS_PER_GAME:
+            variables: JsonType = {
+                "limit": 30,
+                "slug": slug,
+                "options": {
+                    "includeRestricted": ["SUB_ONLY_LIVE"],
+                    "systemFilters": ["DROPS_ENABLED"],
+                },
+            }
+            if cursor is not None:
+                variables["cursor"] = cursor
+            response = await self._twitch.gql_request(
+                GQL_OPERATIONS["GameDirectory"].with_variables(variables)
+            )
+            streams = ((response["data"] or {}).get("game") or {}).get("streams") or {}
+            edges = streams.get("edges") or []
+            for edge in edges:
+                if edge["node"]["broadcaster"] is not None:
+                    channel_ids[str(edge["node"]["broadcaster"]["id"])] = None
+            cursor = edges[-1].get("cursor") if edges else None
+            if not cursor or not (streams.get("pageInfo") or {}).get("hasNextPage"):
+                break
+        return list(channel_ids)[:DISCOVERY_CHANNELS_PER_GAME]
+
+    @staticmethod
+    def _channel_campaigns(response: JsonType) -> list[JsonType]:
+        return ((response.get("data") or {}).get("channel") or {}).get("viewerDropCampaigns") or []
+
     async def _discover_campaigns_from_channels(self, known_ids: set[str]) -> dict[str, JsonType]:
         """
         Find campaigns for Games to Watch by asking their live drops-enabled channels.
 
-        Channel offers carry each campaign's drops and rewards, but not account-link status,
-        reward types or progress. Those are filled in optimistically here; once watching
-        starts, Twitch lists the campaign as in progress and the next inventory fetch
-        replaces this data with the complete version.
+        Stands in for the campaign catalog, which Twitch withholds from the Smart TV client.
+        The persisted AvailableDrops finds which campaigns each channel offers; one raw
+        query per offering channel then returns their complete data (linking, reward
+        types, ACL, preconditions and progress). Campaigns are remembered until they end,
+        so they stay known while none of their channels happens to be live.
 
         Args:
             known_ids: Campaign IDs already present with complete data (skipped)
@@ -133,91 +191,69 @@ class InventoryService:
         Returns:
             Dictionary mapping campaign IDs to campaign data in CampaignDetails shape
         """
-        campaigns: dict[str, JsonType] = {}
-        for game_name in self._twitch.settings.games_to_watch:
+        games = list(self._twitch.settings.games_to_watch)
+        offered_on: dict[str, str] = {}  # campaign ID -> a live channel offering it
+        for game_name in games:
             try:
-                response = await self._twitch.gql_request(
-                    GQL_OPERATIONS["SlugRedirect"].with_variables({"name": game_name})
-                )
-                slug = ((response["data"] or {}).get("game") or {}).get("slug")
-                if not slug:
-                    continue
-                response = await self._twitch.gql_request(
-                    GQL_OPERATIONS["GameDirectory"].with_variables(
-                        {
-                            "limit": 20,  # also the AvailableDrops batch size below
-                            "slug": slug,
-                            "options": {
-                                "includeRestricted": ["SUB_ONLY_LIVE"],
-                                "systemFilters": ["DROPS_ENABLED"],
-                            },
-                        }
+                for batch in chunk(await self._live_drops_channel_ids(game_name), 20):
+                    responses = await self._twitch.gql_request(
+                        [
+                            GQL_OPERATIONS["AvailableDrops"].with_variables({"channelID": cid})
+                            for cid in batch
+                        ]
                     )
-                )
-                streams = ((response["data"] or {}).get("game") or {}).get("streams") or {}
-                channels = [
-                    edge["node"]["broadcaster"]
-                    for edge in streams.get("edges") or []
-                    if edge["node"]["broadcaster"] is not None
-                ]
-                if not channels:
-                    continue
-                offers_per_channel = await self._twitch.gql_request(
-                    [
-                        GQL_OPERATIONS["AvailableDrops"].with_variables(
-                            {"channelID": str(channel["id"])}
-                        )
-                        for channel in channels
-                    ]
-                )
+                    for channel_id, response in zip(batch, responses, strict=False):
+                        for offer in self._channel_campaigns(response):
+                            if offer["id"] not in known_ids:
+                                offered_on.setdefault(offer["id"], channel_id)
             except MinerException:
                 logger.exception(f"Campaign discovery failed for game: {game_name}")
+
+        fresh: dict[str, JsonType] = {}
+        for channel_id in dict.fromkeys(offered_on.values()):
+            try:
+                response = await self._twitch.gql_request(
+                    GQLRawQuery(CHANNEL_CAMPAIGNS_QUERY, {"id": channel_id})
+                )
+            except MinerException:
+                logger.exception(f"Campaign details query failed for channel: {channel_id}")
                 continue
-            for channel, response in zip(channels, offers_per_channel, strict=False):
-                offers = ((response["data"] or {}).get("channel") or {}).get(
-                    "viewerDropCampaigns"
-                ) or []
-                for offer in offers:
-                    if offer["id"] in known_ids:
-                        continue
-                    campaign = campaigns.setdefault(offer["id"], self._campaign_from_offer(offer))
-                    # Only channels confirmed to offer the campaign become watch candidates.
-                    campaign["allow"]["channels"].append(
-                        {
-                            "id": channel["id"],
-                            "name": channel["login"],
-                            "displayName": channel.get("displayName"),
-                        }
-                    )
-        return campaigns
+            for campaign in self._channel_campaigns(response):
+                if campaign["id"] in offered_on:
+                    fresh.setdefault(campaign["id"], campaign)
+
+        now = datetime.now(timezone.utc)
+        self._discovered = {
+            campaign_id: campaign
+            for campaign_id, campaign in {**self._discovered, **fresh}.items()
+            if isoparse(campaign["endAt"]) > now
+        }
+        self._discovered_games = {name.lower() for name in games}
+        return {
+            campaign_id: self._campaign_data(campaign, with_progress=campaign_id in fresh)
+            for campaign_id, campaign in self._discovered.items()
+            if campaign_id not in known_ids
+        }
 
     @staticmethod
-    def _campaign_from_offer(offer: JsonType) -> JsonType:
-        """Shape a channel's campaign offer like CampaignDetails data for DropsCampaign."""
-        drops: list[JsonType] = offer.get("timeBasedDrops") or []
+    def _campaign_data(campaign: JsonType, *, with_progress: bool) -> JsonType:
+        """
+        Fill the nullable fields DropsCampaign indexes directly.
+
+        Remembered (not freshly queried) campaigns lose per-drop progress, so their claim
+        state comes from the inventory's claimed benefits instead of stale data.
+        """
+        drops: list[JsonType] = []
+        for drop in campaign.get("timeBasedDrops") or []:
+            drop = dict(drop)
+            if not with_progress or drop.get("self") is None:
+                drop.pop("self", None)
+            drops.append(drop)
         return {
-            "id": offer["id"],
-            "name": offer["name"],
-            "game": offer["game"],
-            # Offers don't report account linking; assume linked so the campaign is tried.
-            # Twitch's real status replaces this once the campaign is in progress.
-            "self": {"isAccountConnected": True},
-            "accountLinkURL": offer.get("detailsURL") or "",
-            "startAt": min((d["startAt"] for d in drops), key=isoparse, default=offer["endAt"]),
-            "endAt": offer["endAt"],
-            "status": "ACTIVE",
-            "allow": {"channels": [], "isEnabled": True},
-            "timeBasedDrops": [
-                {
-                    **drop,
-                    "preconditionDrops": None,
-                    "benefitEdges": [
-                        {**edge, "benefit": {**edge["benefit"], "distributionType": "UNKNOWN"}}
-                        for edge in drop.get("benefitEdges") or []
-                    ],
-                }
-                for drop in drops
-            ],
+            **campaign,
+            "self": campaign.get("self") or {"isAccountConnected": False},
+            "allow": campaign.get("allow") or {"channels": [], "isEnabled": False},
+            "timeBasedDrops": drops,
         }
 
     async def fetch_inventory(self) -> None:
@@ -260,6 +296,9 @@ class InventoryService:
             discovered = await self._discover_campaigns_from_channels(set(inventory_data))
             logger.info(f"Discovered {len(discovered)} campaign(s) through live channels")
             inventory_data.update(discovered)
+        else:
+            self._discovered.clear()
+            self._discovered_games = None
         available_list: list[JsonType] = catalog or []
         applicable_statuses = ("ACTIVE", "UPCOMING")
         available_campaigns: dict[str, JsonType] = {

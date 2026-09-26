@@ -59,3 +59,20 @@ def test_games_update_request_is_rejected_after_shutdown_starts():
     assert client.request_games_update() is False
     assert client._games_update_pending is False
     client._state_change.set.assert_not_called()
+
+
+def test_settings_changes_refetch_when_new_games_still_need_discovery():
+    client = _client(state=State.IDLE, inventory_loaded=True)
+    client._inventory_refresh_pending = False
+    client._clear_cache_pending = False
+    client.settings = MagicMock(games_to_watch=["Known", "Newly Added"])
+    client._inventory_service = MagicMock()
+
+    client._inventory_service.needs_discovery.return_value = True
+    assert client.request_policy_update() is True
+    assert client._inventory_refresh_pending and not client._games_update_pending
+
+    client._inventory_refresh_pending = False
+    client._inventory_service.needs_discovery.return_value = False
+    assert client.request_policy_update() is True
+    assert client._games_update_pending and not client._inventory_refresh_pending

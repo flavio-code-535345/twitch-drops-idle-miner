@@ -357,19 +357,25 @@ Persisted operations are defined in `src/config/operations.py` as `GQL_OPERATION
 
 **Campaign catalog fallback (fork-specific):** under the `SMARTBOX` client, Twitch returns
 `dropCampaigns: null` for **Campaigns** and a null `dropCampaign` for **CampaignDetails**
-(upstream rangermix/TwitchDropsMiner#118), while **Inventory**, **SlugRedirect**,
-**GameDirectory** and **AvailableDrops** still work. When the catalog is null,
-`InventoryService._discover_campaigns_from_channels` asks up to 20 live drops-enabled
-channels per Games to Watch entry which campaigns they offer, and
-`_campaign_from_offer` reshapes each offer into CampaignDetails form. Offers omit
-linking, reward types, preconditions and progress, so discovered campaigns are assumed
-linked, their rewards are typed `UNKNOWN` ("Other" in Mining Benefits), and their ACL is
-exactly the channels that reported them. Earlier claims still resolve through the
-Inventory's `gameEventDrops` benefit IDs. Once watching starts, Twitch lists the
-campaign in `dropCampaignsInProgress`, and the next fetch uses that complete data instead
-(in-progress IDs are skipped during discovery). Farm Mode cannot discover games outside
-Games to Watch while the catalog is null. `tests/test_channel_campaign_discovery.py`
-covers discovery, ACLs, claimed rewards, per-game failure isolation and the non-null path.
+(also as raw queries; upstream rangermix/TwitchDropsMiner#118), while **Inventory**,
+**SlugRedirect**, **GameDirectory**, **AvailableDrops** and raw queries on
+`channel.viewerDropCampaigns` still work. When the catalog is null,
+`InventoryService._discover_campaigns_from_channels` pages the drops-enabled directory for
+each Games to Watch entry (up to `DISCOVERY_CHANNELS_PER_GAME`, following `pageInfo`
+cursors), asks those channels which campaigns they offer via batched **AvailableDrops**, then
+sends one raw `CHANNEL_CAMPAIGNS_QUERY` (`src/config/operations.py`, `GQLRawQuery`) per
+offering channel for the complete data: account linking, reward `distributionType`, ACL,
+preconditions and per-drop progress. Nothing is assumed. Discovered campaigns are
+remembered until they end, so they (and their ACL channels' stream-state subscriptions)
+survive refreshes while no participant is live; remembered, not re-queried data drops
+per-drop `self`, so claims resolve from the Inventory's `gameEventDrops`. In-progress
+campaign IDs are skipped. `needs_discovery()` reports tracked games no discovery has
+covered; settings changes go through `Twitch.request_policy_update()`, which refetches the
+inventory instead of only recomputing the queue when a newly added game needs discovery.
+`GQLClient` tolerates raw-query responses lacking `extensions.operationName` when retrying.
+Farm Mode cannot discover games outside Games to Watch while the catalog is null. Tests:
+`tests/test_channel_campaign_discovery.py`, `tests/test_client_state_requests.py`,
+`tests/test_gql_raw_query_retry.py`.
 
 ### Channel Selection Priority
 
