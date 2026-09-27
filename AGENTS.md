@@ -20,10 +20,13 @@ project's process, not an active process here.
   them so syncs stay conflict-light. The native login helper and its release/CI workflows
   are upstream-only; users download the helper from upstream's matching release.
 - Developing on Windows: `tests/conftest.py` defaults subprocess pipes and `Path.read_text()`
-  to UTF-8 and skips six upstream tests that need POSIX (`os.killpg`, owner-only file
-  modes, long command lines); they pass on Linux, where the Docker image runs. Check types
-  with `mypy --platform linux src/` (POSIX-only `os`/`signal` attributes otherwise fail on
-  Windows). Ruff findings in upstream's own helper/session test files are left as shipped.
+  to UTF-8 and skips seven upstream tests that need POSIX (`os.killpg`, owner-only file
+  modes, unprivileged symlinks, long command lines); they pass on Linux, where the Docker
+  image runs. Test with Python 3.12+ as `pyproject.toml` requires: on 3.11 the helper
+  profile-cleanup tests fail because `shutil.rmtree(onexc=...)` does not exist yet. Check
+  types with `mypy --platform linux src/` (POSIX-only `os`/`signal` attributes otherwise
+  fail on Windows). Ruff findings in upstream's own helper/session test files are left as
+  shipped.
 - `src/version.py` tracks two numbers: `UPSTREAM_VERSION` (the upstream release this fork
   was last synced with) and `MY_VERSION` (this fork's own version, independent of
   upstream). `__version__` follows `MY_VERSION`; keep `pyproject.toml` and `uv.lock` in
@@ -76,6 +79,9 @@ It is the repository's contribution policy, not optional background reading.
    - Keep `README.md` short and focused on ordinary users: setup, login, migration,
      and links. Detailed public instructions belong in `docs/`, the source for the
      GitHub wiki. Developer contribution policy belongs in `CONTRIBUTING.md`.
+   - Keep the marked upgrade warning at the top of `README.md` until v2.1.0 is
+     released; then remove that notice and this reminder. It distinguishes users
+     of v1.3.1/v1.3.2 who must sign in again from other users with valid saved logins.
    - Personal development plans, investigation notes, local verification records,
      and captures belong in `.dev-notes/`, which Git and Docker builds ignore.
      Never commit them or put them under `docs/`; this overrides skill templates
@@ -346,6 +352,10 @@ progress to an ignored drop while the miner intentionally targets another reward
   10 minutes, including after gate closure or restart. No credential values are returned.
   Native helpers reconcile lost/invalid/5xx acknowledgements without repeating the POST;
   an unconfirmed result is unknown, not a claim that installation failed.
+- The native helper recognizes only the fixed HTTP 503 `session_browser_start`
+  rejection as `HELPER_SERVER_BROWSER`, because it precedes session installation.
+  Unknown, malformed and gateway 5xx responses still reconcile through receipts;
+  never replay the credential POST or echo arbitrary server error text.
 - Helper protocol routes are admitted by the explicit setting, independently of optional
   dashboard auth. All other dashboard guards remain intact. Retain the write header,
   origin/Fetch Metadata checks, 64 KiB payload cap, no-store responses and fixed error codes.
@@ -369,6 +379,12 @@ progress to an ignored drop while the miner intentionally targets another reward
   code is not the current deployment interface; its removed HTTP destination cannot be
   used with this server. See `docs/authentication.md` for current setup.
 - `src/auth/login_helper.py` and root `login_helper.py` implement direct local handoff.
+  Keep setup instructions explicit about the two machines: run the native/source helper
+  in the user's local desktop session with installed Google Chrome, and choose its
+  archive for that desktop's OS/CPU. `--tdm` selects the reachable miner root URL;
+  `--chrome` selects a local executable. A headless home server/NAS runs the miner
+  and its temporary renewal Chromium without a desktop or display. An SSH session
+  to that server does not run the helper on the user's desktop.
   Check admission before opening installed Chrome with a temporary owned TDM profile.
   Use an explicit nonzero loopback CDP port (port zero changes navigator.webdriver), verify
   the browser PID, and leave ordinary Chrome profiles untouched. Wait for Twitch login,
@@ -379,6 +395,15 @@ progress to an ignored drop while the miner intentionally targets another reward
   with it; never delete or change the parent's shared temporary directory. Cancellation,
   SIGTERM and SIGHUP must finish bounded cleanup. Forced process kill/power loss cannot
   guarantee cleanup; never silently report successful cleanup if deletion failed.
+- Native profile deletion may clear a Windows read-only attribute only on an owned
+  file/directory that failed deletion. Do not follow symlinks or junctions, alter
+  unrelated profiles, or suppress persistent locks/permission errors. A missing child
+  is not proof that the profile root was deleted; retry while the root remains.
+  Keep real Windows read-only cleanup and disappearing-child regressions covered.
+- Linux desktop discovery currently checks native `google-chrome` and
+  `google-chrome-stable`. Flatpak launchers and Firefox are not supported login
+  backends; do not imply that `--chrome` accepts a shell command or bypass browser
+  PID ownership checks to accept a sandbox launcher.
 - Native console text lives in the top-level `helper` locale section and `HelperMessages`.
   `packaging/login_helper.spec` bundles translations and dependencies. PyInstaller is a
   pinned build-only dependency; build each target OS separately. CI builds and smoke-tests

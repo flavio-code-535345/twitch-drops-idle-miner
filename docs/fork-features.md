@@ -41,6 +41,25 @@ This was added for the v1.3.1/v1.3.2 Smart TV login, which Twitch denied the cat
 With the 2.0 helper login the catalog is normally available, so the fallback stays idle
 unless Twitch withholds the catalog again.
 
+## Signing in again
+
+A saved login keeps working across updates, so the helper is only needed when the
+dashboard's **Twitch login** card asks for a new login or you want to switch accounts.
+This fork does not build the helper: the card's **Helper builds** link opens upstream's
+releases page. Download the archive for your desktop from the release matching the
+**upstream** version shown in the dashboard footer (the helper talks to upstream's
+unchanged login code), then follow [Sign in](authentication.md#sign-in):
+
+1. Tick **Settings → Twitch login helper → Allow helper connection**. It switches itself
+   off after a successful helper login; a session restored from saved cookies leaves it
+   on, so untick it yourself afterwards.
+2. Extract and run the helper on a desktop with Google Chrome installed (Windows 11 opens
+   `.tar.gz` archives in Explorer), and enter the dashboard address shown on the card.
+3. Sign into Twitch in the Chrome window it opens and wait for its success message.
+
+The helper's three connection routes do not need the dashboard password; the **Allow
+helper connection** setting is what admits it, so keep that off while you don't need it.
+
 ## Update notifier
 
 The dashboard footer shows this fork's version and the upstream version it is synced
@@ -57,4 +76,4 @@ Games to Watch to the filter.
   push to `main`. Upstream's validation, release, native login helper build, contributor
   and wiki workflows are not used; run Ruff, Mypy and pytest locally instead.
 - The native login helper is not built by this fork. Download it from the upstream
-  release matching the synced upstream version.
+  release matching the synced upstream version (see [Signing in again](#signing-in-again)).

@@ -6,6 +6,10 @@ display and Twitch's recorded progress can differ.
 
 ## The helper cannot connect or open Chrome
 
+- Run the helper in a local session on your desktop or laptop with a display.
+  An SSH terminal connected to your headless server runs it on the server. Follow
+  the [headless home server instructions](authentication.md#headless-home-server-or-nas)
+  and choose the helper for your desktop's operating system and CPU.
 - Use the TDM root address reachable from the helper desktop. `localhost` refers to
   that desktop, not another computer running the miner.
 - Enable **Settings → Allow helper connection** before starting the helper. A
@@ -14,14 +18,63 @@ display and Twitch's recorded progress can differ.
 - Use a helper matching your TDM version or source revision. Older releases may not
   provide helper assets or support the current flow. Follow the
   [download guidance](authentication.md#download-the-helper).
-- Install Google Chrome on the helper desktop. With the source helper, `--chrome`
-  can select its executable if it is not found automatically.
+- Install Google Chrome on the helper desktop. `--chrome` can select its local
+  executable if it is not found automatically. `--tdm` only selects the miner's
+  address; it does not select a remote Chrome process.
+- On Linux, use native Chrome with `google-chrome` or `google-chrome-stable` on
+  `PATH`, or pass its executable path with `--chrome`. Flatpak Chrome is not
+  currently supported; `--chrome` cannot take a `flatpak run ...` command.
 - If you use a reverse proxy, use its configured root URL and follow
   [Dashboard access](dashboard-access.md#reverse-proxy-and-https).
 
-Sign into Twitch only in the Chrome window the helper opens. If a connection problem
-leaves the helper reporting an unknown result, check TDM's login status before opening
-helper access and trying again. The server may already have accepted the session.
+Sign into Twitch only in the Chrome window the helper opens.
+
+## The helper reports an unknown result or cleanup error
+
+The dashboard's top-right **Connected** indicator only confirms the dashboard's
+connection to TDM. It does not confirm Twitch login. Check the Twitch login and
+session status on the **Main** tab before opening helper access and trying again;
+the server may already have accepted the session.
+
+- `SESSION_HELPER_RESULT_UNKNOWN` means the helper could not confirm acceptance.
+  Keep the saved data and check the miner's logs from the same attempt. In v2.0.0,
+  failure to start the server's Chromium can also produce this code. The v2.0.1 helper
+  reports that specific rejection as `SESSION_HELPER_SERVER_BROWSER`; other lost
+  acknowledgements still recover through the result endpoint without uploading again.
+- `SESSION_HELPER_SERVER_BROWSER` means Chromium could not start on the **miner
+  host**. For a source installation, check that `chromium` or `chromium-browser` is
+  installed on that process's `PATH`. For Docker, check the image tag and digest,
+  available resources, and startup logs; the official image includes Chromium.
+  Installing Chrome on the helper desktop does not provide the server browser.
+- `SESSION_HELPER_PROFILE_CLEANUP` means the helper could not remove its temporary
+  local Chrome profile. It does not establish whether TDM accepted the login.
+  The v2.0.1 helper handles read-only files in an owned Windows profile and retries
+  when a child file disappears during deletion. Persistent locks or permission
+  failures still report an error. Keep remaining temporary profiles private.
+
+The fixes above require the updated helper executable as well as the miner;
+the v2.0.0 helper does not contain them. For a remaining problem, report the helper archive name, desktop
+OS and Chrome version, miner installation and image tag/digest, exact error code,
+and redacted miner logs with a timestamp. The helper uses HTTP requests to
+`/api/helper/connect`, `/api/helper/session` and `/api/helper/result`; Socket.IO
+connect/disconnect messages alone do not describe the login handoff.
+
+## Startup fails while reading web_auth.json
+
+A traceback from `WebAuth.__init__` ending in `JSONDecodeError` identifies malformed
+local dashboard-password state in `data/web_auth.json`. This is separate from
+`settings.json`, drop history and Twitch authentication. Startup deliberately stops
+to avoid silently disabling password protection.
+
+Stop the miner and restrict access to its dashboard port. Restore a known-good
+private backup of `web_auth.json`, or follow the
+[local password recovery procedure](dashboard-access.md#recover-a-forgotten-password)
+to reset only dashboard protection. Keep any malformed backup private and preserve
+`cookies.jar`, `imported-session.json` and all other data. Set a new dashboard
+password before restoring remote access. Do not attach the authentication file to
+an issue. If it happens again, report whether the file was edited or copied, any
+interrupted writes or storage errors, and whether multiple miners share the data
+directory.
 
 ## TDM needs a new login after an upgrade
 

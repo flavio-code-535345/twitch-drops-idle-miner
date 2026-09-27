@@ -1,17 +1,18 @@
 # Installation
 
-Run Twitch Drops Miner on your own computer or home server. Docker is the simplest
-option: the image built from this source includes the Chromium installation needed
-for automatic session renewal. The separate login helper runs on a desktop with Google
-Chrome.
+Run Twitch Drops Miner on your own computer or headless home server or NAS. Docker
+is the simplest option: the image includes Chromium for automatic session renewal,
+which runs without a desktop or display on the server. Run the separate login helper
+on your desktop or laptop with Google Chrome installed. See
+[which machine runs each part](authentication.md#headless-home-server-or-nas).
 
 ## Choose a version
 
 Use the [release notes](https://github.com/rangermix/TwitchDropsMiner/releases) to
 choose a TDM version. Keep TDM and its login helper on the same version.
 
-Version 2.0.0 introduces helper login and includes Chromium for server renewal in the
-published Docker image. The example below pins that version so updates are deliberate.
+Version 2.0 introduced helper login and Chromium for server renewal in the Docker
+image. The example below pins patch version 2.0.1 so updates are deliberate.
 
 The `latest` Docker tag is the latest published image; it may predate changes in these
 source guides. Native helper archives are available only on releases that provide
@@ -30,7 +31,7 @@ docker run -d \
   -p 8080:8080 \
   -v "${PWD}/data:/app/data" \
   --restart unless-stopped \
-  rangermix/twitch-drops-miner:2.0.0
+  rangermix/twitch-drops-miner:2.0.1
 ```
 
 Open [http://localhost:8080](http://localhost:8080). From another computer on your home
