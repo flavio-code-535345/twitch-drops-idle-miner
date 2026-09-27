@@ -189,8 +189,8 @@ def test_refresh_request_is_rejected_after_shutdown_starts():
 @pytest.mark.parametrize(
     ("endpoint", "expected_kwargs"),
     [
-        (web_app_module.trigger_reload, {}),
-        (web_app_module.clear_all_cache, {"clear_cache": True}),
+        (web_app_module.trigger_reload, {"trigger": "manual"}),
+        (web_app_module.clear_all_cache, {"clear_cache": True, "trigger": "cache_clear"}),
     ],
 )
 async def test_refresh_endpoints_delegate(endpoint, expected_kwargs):
@@ -222,8 +222,8 @@ async def test_refresh_endpoints_return_503_without_client(endpoint):
 @pytest.mark.parametrize(
     ("endpoint", "expected_kwargs"),
     [
-        (web_app_module.trigger_reload, {}),
-        (web_app_module.clear_all_cache, {"clear_cache": True}),
+        (web_app_module.trigger_reload, {"trigger": "manual"}),
+        (web_app_module.clear_all_cache, {"clear_cache": True, "trigger": "cache_clear"}),
     ],
 )
 async def test_refresh_endpoints_return_409_during_shutdown(endpoint, expected_kwargs):

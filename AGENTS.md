@@ -252,6 +252,18 @@ lang/                # Translation JSON files (20 languages)
 - Telegram alerts originate in the shared `BaseDrop.claim()` successful unclaimed-to-claimed
   transition, covering websocket, startup, and inventory-refresh claims without duplicate
   alerts for repeated events. Telegram failures must not change a successful Twitch claim.
+- Campaign search log (Main tab > Output > Campaign Searches): `Twitch._fetch_inventory_logged`
+  wraps every inventory fetch in a `RefreshRecord` (`src/services/refresh_log.py`, last 100,
+  memory only) with its trigger, duration, campaign count and discovery stats
+  (`InventoryService.last_discovery`, None when the catalog is served), and broadcasts
+  `refresh_log_update`; `GET /api/refresh-log` and the socket `initial_state.refresh_log`
+  return the same snapshot. Callers pass `request_inventory_refresh(trigger=...)`
+  (`startup`, `scheduled`, `manual`, `cache_clear`, `games_changed`, `drop_notification`,
+  `campaign_finished`, `unknown_claim`, default `other`); requests coalesced into a pending
+  refresh keep the first trigger. The next scheduled search is the last successful finish
+  plus `clamp_refresh_interval()` (`src/services/maintenance.py`, shared with the settings
+  manager), because the maintenance timer restarts after every fetch. Trigger labels live
+  in `gui.search_log.triggers` in all 20 language files. Tests: `tests/test_refresh_log.py`.
 - Claim state never reverts. An inventory refresh can build drops from data fetched just
   before a websocket claim landed, so `fetch_inventory` carries `is_claimed`/`claim_id`
   over from the drop objects it replaces (`TimedDrop.adopt_claim`), and the websocket

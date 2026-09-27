@@ -23,6 +23,16 @@ if TYPE_CHECKING:
 logger = logging.getLogger("TwitchDrops")
 
 
+def clamp_refresh_interval(minutes: int | None) -> int:
+    """Clamp the inventory reload interval to [1, 1440] minutes.
+
+    A zero, negative, or missing interval would reload in a tight loop, hammering Twitch.
+    """
+    if not minutes or minutes < 1:
+        return 1
+    return min(minutes, 1440)
+
+
 class MaintenanceService:
     """
     Service responsible for periodic maintenance tasks.
@@ -58,14 +68,8 @@ class MaintenanceService:
         2. If the trigger is a campaign timing change, request channel cleanup
         3. After reaching the scheduled reload point, request inventory reload
         """
-        # A zero, negative, or missing interval would make next_period <= now below,
-        # so the loop would exit immediately and request another reload right away -
-        # a tight reload loop hammering Twitch's API with no delay between requests.
-        minutes = self._twitch.settings.minimum_refresh_interval_minutes
-        if not minutes or minutes < 1:
-            minutes = self._twitch.settings.minimum_refresh_interval_minutes = 1
-        elif minutes > 1440:
-            minutes = self._twitch.settings.minimum_refresh_interval_minutes = 1440
+        minutes = clamp_refresh_interval(self._twitch.settings.minimum_refresh_interval_minutes)
+        self._twitch.settings.minimum_refresh_interval_minutes = minutes
 
         now = datetime.now(timezone.utc)
         next_period = now + timedelta(minutes=minutes)
@@ -102,4 +106,4 @@ class MaintenanceService:
 
         # this triggers a restart of this task every (up to) <timedelta> minutes
         logger.log(CALL, "Maintenance task requests a reload")
-        self._twitch.request_inventory_refresh()
+        self._twitch.request_inventory_refresh(trigger="scheduled")

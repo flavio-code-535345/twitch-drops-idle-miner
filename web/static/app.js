@@ -283,7 +283,13 @@ socket.on('initial_state', (data) => {
     if (data.wanted_items) {
         renderWantedItems(data.wanted_items);
     }
+
+    if (data.refresh_log) {
+        updateRefreshLog(data.refresh_log);
+    }
 });
+
+socket.on('refresh_log_update', updateRefreshLog);
 
 socket.on('status_update', (data) => {
     updateStatus(data.status);
@@ -445,6 +451,146 @@ function addConsoleLineRaw(line) {
     while (console.children.length > 1000) {
         console.removeChild(console.firstChild);
     }
+}
+
+// ==================== Campaign Search Log ====================
+
+let refreshLogData = null;
+const CONSOLE_VIEW_KEY = 'tdm-console-view';
+
+function fillTemplate(template, values) {
+    return String(template).replace(/\{(\w+)\}/g, (match, key) => (key in values ? values[key] : match));
+}
+
+function searchLogText(key, fallback) {
+    return state.translations.gui?.search_log?.[key] || fallback;
+}
+
+function formatSpan(totalSeconds) {
+    const seconds = Math.max(0, Math.round(totalSeconds));
+    if (seconds < 60) return fillTemplate(searchLogText('unit_seconds', '{n} s'), { n: seconds });
+    const minutes = Math.round(seconds / 60);
+    if (minutes < 60) return fillTemplate(searchLogText('unit_minutes', '{n} min'), { n: minutes });
+    return fillTemplate(searchLogText('unit_hours', '{h} h {m} min'), {
+        h: Math.floor(minutes / 60),
+        m: minutes % 60,
+    });
+}
+
+function formatClock(date) {
+    const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    if (date.toDateString() === new Date().toDateString()) return time;
+    return `${date.toLocaleDateString([], { day: '2-digit', month: '2-digit' })} ${time}`;
+}
+
+function setConsoleView(view) {
+    const showSearches = view === 'searches';
+    document.getElementById('console-output')?.classList.toggle('hidden', showSearches);
+    document.getElementById('search-log')?.classList.toggle('hidden', !showSearches);
+    document.querySelectorAll('[data-console-view]').forEach(tab => {
+        const active = tab.dataset.consoleView === view;
+        tab.classList.toggle('active', active);
+        tab.setAttribute('aria-selected', String(active));
+    });
+    try {
+        localStorage.setItem(CONSOLE_VIEW_KEY, view);
+    } catch (e) {
+        // Storage can be unavailable (private mode); the view just isn't remembered.
+    }
+    if (showSearches) renderRefreshLog();
+}
+
+function renderRefreshLogSummary(summary, entries, now) {
+    const parts = [];
+    const running = entries.find(entry => !entry.finished_at);
+    const lastDone = entries.find(entry => entry.finished_at && !entry.error);
+
+    if (running) {
+        const elapsed = (now - new Date(running.started_at)) / 1000;
+        parts.push(makeElement('span', { class: 'search-log-running' },
+            fillTemplate(searchLogText('searching_now', 'Searching now · {duration}'), { duration: formatSpan(elapsed) })));
+    }
+    if (lastDone) {
+        const finished = new Date(lastDone.finished_at);
+        parts.push(makeElement('span', {}, '', el => {
+            el.appendChild(makeElement('strong', {},
+                fillTemplate(searchLogText('last', 'Last search: {time}'), { time: formatClock(finished) })));
+            el.appendChild(document.createTextNode(' · ' +
+                fillTemplate(searchLogText('ago', '{duration} ago'), { duration: formatSpan((now - finished) / 1000) })));
+        }));
+    }
+    if (refreshLogData?.next_scheduled_at && !running) {
+        const next = new Date(refreshLogData.next_scheduled_at);
+        const secondsUntil = (next - now) / 1000;
+        let relative;
+        let overdue = false;
+        if (secondsUntil >= 0) {
+            relative = fillTemplate(searchLogText('in', 'in {duration}'), { duration: formatSpan(secondsUntil) });
+        } else if (secondsUntil > -60) {
+            relative = searchLogText('due_now', 'due now');
+        } else {
+            relative = fillTemplate(searchLogText('overdue', 'overdue by {duration}'), { duration: formatSpan(-secondsUntil) });
+            overdue = true;
+        }
+        parts.push(makeElement('span', {}, '', el => {
+            el.appendChild(makeElement('strong', {},
+                fillTemplate(searchLogText('next', 'Next scheduled: {time}'), { time: formatClock(next) })));
+            el.appendChild(document.createTextNode(' · '));
+            el.appendChild(makeElement('span', overdue ? { class: 'search-log-overdue' } : {}, relative));
+            el.appendChild(document.createTextNode(' · ' +
+                fillTemplate(searchLogText('every', 'every {minutes} min'), { minutes: refreshLogData.interval_minutes })));
+        }));
+    }
+    summary.replaceChildren(...parts);
+}
+
+function refreshLogResult(entry) {
+    if (!entry.finished_at) return searchLogText('running', 'Running…');
+    if (entry.error) return fillTemplate(searchLogText('failed', 'Failed: {error}'), { error: entry.error });
+    const campaigns = fillTemplate(searchLogText('campaigns', '{count} campaigns'), { count: entry.campaigns });
+    const detail = entry.discovered === null || entry.discovered === undefined
+        ? searchLogText('full_list', 'full Twitch list')
+        : fillTemplate(searchLogText('discovered', '{found} found via live channels of {games} games'), {
+            found: entry.discovered,
+            games: entry.games_searched,
+        });
+    return `${campaigns} · ${detail}`;
+}
+
+function renderRefreshLog() {
+    const summary = document.getElementById('search-log-summary');
+    const body = document.getElementById('search-log-body');
+    if (!summary || !body) return;
+
+    const now = new Date();
+    const entries = refreshLogData?.entries || [];
+    renderRefreshLogSummary(summary, entries, now);
+
+    if (entries.length === 0) {
+        body.replaceChildren(makeElement('tr', {}, '', row => {
+            row.appendChild(makeElement('td', { class: 'search-log-empty', colspan: 4 },
+                searchLogText('empty', 'No campaign searches yet.')));
+        }));
+        return;
+    }
+
+    const triggers = state.translations.gui?.search_log?.triggers || {};
+    body.replaceChildren(...entries.map(entry => {
+        const started = new Date(entry.started_at);
+        const end = entry.finished_at ? new Date(entry.finished_at) : now;
+        const rowClass = !entry.finished_at ? 'search-log-row-running' : entry.error ? 'search-log-row-failed' : '';
+        return makeElement('tr', rowClass ? { class: rowClass } : {}, '', row => {
+            row.appendChild(makeElement('td', { class: 'search-log-time', title: started.toLocaleString() }, formatClock(started)));
+            row.appendChild(makeElement('td', {}, triggers[entry.trigger] || entry.trigger));
+            row.appendChild(makeElement('td', { class: 'search-log-duration' }, formatSpan((end - started) / 1000)));
+            row.appendChild(makeElement('td', { class: 'search-log-result' }, refreshLogResult(entry)));
+        });
+    }));
+}
+
+function updateRefreshLog(data) {
+    refreshLogData = data;
+    renderRefreshLog();
 }
 
 function updateChannel(channelData) {
@@ -2099,6 +2245,24 @@ function applyTranslations(t) {
         // ID: console-header
         const consoleHeader = document.getElementById('console-header');
         if (consoleHeader) consoleHeader.textContent = t.gui.output;
+
+        const searchLog = t.gui.search_log;
+        if (searchLog) {
+            const labels = {
+                'console-tab-log': searchLog.tab_log,
+                'console-tab-searches': searchLog.tab_searches,
+                'search-log-col-started': searchLog.col_started,
+                'search-log-col-trigger': searchLog.col_trigger,
+                'search-log-col-duration': searchLog.col_duration,
+                'search-log-col-result': searchLog.col_result,
+                'search-log-note': searchLog.note,
+            };
+            Object.entries(labels).forEach(([id, text]) => {
+                const el = document.getElementById(id);
+                if (el && text) el.textContent = text;
+            });
+            renderRefreshLog();
+        }
     }
 
     // Update Channels section
@@ -2470,6 +2634,22 @@ document.addEventListener('DOMContentLoaded', () => {
             switchTab(button.dataset.tab);
         });
     });
+
+    // Output panel views: Messages / Campaign Searches
+    document.querySelectorAll('[data-console-view]').forEach(tab => {
+        tab.addEventListener('click', () => setConsoleView(tab.dataset.consoleView));
+    });
+    let savedConsoleView = null;
+    try {
+        savedConsoleView = localStorage.getItem(CONSOLE_VIEW_KEY);
+    } catch (e) {
+        // Storage unavailable: start on the message log.
+    }
+    if (savedConsoleView === 'searches') setConsoleView('searches');
+    // Keep "x min ago" / "in x min" current while the search log is visible.
+    setInterval(() => {
+        if (!document.getElementById('search-log')?.classList.contains('hidden')) renderRefreshLog();
+    }, 15000);
 
     // Login form
     document.getElementById('login-button').addEventListener('click', submitLogin);

@@ -405,7 +405,7 @@ async def trigger_reload():
     if not twitch_client:
         raise HTTPException(status_code=503, detail="Twitch client not initialized")
 
-    if not twitch_client.request_inventory_refresh():
+    if not twitch_client.request_inventory_refresh(trigger="manual"):
         raise HTTPException(status_code=409, detail="Twitch client is shutting down")
     return {"success": True}
 
@@ -416,9 +416,17 @@ async def clear_all_cache():
     if not twitch_client:
         raise HTTPException(status_code=503, detail="Twitch client not initialized")
 
-    if not twitch_client.request_inventory_refresh(clear_cache=True):
+    if not twitch_client.request_inventory_refresh(clear_cache=True, trigger="cache_clear"):
         raise HTTPException(status_code=409, detail="Twitch client is shutting down")
     return {"success": True}
+
+
+@app.get("/api/refresh-log")
+async def get_refresh_log():
+    """Campaign searches (inventory fetches) since startup, newest first."""
+    if not gui_manager:
+        raise HTTPException(status_code=503, detail="GUI not initialized")
+    return gui_manager.get_refresh_log()
 
 
 @app.get("/api/history")
@@ -540,6 +548,7 @@ async def connect(sid, environ):
                 "manual_mode": twitch_client.get_manual_mode_info(),
                 "current_drop": gui_manager.progress.get_current_drop(),
                 "wanted_items": gui_manager.get_wanted_game_tree(),
+                "refresh_log": gui_manager.get_refresh_log(),
             },
             room=sid,
         )
@@ -567,7 +576,7 @@ async def request_reload(sid):
     if not await sio.authorize(sid):
         return
     if twitch_client:
-        twitch_client.request_inventory_refresh()
+        twitch_client.request_inventory_refresh(trigger="manual")
 
 
 @sio.event

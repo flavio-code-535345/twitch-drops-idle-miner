@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Any
 from src.config.settings import default_settings
 from src.i18n.translator import _
 from src.models.game import Game
+from src.services.maintenance import clamp_refresh_interval
 from src.utils import DropIgnorePolicy, merge_json
 
 
@@ -129,7 +130,7 @@ class SettingsManager:
             # Same bounds the maintenance task enforces, so the saved value, the Settings
             # field, and the real reload cadence can't disagree (the input's min/max
             # attributes don't stop typed values).
-            refresh_interval = min(max(refresh_interval, 1), 1440)
+            refresh_interval = clamp_refresh_interval(refresh_interval)
         should_trigger_update |= self.check_and_update_setting(
             "minimum_refresh_interval_minutes", refresh_interval
         )

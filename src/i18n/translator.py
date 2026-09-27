@@ -315,10 +315,55 @@ class GUIHistory(TypedDict):
     stats_error: str
 
 
+class GUISearchLogTriggers(TypedDict):
+    startup: str
+    scheduled: str
+    manual: str
+    cache_clear: str
+    games_changed: str
+    drop_notification: str
+    campaign_finished: str
+    unknown_claim: str
+    other: str
+
+
+GUISearchLog = TypedDict(
+    "GUISearchLog",
+    {
+        "tab_log": str,
+        "tab_searches": str,
+        "last": str,
+        "next": str,
+        "every": str,
+        "ago": str,
+        "in": str,  # a keyword, hence the functional TypedDict syntax
+        "due_now": str,
+        "overdue": str,
+        "searching_now": str,
+        "col_started": str,
+        "col_trigger": str,
+        "col_duration": str,
+        "col_result": str,
+        "running": str,
+        "failed": str,
+        "campaigns": str,
+        "discovered": str,
+        "full_list": str,
+        "empty": str,
+        "note": str,
+        "unit_seconds": str,
+        "unit_minutes": str,
+        "unit_hours": str,
+        "triggers": GUISearchLogTriggers,
+    },
+)
+
+
 class GUIMessages(TypedDict):
     auth: GUIAuth
     history: GUIHistory
     output: str
+    search_log: GUISearchLog
     status: GUIStatus
     tabs: GUITabs
     login: GUILoginForm

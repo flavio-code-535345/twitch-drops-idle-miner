@@ -98,7 +98,28 @@
                 <!-- Console Output -->
                 <section class="panel console-panel">
                     <h2 id="console-header">Logs</h2>
-                    <div id="console-output" class="console-output"></div>
+                    <div class="panel-tabs" role="tablist">
+                        <button type="button" class="panel-tab active" id="console-tab-log" data-console-view="log" role="tab" aria-selected="true" aria-controls="console-output">Messages</button>
+                        <button type="button" class="panel-tab" id="console-tab-searches" data-console-view="searches" role="tab" aria-selected="false" aria-controls="search-log">Campaign Searches</button>
+                    </div>
+                    <div id="console-output" class="console-output" role="tabpanel" aria-labelledby="console-tab-log"></div>
+                    <div id="search-log" class="search-log hidden" role="tabpanel" aria-labelledby="console-tab-searches">
+                        <div id="search-log-summary" class="search-log-summary"></div>
+                        <div class="search-log-table-wrap">
+                            <table class="search-log-table">
+                                <thead>
+                                    <tr>
+                                        <th id="search-log-col-started">Started</th>
+                                        <th id="search-log-col-trigger">Trigger</th>
+                                        <th id="search-log-col-duration">Duration</th>
+                                        <th id="search-log-col-result">Result</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="search-log-body"></tbody>
+                            </table>
+                        </div>
+                        <p id="search-log-note" class="search-log-note">Kept in memory and reset when the miner restarts.</p>
+                    </div>
                 </section>
 
                 <!-- Channels List -->

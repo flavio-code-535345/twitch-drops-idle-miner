@@ -126,6 +126,13 @@ prerequisite shared by an allowed reward remains mineable. Ignored and skipped d
 never reported as claimed. This controls what the miner intentionally targets, but Twitch
 may still grant simultaneous progress to an ignored reward while another reward advances.
 
+The **Output** panel on the Main tab has a **Campaign Searches** view next to the message
+log. It lists every campaign search since the miner started (when it ran, what triggered
+it, how long it took and what it found), plus when the next scheduled search is due. The
+schedule follows **Settings > General > minimum refresh interval**, so with the default you
+should see a **Scheduled** entry about every 30 minutes; an overdue schedule is highlighted.
+The list is kept in memory and resets when the miner restarts.
+
 In **Settings**, **Clear All Cache** calls `POST /api/cache/clear` to discard local
 campaign, channel, and other derived miner state while preserving your OAuth login and
 settings, then reloads the data from Twitch. This is a recovery and diagnostic action;

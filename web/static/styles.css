@@ -640,6 +640,140 @@ header h1 {
     margin-bottom: 3px;
 }
 
+/* Output panel views: Messages / Campaign Searches */
+.panel-tabs {
+    display: inline-flex;
+    gap: 4px;
+    padding: 3px;
+    margin-bottom: 12px;
+    background: var(--bg-panel-alt);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-pill);
+}
+
+.panel-tab {
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.panel-tab:hover {
+    color: var(--text-primary);
+}
+
+.panel-tab.active {
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-strong));
+    color: #fff;
+    box-shadow: var(--shadow-xs);
+}
+
+.panel-tab:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+}
+
+/* Same footprint as the message log, so switching views doesn't shift the grid */
+.search-log {
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.search-log-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.search-log-summary strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.search-log-summary .search-log-running {
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+.search-log-summary .search-log-overdue {
+    color: var(--warning-color);
+    font-weight: 600;
+}
+
+.search-log-table-wrap {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    background: var(--bg-panel-alt);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+}
+
+.search-log-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.search-log-table th {
+    position: sticky;
+    top: 0;
+    background: var(--bg-panel);
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    padding: 8px 10px;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.search-log-table td {
+    padding: 7px 10px;
+    border-top: 1px solid var(--border-color);
+    vertical-align: top;
+}
+
+.search-log-table tbody tr:first-child td {
+    border-top: none;
+}
+
+.search-log-table td.search-log-time,
+.search-log-table td.search-log-duration {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.search-log-table tr.search-log-row-running td {
+    color: var(--accent-color);
+}
+
+.search-log-table tr.search-log-row-failed td.search-log-result {
+    color: var(--error-color);
+}
+
+.search-log-table td.search-log-empty {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 24px;
+}
+
+.search-log-note {
+    margin: 0;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
 /* Channels List */
 .channels-list {
     height: 400px;

@@ -59,6 +59,9 @@ class InventoryService:
         self._discovered: dict[str, JsonType] = {}
         # Lowercased games covered by the last discovery; None while the catalog is served.
         self._discovered_games: set[str] | None = None
+        # (campaigns found through channels, games searched) for the last fetch, or None
+        # when Twitch served the catalog; shown in the dashboard's search log.
+        self.last_discovery: tuple[int, int] | None = None
 
     def _clear_inventory_state(self) -> None:
         """Clear derived campaign and drop state before replacing inventory."""
@@ -305,9 +308,11 @@ class InventoryService:
             discovered = await self._discover_campaigns_from_channels(set(inventory_data))
             logger.info(f"Discovered {len(discovered)} campaign(s) through live channels")
             inventory_data.update(discovered)
+            self.last_discovery = (len(discovered), len(self._discovered_games or ()))
         else:
             self._discovered.clear()
             self._discovered_games = None
+            self.last_discovery = None
         available_list: list[JsonType] = catalog or []
         applicable_statuses = ("ACTIVE", "UPCOMING")
         available_campaigns: dict[str, JsonType] = {

@@ -149,7 +149,7 @@ async def test_claim_event_for_an_unknown_drop_requests_a_refresh():
 
     await harness.service.process_drops(1, harness.message("unknown-drop"))
 
-    harness.twitch.request_inventory_refresh.assert_called_once_with()
+    harness.twitch.request_inventory_refresh.assert_called_once_with(trigger="unknown_claim")
     harness.twitch.gql_request.assert_not_awaited()
 
 

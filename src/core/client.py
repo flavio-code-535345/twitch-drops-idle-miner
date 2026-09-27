@@ -31,6 +31,7 @@ from src.services.channel_service import ChannelService
 from src.services.inventory_service import InventoryService
 from src.services.maintenance import MaintenanceService
 from src.services.message_handlers import MessageHandlerService
+from src.services.refresh_log import RefreshLog
 from src.services.stream_selector import StreamSelector
 from src.services.watch_service import WatchService
 from src.utils import (
@@ -61,6 +62,8 @@ class Twitch:
         self._games_update_pending = False
         self._inventory_loaded = False
         self._inventory_refresh_pending = False
+        self._inventory_refresh_trigger = "startup"
+        self.refresh_log = RefreshLog()
         self._clear_cache_pending = False
         self.wanted_games: list[Game] = []
         self.inventory: list[DropsCampaign] = []
@@ -169,7 +172,7 @@ class Twitch:
     def request_policy_update(self) -> bool:
         """Apply changed mining settings, fetching again when new games need discovery."""
         if self._inventory_service.needs_discovery(self.settings.games_to_watch):
-            return self.request_inventory_refresh()
+            return self.request_inventory_refresh(trigger="games_changed")
         return self.request_games_update()
 
     def _activate_pending_games_update(self) -> None:
@@ -182,11 +185,13 @@ class Twitch:
             self._state = State.GAMES_UPDATE
             self._state_change.set()
 
-    def request_inventory_refresh(self, *, clear_cache: bool = False) -> bool:
+    def request_inventory_refresh(self, *, clear_cache: bool = False, trigger: str = "other") -> bool:
         """Queue an inventory refresh without racing the active state-machine step.
 
         Args:
             clear_cache: Clear local derived miner state before fetching fresh data.
+            trigger: Why the refresh was requested, shown in the campaign search log.
+                Requests arriving while one is pending share it and keep its trigger.
 
         Returns:
             ``True`` when the request was accepted, or ``False`` during shutdown.
@@ -194,10 +199,26 @@ class Twitch:
         if self._state is State.EXIT:
             return False
 
+        if not self._inventory_refresh_pending:
+            self._inventory_refresh_trigger = trigger
         self._inventory_refresh_pending = True
         self._clear_cache_pending = self._clear_cache_pending or clear_cache
         self._state_change.set()
         return True
+
+    async def _fetch_inventory_logged(self) -> None:
+        """Fetch the inventory, recording the search in the dashboard's search log."""
+        record = self.refresh_log.start(self._inventory_refresh_trigger)
+        self._inventory_refresh_trigger = "other"
+        self.gui.broadcast_refresh_log()
+        try:
+            await self.fetch_inventory()
+        except Exception as exc:
+            record.fail(str(exc) or type(exc).__name__)
+            self.gui.broadcast_refresh_log()
+            raise
+        record.finish(len(self.inventory), self._inventory_service.last_discovery)
+        self.gui.broadcast_refresh_log()
 
     def _activate_pending_inventory_refresh(self) -> None:
         """Prioritize a queued refresh over the next normal state transition."""
@@ -273,7 +294,7 @@ class Twitch:
         )
         full_cleanup: bool = False
         channels: Final[OrderedDict[int, Channel]] = self.channels
-        self.request_inventory_refresh()
+        self.request_inventory_refresh(trigger="startup")
         while True:
             self._activate_pending_inventory_refresh()
             self._activate_pending_games_update()
@@ -290,7 +311,7 @@ class Twitch:
                     self._inventory_service.clear_cached_state()
                 # ensure the websocket is running
                 await self.websocket.start()
-                await self.fetch_inventory()
+                await self._fetch_inventory_logged()
                 self._inventory_loaded = True
                 self.gui.set_games({campaign.game for campaign in self.inventory})
                 # Broadcast unwanted items (based on settings)

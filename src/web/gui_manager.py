@@ -7,6 +7,7 @@ import logging
 from typing import TYPE_CHECKING
 
 from src.models.game import Game
+from src.services.maintenance import clamp_refresh_interval
 from src.services.stream_selector import StreamSelector
 from src.web.managers.broadcaster import WebSocketBroadcaster
 from src.web.managers.cache import ImageCache
@@ -178,6 +179,14 @@ class WebGUIManager:
     def broadcast_wanted_items(self) -> None:
         """Schedule a wanted-items broadcast using the stable synchronous API."""
         asyncio.create_task(self.broadcast_wanted_items_now())
+
+    def get_refresh_log(self) -> dict:
+        """Return the campaign search log with the next scheduled search time."""
+        interval = clamp_refresh_interval(self._twitch.settings.minimum_refresh_interval_minutes)
+        return self._twitch.refresh_log.snapshot(interval)
+
+    def broadcast_refresh_log(self) -> None:
+        asyncio.create_task(self._broadcaster.emit("refresh_log_update", self.get_refresh_log()))
 
 
 # Type aliases for backwards compatibility with code that imports from gui
