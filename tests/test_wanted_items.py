@@ -16,6 +16,7 @@ class TestWantedItems(unittest.TestCase):
         self.twitch = MagicMock(spec=Twitch)
         self.twitch.settings = MagicMock()
         self.twitch.settings.farm_mode = False
+        self.twitch.helper = MagicMock()
         self.twitch.get_change_state_callable.return_value = lambda: None
 
         # Mock dependencies created in __init__

@@ -21,7 +21,9 @@ async def test_raw_query_service_error_is_retried_instead_of_crashing():
         yield SimpleNamespace(json=AsyncMock(return_value=responses.pop(0)))
 
     auth_state = SimpleNamespace(
-        validate=AsyncMock(return_value=SimpleNamespace(headers=MagicMock(return_value={})))
+        validate=AsyncMock(
+            return_value=SimpleNamespace(headers=MagicMock(return_value={}), browser_active=False)
+        )
     )
     client = GQLClient(SimpleNamespace(request=request), auth_state, ClientType.SMARTBOX)
 

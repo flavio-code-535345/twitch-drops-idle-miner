@@ -29,12 +29,20 @@ Twitch OAuth login, persistent local data, and Docker support.
 | `src/i18n/`, `lang/` | Translation schema and locale files |
 | `tests/` | Backend, integration, regression, and frontend behavior tests |
 | `.github/workflows/`, `.github/scripts/` | Validation, releases, and contributor automation |
+| `docs/` | Public user guides, also published to the GitHub wiki |
+| `.dev-notes/` (ignored) | Private development plans, investigations, and local verification records |
 
 Read [README.md](./README.md) for setup and user behavior, and
 [AGENTS.md](./AGENTS.md) for architecture and detailed implementation constraints.
 The current scope excludes multiple accounts, channel-points mining, unlinked
 campaign mining, and a desktop GUI. Discuss proposed scope changes before implementing
 them; opening a feature request does not itself approve a change in scope.
+
+This is a hobby project for personal use on your own hardware and home network.
+Support is best-effort and limited to that setup. VPS, cloud, other third-party hosting
+environments, and services operated for other users are outside the support scope.
+Keep bug reports and proposals within this scope; deployment-specific workarounds for
+unsupported hosting environments are not a project maintenance commitment.
 
 ## Raising an issue
 
@@ -298,6 +306,67 @@ is updated automatically after merge; preserve the README contributor table and 
 Release automation updates `src/version.py`, `pyproject.toml`, and `uv.lock` together.
 Do not publish releases, change workflow trust boundaries, or bypass required checks as
 part of an ordinary contribution.
+
+### Native helper releases
+
+The existing **Create Version Release** workflow remains the versioned release entry
+point. Its release branch triggers Docker publication, then **GitHub Release** verifies
+the existing version tag and builds helpers from that exact commit. GitHub publication
+waits for Linux x64, Windows x64, macOS ARM64 and macOS x64 builds, their packaged Chrome
+smoke checks, and archive validation. It uploads four versioned `.tar.gz` archives and
+`SHA256SUMS` to a draft, verifies their remote digests, then publishes. Failed uploads
+leave a draft that can be retried; a rerun refuses to modify an already-published release.
+Binaries are unsigned. Each archive contains only the executable and license.
+
+PR/main validation calls the same read-only native workflow and prepares the same asset
+set without publishing. Keep the publishing token out of build jobs, retain the exact-tag
+guard, and never substitute artifacts from a different run or revision. The release
+contract tests exercise missing/unsafe archives, checksums, source/tag mismatches,
+failed uploads, incomplete remote assets, draft recovery and published reruns.
+Merging a change does not publish a new version or satisfy the frontend cache-key bump;
+dispatch the version workflow only when the maintainer authorizes a versioned release.
+
+### Public documentation and private working notes
+
+Keep `README.md` a concise introduction for users: quick start, login, migration, and
+links to detailed guides. Maintain public instructions in `docs/`; keep contributor
+workflow here and architecture constraints in `AGENTS.md`. Documentation should explain
+what users need to do without including investigation timelines or test-account details.
+
+The GitHub wiki is generated from the eight public guides in `docs/`. Edit those source
+files through a PR instead of editing the generated wiki pages. Relative Markdown links
+between guides become wiki links; links to repository files still point to `main`.
+The wiki describes current `main`, so document release and source-install differences
+when a feature has not reached a published version.
+
+`.github/workflows/wiki.yml` publishes on relevant pushes to `main`, or a manual run
+on `main`. It validates and exports the exact triggering commit before exposing the
+existing `PUBLISHER_TOKEN` secret to the publishing step. The token must have write
+access to this repository's wiki. A new wiki needs its first **Home** page created
+through GitHub before Git-based publishing can clone it. Maintainers can rerun the
+workflow after correcting setup; it does not force-push or delete unrelated wiki pages.
+The eight generated pages and `_Sidebar.md` are managed by the source guides.
+Old reruns are skipped when their documentation or publishing code differs from current
+`main`; unrelated commits, such as contributor-credit updates, do not block publication.
+
+To validate the export locally from the activated environment:
+
+```bash
+python .github/scripts/publish_wiki.py export --source . \
+  --repository rangermix/TwitchDropsMiner --output /tmp/tdm-wiki-preview
+python -m pytest tests/test_wiki_publication.py
+```
+
+The exporter uses an explicit page allowlist. Add a new public guide to that mapping
+and its tests deliberately; never replace it with a recursive copy of `docs/` or the
+checkout. Publishing runs only from the canonical repository's `main`, never PR code.
+
+Put personal plans, development notes, local verification records, screenshots, and
+captures in `.dev-notes/`. Git and Docker builds exclude that directory. This takes
+precedence over agent skill templates that suggest committing `docs/plans/` or
+`docs/notes/`. Do not force-add private files. Keep concise, redacted test and review
+results in PR descriptions so changes remain reviewable without publishing working data.
+Removing previously tracked notes does not remove them from earlier Git commits.
 
 ## Additional requirements for coding agents
 

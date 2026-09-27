@@ -486,12 +486,29 @@ header h1 {
     grid-row: 3;
 }
 
-/* Login */
-#login-form input {
-    display: block;
+/* Helper login */
+.helper-login-steps {
+    padding-left: 1.5rem;
+    margin: 14px 0;
+    line-height: 1.5;
+}
+
+.helper-login-steps li + li {
+    margin-top: 6px;
+}
+
+.helper-instance-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+#helper-instance-url {
+    flex: 1 1 220px;
+    min-width: 0;
     width: 100%;
     padding: 11px 12px;
-    margin-bottom: 10px;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     background: var(--bg-secondary);
@@ -500,50 +517,29 @@ header h1 {
     transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-#login-form input:focus {
+#helper-instance-url:focus {
     outline: none;
     border-color: var(--accent-color);
     box-shadow: var(--shadow-focus);
 }
 
-#login-form button,
-#oauth-confirm {
-    width: 100%;
-    padding: 13px;
-    background: linear-gradient(135deg, var(--accent-color), var(--accent-strong));
-    color: white;
-    border: none;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 700;
-    box-shadow: 0 6px 16px rgba(145, 70, 255, 0.3);
-    transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
+#helper-login-panel p {
+    margin: 10px 0;
+    overflow-wrap: anywhere;
 }
 
-#login-form button:hover,
-#oauth-confirm:hover {
-    filter: brightness(1.08);
-    transform: translateY(-1px);
-    box-shadow: 0 8px 22px rgba(145, 70, 255, 0.4);
+#helper-login-panel [hidden] {
+    display: none;
 }
 
-#login-form button:active,
-#oauth-confirm:active {
-    transform: translateY(0);
-}
-
-.oauth-code {
-    font-size: 32px;
-    font-weight: 800;
-    text-align: center;
-    padding: 22px;
-    background: var(--bg-secondary);
-    border: 1px dashed var(--accent-color);
-    border-radius: var(--radius-md);
-    margin: 15px 0;
-    letter-spacing: 6px;
+#helper-login-panel a {
     color: var(--accent-color);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+#helper-login-panel a:hover {
+    text-decoration: underline;
 }
 
 /* Drop Progress */
@@ -2397,12 +2393,6 @@ header h1 {
 
     .mode-badge {
         margin-left: 0;
-    }
-
-    .oauth-code {
-        font-size: 22px;
-        letter-spacing: 2px;
-        padding: 15px;
     }
 
     .tabs {
