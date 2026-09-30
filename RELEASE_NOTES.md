@@ -1,3 +1,112 @@
+# Release Notes - v2.1.0 (upstream sync)
+
+Twitch sign-in now happens inside the TDM dashboard using Chromium included in the
+Docker image. The separate desktop login helper is retired.
+
+## Sign in from the dashboard
+
+- When Twitch login is needed, TDM displays its temporary container browser with
+  Twitch's sign-in page. Complete any email or two-factor verification, then select
+  **Finish sign in**. TDM verifies the session and returns to the normal dashboard.
+- Initial sign-in and automatic session renewal use the container's own browsers.
+  No desktop browser installation, helper download, pairing ticket, or additional
+  VNC port is required.
+- **Log out of Twitch** at the bottom of Settings replaces **Allow helper
+  connection**. Logging out clears the saved Twitch session and opens a fresh login
+  browser while preserving miner settings and dashboard password protection.
+- Login controls, instructions, and recovery messages are available in all 20
+  supported languages.
+
+## Private browser access
+
+- The browser viewer uses the dashboard's password protection and origin checks.
+  Password setup is also available before signing in to Twitch.
+- The interactive browser runs under a separate container user. TDM checks that
+  private data and logs are inaccessible to that user before starting the viewer.
+  Temporary browser profiles and display processes are removed after each attempt.
+- Browser retry, logout, container restart, and saved-session migration have
+  regression coverage. A saved session from v2.0 remains usable on upgrade.
+
+## Updating
+
+Pull this fork's image, `twitch-drops-idle-miner:latest`, from its Docker Hub account and
+recreate the container with the same data volume. Set Docker's **TZ** to the timezone of
+your home internet connection; a mismatch can cause Twitch to reject browser login.
+Existing working sessions, including Android sessions restored from `cookies.jar`, do not
+require a new sign-in.
+
+The Docker image includes Chromium and the display components. Its data and log mounts
+must enforce Linux directory permissions; a mount that ignores private permissions cannot
+open the login viewer. Docker named volumes are an alternative on such hosts. Source
+installations need the documented Linux browser environment. See the
+[login guide](docs/authentication.md) and [dashboard access guide](docs/dashboard-access.md).
+
+This replaces the desktop-helper path discussed in
+[#130](https://github.com/rangermix/TwitchDropsMiner/issues/130),
+[#129](https://github.com/rangermix/TwitchDropsMiner/issues/129), and
+[#135](https://github.com/rangermix/TwitchDropsMiner/issues/135).
+
+Synced from [upstream rangermix/TwitchDropsMiner v2.1.0](https://github.com/rangermix/TwitchDropsMiner/releases/tag/v2.1.0),
+which also includes v2.0.2 (below).
+
+## This fork
+
+- **Settings → Twitch login helper** is gone; **Log out of Twitch** at the bottom of
+  Settings replaces it. Nothing needs to be downloaded to sign in any more.
+- Behind an HTTPS reverse proxy the login viewer uses a same-origin WebSocket at
+  `/api/session/vnc`, which a proxy that carries the dashboard's live updates already
+  forwards. Set a dashboard password if the dashboard is reachable from the internet:
+  without one, anyone who can open the dashboard can use the sign-in browser.
+- Fork features carry over unchanged: Farm Mode, the Campaign Searches log, the update
+  notifier, the channel-based catalog fallback, and the redesigned dashboard. The new
+  sign-in screen uses the fork's dashboard styles.
+- Upstream's release and validation workflows and `publish_release.py` are not used; the
+  only workflow remains the Docker Hub build. See [fork features](docs/fork-features.md#signing-in-again).
+
+# Release Notes - v2.0.2 (upstream, included in the 2.1.0 sync)
+
+The desktop login helper now supports native Firefox and Chromium alongside Chrome,
+with a consistent sign-in flow and translated explanations for helper errors.
+
+## Browser support and sign-in
+
+- Automatic selection searches **Chrome → Chromium → Firefox**, using the first
+  installed browser. It does not switch browsers after a launch or login failure.
+- Select a browser with `--browser chrome`, `--browser chromium` or
+  `--browser firefox`. Use `--chrome`, `--chromium` or `--firefox` to specify its
+  local executable. Firefox, including ESR, requires version **143 or newer**.
+- All three browsers open normally for sign-in. Complete Twitch login and any
+  email or two-factor verification, then close all windows of the helper's browser
+  instance. On macOS, quit that instance. **Keep the helper open:** it reopens the
+  same temporary profile to verify and send the session. Wait for its success message.
+- Firefox capture handles Twitch's URL fragments, avoiding a timeout that could
+  otherwise occur after the browser showed a signed-in campaign page.
+- The helper leaves everyday browser profiles untouched and removes its owned
+  temporary profile when finished. Firefox derivatives have not been validated;
+  Flatpak and Snap launchers remain unsupported.
+
+Firefox support addresses [#129](https://github.com/rangermix/TwitchDropsMiner/issues/129).
+Chromium/Firefox fallback also provides alternatives when Chrome is absent
+([#135](https://github.com/rangermix/TwitchDropsMiner/issues/135)).
+
+## Error explanations and recovery
+
+- Helper error codes now include explanations and known recovery steps in all
+  20 languages, covering browser discovery, login, capture, server verification,
+  uncertain results and cleanup.
+- Expired/invalid helper connections and a busy miner have distinct diagnostics.
+  Unknown or ambiguous upload results still use receipt recovery without sending
+  the session a second time; check TDM before retrying.
+- Guidance distinguishes the desktop login browser from Chromium on the miner
+  host. Improved explanations do not establish a fix for every server startup,
+  renewal or upload failure. See the
+  [error reference](https://github.com/rangermix/TwitchDropsMiner/wiki/Troubleshooting#helper-error-code-reference).
+
+## Updating
+
+This fork went from 2.0.1 straight to 2.1.0, whose dashboard sign-in retires the desktop
+helper, so there is no 2.0.2 image or helper to install.
+
 # Release Notes - v2.0.1 (upstream sync)
 
 This patch improves login-helper cleanup and makes a server-browser startup failure

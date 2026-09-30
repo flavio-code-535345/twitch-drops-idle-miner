@@ -1,10 +1,10 @@
 # Version of the upstream rangermix/TwitchDropsMiner release this fork was last synced with.
 # Bump this only when pulling in a new upstream release, so it stays possible to tell what's
 # been merged in.
-UPSTREAM_VERSION = "2.0.1"
+UPSTREAM_VERSION = "2.1.0"
 
 # Version of this fork (flavio-code-535345/twitch-drops-idle-miner), incremented independently
 # of upstream as changes are made here.
-MY_VERSION = "2.0.1"
+MY_VERSION = "2.1.0"
 
 __version__ = MY_VERSION

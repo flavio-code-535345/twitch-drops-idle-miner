@@ -486,62 +486,6 @@ header h1 {
     grid-row: 3;
 }
 
-/* Helper login */
-.helper-login-steps {
-    padding-left: 1.5rem;
-    margin: 14px 0;
-    line-height: 1.5;
-}
-
-.helper-login-steps li + li {
-    margin-top: 6px;
-}
-
-.helper-instance-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 6px;
-}
-
-#helper-instance-url {
-    flex: 1 1 220px;
-    min-width: 0;
-    width: 100%;
-    padding: 11px 12px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    font-size: 14px;
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-#helper-instance-url:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    box-shadow: var(--shadow-focus);
-}
-
-#helper-login-panel p {
-    margin: 10px 0;
-    overflow-wrap: anywhere;
-}
-
-#helper-login-panel [hidden] {
-    display: none;
-}
-
-#helper-login-panel a {
-    color: var(--accent-color);
-    font-weight: 600;
-    text-decoration: none;
-}
-
-#helper-login-panel a:hover {
-    text-decoration: underline;
-}
-
 /* Drop Progress */
 .drop-name {
     font-weight: 700;
@@ -2582,4 +2526,125 @@ header h1 {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
+}
+/* Twitch sign-in screen: upstream's markup, styled as a dashboard card. */
+:root .browser-login-screen {
+    max-width: 1400px;
+    margin: 24px auto;
+    padding: 26px 24px 24px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+@media (max-width: 1448px) {
+    :root .browser-login-screen {
+        margin: 24px;
+    }
+}
+
+.browser-login-screen::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-color), var(--accent-soft), var(--accent-color));
+    background-size: 200% 100%;
+    animation: header-sheen 6s linear infinite;
+}
+
+.browser-login-screen h1 {
+    font-size: 1.6em;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+}
+
+#twitch-login-instructions {
+    color: var(--text-secondary);
+}
+
+#twitch-login-status {
+    margin-top: 12px;
+    font-weight: 600;
+}
+
+#twitch-login-error {
+    color: var(--error-color);
+}
+
+#twitch-login-error:empty {
+    display: none;
+}
+
+.browser-login-viewer {
+    width: 100%;
+    height: min(72vh, 800px);
+    min-height: 320px;
+    margin-top: 16px;
+    overflow: hidden;
+    background: #0e0c14;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.browser-login-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.browser-login-actions:not(:has(> :not([hidden]))) {
+    display: none;
+}
+
+.browser-login-actions .action-button {
+    margin-right: 0;
+}
+
+#twitch-login-finish {
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-strong));
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(145, 70, 255, 0.3);
+}
+
+[hidden] { display: none !important; }
+
+.browser-login-access {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-color);
+}
+
+.browser-login-access summary {
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-weight: 600;
+    transition: color var(--transition-fast);
+}
+
+.browser-login-access summary:hover,
+.browser-login-access[open] summary {
+    color: var(--accent-color);
+}
+
+.browser-login-access .settings-section {
+    margin: 12px 0 0;
+    background: var(--bg-panel-alt);
+    box-shadow: none;
+}
+
+@media (max-width: 600px) {
+    :root .browser-login-screen {
+        margin: 12px;
+        padding: 20px 16px 16px;
+    }
 }

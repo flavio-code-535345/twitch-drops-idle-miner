@@ -29,24 +29,21 @@ if sys.platform == "win32":
     Path.read_text = _utf8_read_text
 
 
-# Upstream tests that need POSIX: os.killpg, owner-only file modes (NTFS reports 0o666),
-# symlinks (Windows needs admin or Developer Mode), or a command line longer than Windows
-# allows. They pass on Linux, where the Docker image runs.
+# Upstream tests that need POSIX: os.killpg, owner-only file modes (NTFS reports 0o666)
+# or a command line longer than Windows allows. They pass on Linux, where the Docker
+# image runs.
 _POSIX_ONLY = (
-    "tests/test_helper_connection.py::test_success_atomically_saves_seed_closes_gate_and_returns_no_credentials",
     "tests/test_imported_session.py::test_import_validates_before_private_save_and_preserves_android",
-    "tests/test_login_helper.py::test_cleanup_does_not_follow_a_link_to_an_unrelated_readonly_file",
     "tests/test_server_renewal.py::test_owned_browser_always_stops_process_and_removes_profile",
     "tests/test_server_renewal.py::test_source_restarts_from_server_replacement_and_validates_before_save",
     "tests/test_server_seed.py::test_seed_preserves_expired_integrity_context_for_new_issuance",
-    "tests/test_session_import_ui.py::test_release_download_guidance_renders_in_every_locale",
 )
 
 
 def pytest_collection_modifyitems(config, items):
     if sys.platform != "win32":
         return
-    skip = pytest.mark.skip(reason="needs POSIX (os.killpg, file modes, symlinks or long command lines)")
+    skip = pytest.mark.skip(reason="needs POSIX (os.killpg, file modes or long command lines)")
     for item in items:
         if item.nodeid.startswith(_POSIX_ONLY):
             item.add_marker(skip)

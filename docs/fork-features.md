@@ -38,27 +38,30 @@ A campaign can only be found while at least one of its channels is live within t
 search.
 
 This was added for the v1.3.1/v1.3.2 Smart TV login, which Twitch denied the catalog.
-With the 2.0 helper login the catalog is normally available, so the fallback stays idle
-unless Twitch withholds the catalog again.
+The browser-based sessions used since 2.0 normally receive the catalog, so the fallback
+stays idle unless Twitch withholds the catalog again.
 
 ## Signing in again
 
-A saved login keeps working across updates, so the helper is only needed when the
-dashboard's **Twitch login** card asks for a new login or you want to switch accounts.
-This fork does not build the helper: the card's **Helper builds** link opens upstream's
-releases page. Download the archive for your desktop from the release matching the
-**upstream** version shown in the dashboard footer (the helper talks to upstream's
-unchanged login code), then follow [Sign in](authentication.md#sign-in):
+A saved login keeps working across updates. The **Sign in to Twitch** screen only appears
+when Twitch needs a new login, or after **Settings → Log out of Twitch** (use that to
+switch accounts). Sign-in happens entirely in the dashboard: the image's own Chromium is
+shown in the page, you sign in and complete any verification there, then select **Finish
+sign in**. See [Sign in](authentication.md) for the full guide. Things to check on a
+server like this fork's (Docker behind an HTTPS reverse proxy):
 
-1. Tick **Settings → Twitch login helper → Allow helper connection**. It switches itself
-   off after a successful helper login; a session restored from saved cookies leaves it
-   on, so untick it yourself afterwards.
-2. Extract and run the helper on a desktop with Google Chrome installed (Windows 11 opens
-   `.tar.gz` archives in Explorer), and enter the dashboard address shown on the card.
-3. Sign into Twitch in the Chrome window it opens and wait for its success message.
-
-The helper's three connection routes do not need the dashboard password; the **Allow
-helper connection** setting is what admits it, so keep that off while you don't need it.
+- **Reverse proxy:** the browser view streams over a WebSocket at `/api/session/vnc` on
+  the dashboard's own address. A proxy that already carries the dashboard's live updates
+  carries it too. If `PUBLIC_BASE_URL` is set, it must be the exact address you open.
+- **Dashboard password:** the browser view is protected only by the dashboard password
+  (the sign-in screen offers to set one first). Set one if the dashboard is reachable from
+  the internet, or anyone who can open it could use the sign-in browser.
+- **Time zone:** set `TZ` to the time zone of your internet connection; a mismatch can make
+  Twitch reject the browser login.
+- **Mounts:** `data` and `logs` must be on a Linux file system that honours permissions.
+  The sign-in browser runs as a separate container user, and TDM refuses to open it if
+  that user could read your data (for example on SMB/NTFS mounts that ignore `chmod`).
+  Docker named volumes work on such hosts.
 
 ## Update notifier
 
@@ -73,7 +76,5 @@ Games to Watch to the filter.
 ## Differences in repository setup
 
 - The only GitHub workflow builds the Docker image and pushes it to Docker Hub on every
-  push to `main`. Upstream's validation, release, native login helper build, contributor
-  and wiki workflows are not used; run Ruff, Mypy and pytest locally instead.
-- The native login helper is not built by this fork. Download it from the upstream
-  release matching the synced upstream version (see [Signing in again](#signing-in-again)).
+  push to `main`. Upstream's validation, release, contributor and wiki workflows are not
+  used; run Ruff, Mypy and pytest locally instead.

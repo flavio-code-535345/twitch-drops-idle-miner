@@ -64,36 +64,24 @@ class GUITabs(TypedDict):
     help: str
 
 
-class GUIHelperLogin(TypedDict):
-    step_download: str
-    step_instance: str
-    step_chrome: str
-    step_finish: str
-    builds: str
-    builds_note: str
-    instance: str
-    copy: str
-    copied: str
-    copy_manually: str
+class GUIBrowserLogin(TypedDict):
+    title: str
+    instructions: str
+    finish: str
     retry: str
-    settings_title: str
-    allow: str
-    setting_help: str
-    saving: str
-    save_error: str
-    open: str
-    closed: str
-    checking: str
-    ready: str
-    waiting: str
-    expired: str
-    session_error: str
-    status_error: str
-    existing: str
-    renewal: str
-    renewal_error: str
-    renewal_unavailable: str
-    renewal_retrying: str
+    starting: str
+    sign_in: str
+    verifying: str
+    error: str
+    unavailable: str
+    viewer_closed: str
+    logout: str
+    logout_help: str
+    logout_confirm: str
+    logout_failed: str
+    action_failed: str
+    renewal_ready: str
+    renewal_retry: str
 
 
 class GUILoginForm(TypedDict):
@@ -391,7 +379,7 @@ class GUIMessages(TypedDict):
     status: GUIStatus
     tabs: GUITabs
     login: GUILoginForm
-    helper_login: GUIHelperLogin
+    browser_login: GUIBrowserLogin
     websocket: GUIWebsocket
     progress: GUIProgress
     channels: GUIChannels
@@ -404,26 +392,7 @@ class GUIMessages(TypedDict):
     wanted: GUIWanted
 
 
-class HelperMessages(TypedDict):
-    result_unknown: str
-    title: str
-    destination_prompt: str
-    destination: str
-    connecting: str
-    login: str
-    capturing: str
-    sending: str
-    success: str
-    cancelled: str
-    wait_to_close: str
-    tdm_help: str
-    chrome_help: str
-    language_help: str
-    no_pause_help: str
-
-
 class Translation(TypedDict):
-    helper: HelperMessages
     language_name: str
     english_name: str
     status: StatusMessages
