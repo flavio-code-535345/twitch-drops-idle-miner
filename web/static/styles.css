@@ -2648,3 +2648,75 @@ header h1 {
         padding: 20px 16px 16px;
     }
 }
+
+/* Desktop helper fallback on the sign-in screen (upstream 2.1.1), in dashboard styling. */
+#twitch-helper-panel p {
+    margin: 10px 0;
+    overflow-wrap: anywhere;
+}
+
+#twitch-helper-builds-note,
+#twitch-helper-access-help {
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+#twitch-helper-status:empty {
+    display: none;
+}
+
+.browser-helper-downloads {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0;
+    margin: 4px 0;
+    list-style: none;
+}
+
+.browser-helper-downloads a {
+    display: inline-block;
+    padding: 6px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-pill);
+    background: var(--bg-panel);
+    color: var(--accent-color);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.browser-helper-downloads a:hover {
+    border-color: var(--accent-color);
+    background: var(--hover-bg);
+}
+
+.browser-helper-connection {
+    max-width: 680px;
+    margin-top: 16px;
+}
+
+.browser-helper-connection label {
+    display: block;
+    margin: 12px 0 6px;
+    font-weight: 600;
+}
+
+.browser-helper-connection input {
+    width: 100%;
+    min-width: 0;
+    padding: 11px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 14px;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.browser-helper-connection input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: var(--shadow-focus);
+}

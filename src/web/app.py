@@ -17,8 +17,9 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from src.config.paths import DATA_DIR
-from src.version import __version__
+from src.version import UPSTREAM_VERSION, __version__
 from src.web.auth import AuthAPI, AuthMiddleware, AuthSocketServer, WebAuth
+from src.web.helper_api import HelperAPI
 from src.web.session_api import SessionAPI
 
 
@@ -54,6 +55,7 @@ twitch_client: Twitch | None = None
 _server_instance: uvicorn.Server | None = None
 
 app.include_router(SessionAPI(web_auth, lambda: twitch_client).router)
+app.include_router(HelperAPI(web_auth, lambda: twitch_client).router)
 
 
 def set_managers(gui: WebGUIManager, twitch: Twitch):
@@ -97,6 +99,21 @@ class TelegramTestRequest(BaseModel):
 # ==================== REST API Endpoints ====================
 
 
+_HELPER_DOWNLOAD = "releases/download/v__APP_VERSION__/tdm-login-helper-__APP_VERSION__-"
+
+
+def _with_helper_downloads(content: str) -> str:
+    """Point helper downloads at the synced upstream release.
+
+    The desktop helper is only published by upstream, so its links must use
+    UPSTREAM_VERSION; __APP_VERSION__ is this fork's MY_VERSION, which can run ahead.
+    """
+    return content.replace(
+        _HELPER_DOWNLOAD,
+        f"releases/download/v{UPSTREAM_VERSION}/tdm-login-helper-{UPSTREAM_VERSION}-",
+    )
+
+
 @app.get("/", response_class=HTMLResponse)
 async def serve_index():
     """Serve the main web interface"""
@@ -107,7 +124,8 @@ async def serve_index():
         f"Looking for web files: __file__={__file__}, web_dir={web_dir}, index_file={index_file}, exists={index_file.exists()}"
     )
     if index_file.exists():
-        content = index_file.read_text(encoding="utf-8").replace("__APP_VERSION__", __version__)
+        content = _with_helper_downloads(index_file.read_text(encoding="utf-8"))
+        content = content.replace("__APP_VERSION__", __version__)
         return HTMLResponse(content=content, headers={"Cache-Control": "no-cache"})
     return HTMLResponse(
         content=f"<h1>Twitch Drops Miner</h1><p>Web interface files not found. Please check installation.</p><p>Debug: Looking for {index_file}</p>",

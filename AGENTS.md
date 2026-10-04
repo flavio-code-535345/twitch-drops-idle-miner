@@ -18,12 +18,19 @@ project's process, not an active process here.
 - User-facing fork documentation lives in `docs/fork-features.md` (linked from README's
   "About this fork"); keep upstream's `docs/` guides and README otherwise as upstream ships
   them so syncs stay conflict-light. Since upstream 2.1, Twitch sign-in runs inside the
-  dashboard through the image's Chromium (`src/auth/container_login.py`); the retired
-  desktop helper and upstream's release workflows are not part of this fork.
+  dashboard through the image's Chromium (`src/auth/container_login.py`). Upstream 2.1.1
+  restored the desktop helper as an optional fallback; only upstream builds and publishes
+  it, so `src/web/app.py` points the sign-in screen's helper downloads at
+  `UPSTREAM_VERSION` rather than `MY_VERSION` (`tests/test_helper_download_version.py`).
+  Upstream's release, validation, helper-build workflows and issue templates are not part
+  of this fork.
 - Developing on Windows: `tests/conftest.py` defaults subprocess pipes and `Path.read_text()`
   to UTF-8 and skips the upstream tests that need POSIX (`os.killpg`, owner-only file
-  modes); the container sign-in desktop tests skip themselves off Linux. They pass on
-  Linux, where the Docker image runs. The project targets Python 3.12+. Check types with
+  modes, unprivileged symlinks); the container sign-in desktop tests skip themselves off
+  Linux. They pass on Linux, where the Docker image runs. Test with Python 3.12+ as
+  `pyproject.toml` requires: on 3.11 the desktop helper's profile-cleanup tests fail because
+  `shutil.rmtree(onexc=...)` does not exist yet. Upstream's Firefox capture tests use 20 ms
+  timeouts and can flake on a loaded Windows machine; rerun before suspecting code. Check types with
   `mypy --platform linux src/` (POSIX-only `os`/`signal` attributes otherwise fail on
   Windows). Ruff findings in upstream's own session test files are left as shipped.
 - `src/version.py` tracks two numbers: `UPSTREAM_VERSION` (the upstream release this fork
@@ -57,6 +64,20 @@ It is the repository's contribution policy, not optional background reading.
 
 ## Development Guidelines
 
+### Issue triage
+
+- `.github/ISSUE_TEMPLATE/bug_report.yml` requires the running app version,
+  installation method, hosting environment, dashboard browser/device, reproduction
+  steps, expected/actual behavior, redacted evidence, and troubleshooting results.
+  Keep the form simple; allow an explanation when evidence is unavailable or browser
+  details do not apply. The chooser disables blank issues and preserves a separate
+  feature/question/documentation template.
+- Read the issue and its comments before asking for missing information. Tailor the
+  request to unresolved gaps, avoid duplicating unanswered requests, and distinguish
+  feature requests, retired version-specific paths, and confirmed recoveries from
+  current defects. Never request credentials, authentication files, whole data
+  directories, or unredacted network captures. Preserve the home-hosting support scope.
+
 1. **Testing**:
    - Always add unit tests for backend changes.
    - Frontend changes should have tests if possible.
@@ -78,9 +99,6 @@ It is the repository's contribution policy, not optional background reading.
    - Keep `README.md` short and focused on ordinary users: setup, login, migration,
      and links. Detailed public instructions belong in `docs/`, the source for the
      GitHub wiki. Developer contribution policy belongs in `CONTRIBUTING.md`.
-   - Keep the marked upgrade warning at the top of `README.md` until v2.1.0 is
-     released; then remove that notice and this reminder. It distinguishes users
-     of v1.3.1/v1.3.2 who must sign in again from other users with valid saved logins.
    - Personal development plans, investigation notes, local verification records,
      and captures belong in `.dev-notes/`, which Git and Docker builds ignore.
      Never commit them or put them under `docs/`; this overrides skill templates
@@ -341,8 +359,9 @@ progress to an ignored drop while the miner intentionally targets another reward
 - The renewal worker rotates SDK state, normally five minutes before expiry, with
   bounded retries and same-account/freshness validation. Mining GraphQL stays in
   Python. Preserve safe-read retry rules; never replay ambiguous mutations.
-- `SessionAPI` exposes sanitized status and finish/retry/logout actions. There is no
-  session upload/export, helper admission, pairing, or renewal HTTP route. The binary
+- `SessionAPI` exposes sanitized status and finish/retry/logout actions, plus optional
+  desktop-helper enable/cancel actions guarded by dashboard authentication and CSRF.
+  There is no general session upload/export or renewal HTTP route. The binary
   `/api/session/vnc` WebSocket connects only to the current attempt’s loopback VNC
   listener, requires the exact dashboard origin and optional dashboard session, and
   rechecks authorization/attempt/state while connected. Cap viewers and input frames.
@@ -360,12 +379,39 @@ progress to an ignored drop while the miner intentionally targets another reward
 - The frontend shows the VNC sign in page when Twitch is logged out, keeps verification
   visible until cleanup, then restores the normal dashboard. Settings ends with Twitch
   logout. The dashboard-password form is reparented into the sign in screen while
-  logged out, preserving its single form and listeners. Desktop helper code, downloads
-  and packaging are retired. Detailed user
+  logged out, preserving its single form and listeners. Embedded login stays the default;
+  desktop helpers are an explicit fallback. Detailed user
   guidance lives in `docs/authentication.md`; private tests and credentials stay ignored.
 - Preserve matching WEB client/device/token/integrity/user-agent for imported requests,
   `Channel.url` on WEB for beacon discovery, locale/schema parity and safe DOM rendering.
   Never include session, SDK, password or verification data in dashboard status/logs.
+- `HelperConnections` owns only temporary admission and receipts. It must call the
+  shared `SessionController.accept()`; never add a second renewal worker or bypass
+  current account validation, authentication-change draining, or logged-out persistence.
+  Dashboard enable cancels and awaits the container attempt, then opens a ten-minute
+  window for one helper. Native `/api/helper/connect` accepts an empty JSON object
+  without a pairing code and issues the first client a scoped ticket;
+  `/api/helper/session` submits once and `/api/helper/result` recovers
+  a lost acknowledgement. These exact method/path pairs bypass dashboard cookies
+  but retain origin/Fetch Metadata/request-header checks and bounded bodies. Upload
+  and result routes require the issued bearer ticket. Admission is closed by default,
+  requires an explicit dashboard action, and never uses a persistent enable flag.
+  Atomically recheck the live window after parsing before issuing the one ticket.
+  Recheck admission expiry and initiating dashboard authorization before installation.
+  Cancel, logout, shutdown, replacement login and new admission invalidate stale work.
+  In-memory receipts are intentionally lost on restart; never replay ambiguous uploads.
+  Keep tickets out of URLs, CLI arguments, logs, status, broadcasts and storage.
+  Document that the first reachable helper is admitted during the trusted-network window.
+  `tests/test_helper_admission.py` and `tests/test_desktop_helper_api.py` cover these boundaries.
+- Keep the released helper instructions and download links aligned with the four build
+  targets: Windows x64, Linux x64, macOS arm64, and macOS x64. Users choose the helper
+  computer's platform and match the miner release. The login screen's **Use desktop
+  helper** action shows only the dashboard URL; do not reintroduce a pairing-code or
+  dashboard-password prompt in the helper. **Return to embedded browser** revokes access.
+  Explain the ten-minute, first-helper admission window and retain the embedded browser
+  as the default. On macOS, users must quit the helper-owned browser instance to flush
+  its profile. Keep the release-ready README, installation examples, login guide, and
+  generated release-note instructions consistent with these behaviors.
 
 ### Dashboard authentication
 
@@ -603,14 +649,29 @@ The application requires:
 - Dependencies from `pyproject.toml` (includes FastAPI, uvicorn, Socket.IO)
 - Node.js 24 for frontend behavior tests
 
-Docker deployment:
+Docker deployment from a source checkout:
 
 ```bash
-# Build and run with docker-compose
-docker-compose up -d
+# Build and run the included Compose configuration
+docker compose up -d --build
 
 # Access at http://localhost:8080
 ```
+
+Keep the README's Docker update commands aligned with `docs/installation.md`.
+Published-image updates pull before stopping/removing the old container, stop on
+command failures, and recreate with the same data mount and custom runtime options.
+Retain `--init`, the 30-second shutdown grace period, `--shm-size 256m`, and the
+user's timezone. Explain that `latest` and restart policies do not update running
+containers automatically. Keep the README and installation guide's published-image
+`compose.yaml` examples synchronized, including browser settings and persistent
+data/log mounts. Pinned-image Compose updates must explain changing the image tag
+before pulling. The included `docker-compose.yml` builds the checkout; use
+`docker compose pull` for the published-image configuration without `build:`.
+Keep those configurations in separate folders because `compose.yaml` takes
+precedence. Migration from `docker run` must preserve the exact data mount, remove
+the stopped old container before Compose creates its replacement, and avoid running
+two miners against the same data or using `down -v` to update.
 
 ## Testing
 
@@ -648,7 +709,8 @@ pipeline, contributor-credit automation, and version-release pipeline were inten
 removed; see "About This Fork" above.
 
 Keep browser/control listeners private; do not revive standalone sidecar URLs or
-credential-upload routes. The standard Alpine image owns login and renewal.
+unrestricted credential-upload routes. The standard Alpine image owns default login
+and renewal; an admitted desktop helper supplies only an initial validated session.
 
 
 ### Manual Testing

@@ -63,6 +63,14 @@ server like this fork's (Docker behind an HTTPS reverse proxy):
   that user could read your data (for example on SMB/NTFS mounts that ignore `chmod`).
   Docker named volumes work on such hosts.
 
+If Twitch rejects the embedded browser, open **Use desktop helper** on the sign-in screen
+and follow upstream's [desktop helper fallback](authentication.md#desktop-helper-fallback).
+This fork does not build the helper: the download links point at the upstream release
+matching the **upstream** version in the dashboard footer, which is the helper that fits
+this fork's unchanged login code. While helper access is open (up to ten minutes), the
+first helper to reach the dashboard is accepted without the dashboard password, so start
+it only right before running the helper.
+
 ## Update notifier
 
 The dashboard footer shows this fork's version and the upstream version it is synced
