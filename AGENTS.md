@@ -24,6 +24,10 @@ project's process, not an active process here.
   `UPSTREAM_VERSION` rather than `MY_VERSION` (`tests/test_helper_download_version.py`).
   Upstream's release, validation, helper-build workflows and issue templates are not part
   of this fork.
+- Fork fix in upstream code: `SessionAPI.viewer` also suppresses `WebSocketDisconnect` when
+  closing the sign-in viewer, because Starlette raises it (not `OSError`) once the dashboard
+  tab has gone, which otherwise logs an "Exception in ASGI application" traceback on every
+  viewer disconnect (`tests/test_vnc_viewer_disconnect.py`). Keep it when syncing upstream.
 - Developing on Windows: `tests/conftest.py` defaults subprocess pipes and `Path.read_text()`
   to UTF-8 and skips the upstream tests that need POSIX (`os.killpg`, owner-only file
   modes, unprivileged symlinks); the container sign-in desktop tests skip themselves off

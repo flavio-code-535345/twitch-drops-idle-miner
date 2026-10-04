@@ -41,6 +41,8 @@ Synced from [upstream rangermix/TwitchDropsMiner v2.1.1](https://github.com/rang
   follow the synced **upstream** version rather than this fork's own version, so they keep
   pointing at a real upstream release when the fork's version runs ahead.
 - The helper section on the sign-in screen uses the fork's dashboard styles.
+- Closing the sign-in viewer after the dashboard tab has already disconnected no longer
+  logs an `Exception in ASGI application` / `WebSocketDisconnect` traceback.
 - While **Use desktop helper** is active (up to ten minutes), the first helper that reaches
   the dashboard address is accepted without the dashboard password. Only start it when you
   are about to run the helper, and use **Return to embedded browser** if you change your mind.

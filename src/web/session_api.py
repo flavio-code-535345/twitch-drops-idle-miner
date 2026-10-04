@@ -149,5 +149,6 @@ class SessionAPI:
                 with suppress(OSError):
                     await writer.wait_closed()
             self._viewers -= 1
-            with suppress(RuntimeError, OSError):
+            # Starlette raises WebSocketDisconnect when the dashboard tab already left.
+            with suppress(RuntimeError, OSError, WebSocketDisconnect):
                 await websocket.close(code=1008)
