@@ -151,7 +151,12 @@
             "no_channels_for_games": "Nenhum canal encontrado para os jogos selecionados...",
             "channel_count": "canal",
             "channel_count_plural": "canais",
-            "viewers": "espectadores"
+            "viewers": "espectadores",
+            "now_watching": "A assistir agora",
+            "show_preview": "Mostrar miniatura",
+            "hide_preview": "Ocultar miniatura",
+            "preview_off": "A miniatura está desativada",
+            "preview_help": "Carrega miniaturas do Twitch e usa largura de banda adicional. Desativada sempre que a página é carregada."
         },
         "inventory": {
             "status": {
@@ -184,7 +189,10 @@
                 "clear": "Limpar Filtros",
                 "search_placeholder": "Pesquisar jogos...",
                 "use_tracked_games": "Usar jogos rastreados",
-                "no_tracked_games": "Ainda não há jogos rastreados em Configurações > Jogos para observar."
+                "no_tracked_games": "Ainda não há jogos rastreados em Configurações > Jogos para observar.",
+                "account_link": "Vínculo da conta",
+                "all": "Todas",
+                "linked": "Vinculada"
             }
         },
         "settings": {
@@ -251,7 +259,10 @@
             "confirm_btn": "Confirmar",
             "cancel_btn": "Cancelar",
             "game_priority": "Prioridade de {game}",
-            "remove_game": "Remover {game}"
+            "remove_game": "Remover {game}",
+            "allow_unlinked_campaigns": "Permitir minerar campanhas indicadas como não vinculadas",
+            "allow_unlinked_campaigns_warning": "Aviso: isto ignora apenas a verificação de vínculo de conta do TDM. Não vincula contas nem garante progresso na Twitch, resgates ou recompensas no jogo. O TDM pode mostrar minutos estimados. Confira o inventário de Drops da Twitch e vincule a conta de jogo correta para receber recompensas.",
+            "allow_unlinked_campaigns_save_error": "Não foi possível salvar a opção de mineração de contas não vinculadas. Tente novamente."
         },
         "help": {
             "about": "Sobre o Twitch Drops Miner",

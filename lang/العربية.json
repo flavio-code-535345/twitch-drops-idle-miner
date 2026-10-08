@@ -151,7 +151,12 @@
             "no_channels_for_games": "لم يتم العثور على قنوات للألعاب المحددة...",
             "channel_count": "قناة",
             "channel_count_plural": "قنوات",
-            "viewers": "مشاهدين"
+            "viewers": "مشاهدين",
+            "now_watching": "تتم المشاهدة الآن",
+            "show_preview": "إظهار الصورة المصغّرة",
+            "hide_preview": "إخفاء الصورة المصغّرة",
+            "preview_off": "الصورة المصغّرة متوقفة",
+            "preview_help": "يحمّل صور Twitch المصغّرة ويستهلك بيانات إضافية. متوقف عند كل تحميل للصفحة."
         },
         "inventory": {
             "status": {
@@ -184,7 +189,10 @@
                 "clear": "مسح المرشحات",
                 "search_placeholder": "البحث عن الألعاب...",
                 "use_tracked_games": "استخدام الألعاب المتتبعة",
-                "no_tracked_games": "لا توجد ألعاب متتبعة بعد في الإعدادات > الألعاب المراد متابعتها."
+                "no_tracked_games": "لا توجد ألعاب متتبعة بعد في الإعدادات > الألعاب المراد متابعتها.",
+                "account_link": "ربط الحساب",
+                "all": "الكل",
+                "linked": "مرتبط"
             }
         },
         "settings": {
@@ -251,7 +259,10 @@
             "confirm_btn": "تأكيد",
             "cancel_btn": "إلغاء",
             "game_priority": "أولوية {game}",
-            "remove_game": "إزالة {game}"
+            "remove_game": "إزالة {game}",
+            "allow_unlinked_campaigns": "السماح بالتعدين في الحملات المُبلّغ عنها كغير مرتبطة",
+            "allow_unlinked_campaigns_warning": "تحذير: يتجاوز هذا فحص ربط الحساب في TDM فقط. لا يربط الحسابات ولا يضمن تقدم Twitch أو المطالبة بالمكافآت أو وصولها داخل اللعبة. قد يعرض TDM دقائق تقديرية. تحقق من مخزون Drops في Twitch واربط حساب اللعبة الصحيح لتلقي المكافآت.",
+            "allow_unlinked_campaigns_save_error": "تعذر حفظ خيار التعدين للحسابات غير المرتبطة. يرجى المحاولة مرة أخرى."
         },
         "help": {
             "about": "حول Twitch Drops Miner",

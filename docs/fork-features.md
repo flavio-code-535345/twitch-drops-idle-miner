@@ -12,6 +12,10 @@ always keep priority for channel slots; farmed games are appended after them and
 **FARM** in the Wanted Drops Queue. Farm Mode ignores the Mining Benefits filter and only
 considers badges and emotes, which Twitch awards without account linking.
 
+Farm Mode is separate from upstream's **Allow mining campaigns reported as Not Linked**
+setting: badge and emote campaigns already count as eligible without a linked account, so
+that setting only changes which Games to Watch campaigns can be mined.
+
 Farm Mode relies on Twitch's full campaign list. While Twitch withholds that list (see
 below), it cannot discover games outside Games to Watch.
 
@@ -80,6 +84,13 @@ with, and flags a newer release of either on GitHub.
 
 The Inventory game filter has a **Use Tracked Games** button that adds every game from
 Games to Watch to the filter.
+
+## Dashboard look
+
+Since upstream 2.2 the dashboard uses upstream's refreshed layout (header with tabs and your
+Twitch avatar, optional **Show thumbnail** in Now Watching), on top of this fork's colours,
+accent bar and sign-in card. Fork-only parts such as the Campaign Searches view are styled
+to fit that layout.
 
 ## Differences in repository setup
 

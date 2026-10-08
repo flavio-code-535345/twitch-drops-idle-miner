@@ -151,7 +151,12 @@
             "no_channels_for_games": "找不到所選遊戲的頻道...",
             "channel_count": "頻道",
             "channel_count_plural": "頻道",
-            "viewers": "觀眾"
+            "viewers": "觀眾",
+            "now_watching": "正在觀看",
+            "show_preview": "顯示縮圖",
+            "hide_preview": "隱藏縮圖",
+            "preview_off": "縮圖已關閉",
+            "preview_help": "載入 Twitch 縮圖會消耗額外流量。每次載入頁面時預設關閉。"
         },
         "inventory": {
             "status": {
@@ -184,7 +189,10 @@
                 "clear": "清除過濾器",
                 "search_placeholder": "搜尋遊戲...",
                 "use_tracked_games": "使用已追蹤的遊戲",
-                "no_tracked_games": "設定 > 關注的遊戲中尚無已追蹤的遊戲。"
+                "no_tracked_games": "設定 > 關注的遊戲中尚無已追蹤的遊戲。",
+                "account_link": "帳號連結",
+                "all": "全部",
+                "linked": "已連結"
             }
         },
         "settings": {
@@ -251,7 +259,10 @@
             "confirm_btn": "確認",
             "cancel_btn": "取消",
             "game_priority": "{game} 的優先順序",
-            "remove_game": "移除 {game}"
+            "remove_game": "移除 {game}",
+            "allow_unlinked_campaigns": "允許挖掘顯示為「未連結」的活動",
+            "allow_unlinked_campaigns_warning": "警告：此選項僅略過 TDM 的帳號連結檢查。它不會連結帳號，也不保證 Twitch 進度、領取成功或遊戲內獎勵。TDM 可能顯示估算的分鐘數。請檢查 Twitch 的 Drops 庫存，並連結正確的遊戲帳號以接收獎勵。",
+            "allow_unlinked_campaigns_save_error": "無法儲存帳號連結挖掘選項，請重試。"
         },
         "help": {
             "about": "關於 Twitch Drops Miner",

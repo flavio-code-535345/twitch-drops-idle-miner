@@ -151,7 +151,12 @@
             "no_channels_for_games": "Seçili oyunlar için kanal bulunamadı...",
             "channel_count": "kanal",
             "channel_count_plural": "kanal",
-            "viewers": "izleyici"
+            "viewers": "izleyici",
+            "now_watching": "Şimdi izlenen",
+            "show_preview": "Küçük resmi göster",
+            "hide_preview": "Küçük resmi gizle",
+            "preview_off": "Küçük resim kapalı",
+            "preview_help": "Twitch küçük resimlerini yükler ve ek bant genişliği kullanır. Her sayfa yüklemesinde kapalıdır."
         },
         "inventory": {
             "status": {
@@ -184,7 +189,10 @@
                 "clear": "Filtreleri Temizle",
                 "search_placeholder": "Oyun ara...",
                 "use_tracked_games": "Takip Edilen Oyunları Kullan",
-                "no_tracked_games": "Ayarlar > İzlenecek Oyunlar bölümünde henüz takip edilen oyun yok."
+                "no_tracked_games": "Ayarlar > İzlenecek Oyunlar bölümünde henüz takip edilen oyun yok.",
+                "account_link": "Hesap bağlantısı",
+                "all": "Tümü",
+                "linked": "Bağlı"
             }
         },
         "settings": {
@@ -251,7 +259,10 @@
             "confirm_btn": "Onayla",
             "cancel_btn": "İptal",
             "game_priority": "{game} için öncelik",
-            "remove_game": "{game} oyununu kaldır"
+            "remove_game": "{game} oyununu kaldır",
+            "allow_unlinked_campaigns": "Bağlı Değil olarak bildirilen kampanyaların kazılmasına izin ver",
+            "allow_unlinked_campaigns_warning": "Uyarı: Bu yalnızca TDM’nin hesap bağlantısı kontrolünü atlar. Hesapları bağlamaz; Twitch ilerlemesini, ödül talebini veya oyun içi ödülleri garanti etmez. TDM tahmini dakikalar gösterebilir. Twitch Drops envanterini kontrol edin ve ödülleri almak için doğru oyun hesabını bağlayın.",
+            "allow_unlinked_campaigns_save_error": "Hesap bağlantısı kazım seçeneği kaydedilemedi. Lütfen tekrar deneyin."
         },
         "help": {
             "about": "Twitch Drops Miner Hakkında",

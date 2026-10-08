@@ -101,7 +101,8 @@ class StreamSelector:
             if entry is not None:
                 wanted_games.append(entry)
 
-        if settings.farm_mode:
+        # getattr: upstream's tests build minimal settings objects without this fork setting.
+        if getattr(settings, "farm_mode", False):
             # Dedupe case-insensitively (keyed by lowercased name, keeping the first-seen
             # casing) rather than by the raw string: Twitch's campaign payloads don't
             # guarantee identical display-name casing for the same category across

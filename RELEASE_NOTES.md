@@ -1,3 +1,78 @@
+# Release Notes - v2.2.1 (upstream sync)
+
+This patch fixes stalled Twitch Drop progress reported in
+[#163](https://github.com/rangermix/TwitchDropsMiner/issues/163).
+
+- Restore watch traffic by polling stream playlists and sending HEAD requests for
+  each new media segment. Stream audio and video are not downloaded.
+- Deduplicate successful segments, preserve state across ordinary stream metadata
+  updates, refresh expired playlist URLs, and stop requests when watching changes.
+- Bound network waits so a failed segment cannot stall the miner. Keep minute
+  telemetry and progress fallback on their existing cadence despite faster polling.
+- Handle malformed playlists safely without printing signed stream URLs or bodies.
+
+Pull this fork's image, `twitch-drops-idle-miner:latest`, from its Docker Hub account while
+preserving your existing data mount, settings, timezone and container options. Valid saved
+logins remain usable. The optional desktop helper is still built only by upstream; the
+sign-in screen links to the matching **2.2.1** helper.
+
+Synced from [upstream rangermix/TwitchDropsMiner v2.2.1](https://github.com/rangermix/TwitchDropsMiner/releases/tag/v2.2.1),
+which also includes v2.2.0 (below).
+
+## This fork
+
+- The watch and drop-progress code is taken unchanged from upstream.
+- The dashboard now uses upstream's refreshed layout on top of the fork's colours, accent
+  bar and sign-in card. Upstream's styles take precedence where both style the same element
+  (panel headings, channel list, wanted queue, dark-mode palette). The Output panel's
+  **Messages / Campaign Searches** tabs and the search log were re-aligned to fit it.
+- Farm Mode keeps working alongside the new **Allow mining campaigns reported as Not Linked**
+  setting; it still farms only badges and emotes, which need no linked account.
+- Upstream's own viewer-close fix replaces the fork's equivalent patch from 2.1.1.
+
+# Release Notes - v2.2.0 (upstream, included in the 2.2.1 sync)
+
+This minor release refreshes the dashboard and adds control over campaigns reported
+as Not Linked, alongside browser cleanup fixes and Docker dependency updates.
+
+## Refreshed dashboard
+
+- A more compact, responsive header groups navigation, account information and
+  connection controls across desktop, tablet and mobile screens. Account and renewal
+  messages retain their full text in tooltips when space is limited.
+- The watched-channel thumbnail is optional and **off on each page load**. Enable
+  it from Now Watching to see a static image; TDM does not play stream video or audio.
+- Updated controls and guidance are available in all 20 supported languages.
+
+## Account-link controls
+
+- Inventory now offers **All / Linked / Not Linked** filters. The selection is saved,
+  and the previous Not Linked checkbox preference migrates automatically.
+- Settings adds **Allow mining campaigns reported as Not Linked**, default **off**.
+  Enable it to attempt mining when you believe Twitch's reported link status is
+  incorrect or stale. Other campaign, channel, timing, prerequisite and ignore checks
+  still apply, and campaign cards keep the reported Linked/Not Linked label.
+- The warning explains that this option does not link accounts or guarantee Twitch
+  progress, claims or in-game rewards. TDM can show estimated minutes; check Twitch's
+  Drops inventory and link the correct game account for reward delivery.
+- Failed saves restore the confirmed override value, and unrelated settings saves
+  cannot silently undo a recent toggle.
+
+## Fixes and maintenance
+
+- Closing or disconnecting the embedded sign-in viewer no longer causes the cleanup
+  traceback addressed in [#159](https://github.com/rangermix/TwitchDropsMiner/pull/159).
+- Chromium cleanup uses Windows process APIs without requiring Unix-only signals.
+  Platform-specific persistence and lifecycle tests now pass on Windows, and Firefox
+  URL rejection tests tolerate scheduling delays while retaining their validation.
+- Docker builds refresh Alpine packages and Chromium and remove unused noVNC server
+  dependencies.
+
+## Updating
+
+This fork went from 2.1.1 straight to 2.2.1; see the 2.2.1 entry above. Reload the dashboard
+after updating so the browser loads the new UI assets.
+
 # Release Notes - v2.1.1 (upstream sync)
 
 An optional desktop helper provides another way to sign in when Twitch rejects the

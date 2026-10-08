@@ -151,7 +151,12 @@
             "no_channels_for_games": "Tidak ada channel ditemukan untuk game yang dipilih...",
             "channel_count": "channel",
             "channel_count_plural": "channel",
-            "viewers": "penonton"
+            "viewers": "penonton",
+            "now_watching": "Sedang ditonton",
+            "show_preview": "Tampilkan gambar mini",
+            "hide_preview": "Sembunyikan gambar mini",
+            "preview_off": "Gambar mini dinonaktifkan",
+            "preview_help": "Memuat gambar mini Twitch dan menggunakan bandwidth tambahan. Nonaktif setiap kali halaman dimuat."
         },
         "inventory": {
             "status": {
@@ -184,7 +189,10 @@
                 "clear": "Hapus Filter",
                 "search_placeholder": "Cari game...",
                 "use_tracked_games": "Gunakan Game yang Dilacak",
-                "no_tracked_games": "Belum ada game yang dilacak di Pengaturan > Game untuk Ditonton."
+                "no_tracked_games": "Belum ada game yang dilacak di Pengaturan > Game untuk Ditonton.",
+                "account_link": "Tautan akun",
+                "all": "Semua",
+                "linked": "Tertaut"
             }
         },
         "settings": {
@@ -251,7 +259,10 @@
             "confirm_btn": "Konfirmasi",
             "cancel_btn": "Batal",
             "game_priority": "Prioritas untuk {game}",
-            "remove_game": "Hapus {game}"
+            "remove_game": "Hapus {game}",
+            "allow_unlinked_campaigns": "Izinkan penambangan kampanye yang dilaporkan Tidak Tertaut",
+            "allow_unlinked_campaigns_warning": "Peringatan: Ini hanya melewati pemeriksaan tautan akun TDM. Ini tidak menautkan akun atau menjamin progres Twitch, klaim, atau hadiah dalam game. TDM dapat menampilkan perkiraan menit. Periksa inventaris Drops Twitch dan tautkan akun game yang benar untuk menerima hadiah.",
+            "allow_unlinked_campaigns_save_error": "Tidak dapat menyimpan opsi penambangan akun tidak tertaut. Silakan coba lagi."
         },
         "help": {
             "about": "Tentang Twitch Drops Miner",

@@ -132,6 +132,11 @@ class GUIProgress(TypedDict):
 
 class GUIChannels(TypedDict):
     name: str
+    now_watching: str
+    show_preview: str
+    hide_preview: str
+    preview_off: str
+    preview_help: str
     online: str
     pending: str
     offline: str
@@ -166,6 +171,9 @@ class GUIWanted(TypedDict):
 
 
 class GUIInvFilters(TypedDict):
+    account_link: str
+    all: str
+    linked: str
     active: str
     not_linked: str
     upcoming: str
@@ -227,6 +235,9 @@ class GUITelegramSettings(TypedDict):
 
 
 class GUISettings(TypedDict):
+    allow_unlinked_campaigns: str
+    allow_unlinked_campaigns_warning: str
+    allow_unlinked_campaigns_save_error: str
     general: GUISettingsGeneral
     telegram: GUITelegramSettings
     mining_benefits: str

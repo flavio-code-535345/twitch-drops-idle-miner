@@ -34,8 +34,9 @@ Twitch OAuth login, persistent local data, and Docker support.
 
 Read [README.md](./README.md) for setup and user behavior, and
 [AGENTS.md](./AGENTS.md) for architecture and detailed implementation constraints.
-The current scope excludes multiple accounts, channel-points mining, unlinked
-campaign mining, and a desktop GUI. Discuss proposed scope changes before implementing
+The current scope excludes multiple accounts, channel-points mining, and a desktop
+GUI. Campaigns reported as Not Linked are skipped by default; users may explicitly
+allow mining attempts without guaranteeing progress, claims, or reward delivery. Discuss proposed scope changes before implementing
 them; opening a feature request does not itself approve a change in scope.
 
 This is a hobby project for personal use on your own hardware and home network.
@@ -374,6 +375,14 @@ Removing previously tracked notes does not remove them from earlier Git commits.
 Read this guide and the applicable agent instructions before planning, editing, testing,
 or reviewing. Pass these requirements to any delegated implementation or review agent.
 The checklist is a completion requirement, not an optional suggestion.
+
+When taking on an issue or PR, first comment there to acknowledge that work is starting
+and briefly state the scope, before investigation, implementation, or review. Acknowledge
+both threads when working on both an issue and a PR. Before ending or pausing work,
+update each thread with the outcome, relevant evidence or validation, and any remaining
+action or request for information. This applies to every outcome, including resolved,
+closed, no change needed, blocked, or more information needed, even if no code changed
+or the issue or PR remains open.
 
 Inspect the current checkout and preserve existing user changes. Stay within the
 authorized task; a request to edit files does not by itself authorize publishing a PR,

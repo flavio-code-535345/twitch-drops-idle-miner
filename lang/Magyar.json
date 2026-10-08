@@ -151,7 +151,12 @@
             "no_channels_for_games": "Nincs csatorna a kiválasztott játékokhoz...",
             "channel_count": "csatorna",
             "channel_count_plural": "csatornák",
-            "viewers": "néző"
+            "viewers": "néző",
+            "now_watching": "Most nézett csatorna",
+            "show_preview": "Bélyegkép megjelenítése",
+            "hide_preview": "Bélyegkép elrejtése",
+            "preview_off": "A bélyegkép ki van kapcsolva",
+            "preview_help": "Twitch-bélyegképeket tölt be, és további sávszélességet használ. Minden oldalbetöltéskor kikapcsolva."
         },
         "settings": {
             "general": {
@@ -217,7 +222,10 @@
             "confirm_btn": "Megerősítés",
             "cancel_btn": "Mégse",
             "game_priority": "{game} prioritása",
-            "remove_game": "{game} eltávolítása"
+            "remove_game": "{game} eltávolítása",
+            "allow_unlinked_campaigns": "A nem összekapcsoltként jelzett kampányok bányászatának engedélyezése",
+            "allow_unlinked_campaigns_warning": "Figyelem: Ez csak a TDM fiók-összekapcsolási ellenőrzését kerüli meg. Nem kapcsol össze fiókokat, és nem garantál Twitch-előrehaladást, igénylést vagy játékon belüli jutalmakat. A TDM becsült perceket jeleníthet meg. Ellenőrizd a Twitch Drops-készletedet, és kapcsold össze a megfelelő játékfiókot a jutalmak átvételéhez.",
+            "allow_unlinked_campaigns_save_error": "Nem sikerült menteni a fiók-összekapcsolási bányászati beállítást. Próbáld újra."
         },
         "help": {
             "about": "A Twitch Drops Miner-ről",
@@ -310,7 +318,10 @@
                 "clear": "Szűrők törlése",
                 "search_placeholder": "Írjon a játékok kereséséhez...",
                 "use_tracked_games": "Követett játékok használata",
-                "no_tracked_games": "Még nincs követett játék a Beállítások > Figyelendő játékok között."
+                "no_tracked_games": "Még nincs követett játék a Beállítások > Figyelendő játékok között.",
+                "account_link": "Fiók összekapcsolása",
+                "all": "Összes",
+                "linked": "Összekapcsolva"
             }
         },
         "history": {

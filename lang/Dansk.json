@@ -151,7 +151,12 @@
             "no_channels_for_games": "Ingen kanaler fundet for valgte spil...",
             "channel_count": "kanal",
             "channel_count_plural": "kanaler",
-            "viewers": "seere"
+            "viewers": "seere",
+            "now_watching": "Ser nu",
+            "show_preview": "Vis miniature",
+            "hide_preview": "Skjul miniature",
+            "preview_off": "Miniaturen er slået fra",
+            "preview_help": "Indlæser Twitch-miniaturer og bruger ekstra båndbredde. Slået fra ved hver sideindlæsning."
         },
         "inventory": {
             "status": {
@@ -184,7 +189,10 @@
                 "clear": "Ryd filtre",
                 "search_placeholder": "Søg efter spil...",
                 "use_tracked_games": "Brug sporede spil",
-                "no_tracked_games": "Ingen sporede spil under Indstillinger > Spil at overvåge endnu."
+                "no_tracked_games": "Ingen sporede spil under Indstillinger > Spil at overvåge endnu.",
+                "account_link": "Kontoforbindelse",
+                "all": "Alle",
+                "linked": "Forbundet"
             }
         },
         "settings": {
@@ -251,7 +259,10 @@
             "confirm_btn": "Bekræft",
             "cancel_btn": "Annuller",
             "game_priority": "Prioritet for {game}",
-            "remove_game": "Fjern {game}"
+            "remove_game": "Fjern {game}",
+            "allow_unlinked_campaigns": "Tillad mining af kampagner vist som ikke forbundet",
+            "allow_unlinked_campaigns_warning": "Advarsel: Dette omgår kun TDMs kontrol af kontoforbindelsen. Det forbinder ikke konti og garanterer ikke Twitch-fremskridt, afhentning eller belønninger i spillet. TDM kan vise estimerede minutter. Kontrollér Twitch Drops-inventaret, og forbind den korrekte spilkonto for at modtage belønninger.",
+            "allow_unlinked_campaigns_save_error": "Kunne ikke gemme indstillingen for mining uden kontoforbindelse. Prøv igen."
         },
         "help": {
             "about": "Om Twitch Drops Miner",

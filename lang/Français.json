@@ -151,7 +151,12 @@
             "no_channels_for_games": "Aucune chaîne trouvée pour les jeux sélectionnés...",
             "channel_count": "chaîne",
             "channel_count_plural": "chaînes",
-            "viewers": "spectateurs"
+            "viewers": "spectateurs",
+            "now_watching": "Chaîne regardée",
+            "show_preview": "Afficher la miniature",
+            "hide_preview": "Masquer la miniature",
+            "preview_off": "La miniature est désactivée",
+            "preview_help": "Charge des miniatures Twitch et utilise de la bande passante supplémentaire. Désactivée à chaque chargement de la page."
         },
         "inventory": {
             "status": {
@@ -184,7 +189,10 @@
                 "clear": "Effacer les filtres",
                 "search_placeholder": "Rechercher des jeux...",
                 "use_tracked_games": "Utiliser les jeux suivis",
-                "no_tracked_games": "Aucun jeu suivi pour l'instant dans Paramètres > Jeux à surveiller."
+                "no_tracked_games": "Aucun jeu suivi pour l'instant dans Paramètres > Jeux à surveiller.",
+                "account_link": "Liaison du compte",
+                "all": "Toutes",
+                "linked": "Lié"
             }
         },
         "settings": {
@@ -251,7 +259,10 @@
             "confirm_btn": "Confirmer",
             "cancel_btn": "Annuler",
             "game_priority": "Priorité de {game}",
-            "remove_game": "Retirer {game}"
+            "remove_game": "Retirer {game}",
+            "allow_unlinked_campaigns": "Autoriser le minage des campagnes signalées comme non liées",
+            "allow_unlinked_campaigns_warning": "Attention : ceci contourne uniquement la vérification de liaison de TDM. Cela ne lie pas les comptes et ne garantit ni progression Twitch, ni récupération, ni récompenses en jeu. TDM peut afficher des minutes estimées. Vérifiez votre inventaire de Drops Twitch et liez le bon compte de jeu pour recevoir les récompenses.",
+            "allow_unlinked_campaigns_save_error": "Impossible d’enregistrer l’option de minage des comptes non liés. Réessayez."
         },
         "help": {
             "about": "À propos de Twitch Drops Miner",

@@ -151,7 +151,12 @@
             "no_channels_for_games": "Keine Kanäle für ausgewählte Spiele gefunden...",
             "channel_count": "Kanal",
             "channel_count_plural": "Kanäle",
-            "viewers": "Zuschauer"
+            "viewers": "Zuschauer",
+            "now_watching": "Wird gerade angesehen",
+            "show_preview": "Vorschaubild anzeigen",
+            "hide_preview": "Vorschaubild ausblenden",
+            "preview_off": "Vorschaubild ist aus",
+            "preview_help": "Lädt Twitch-Vorschaubilder und verbraucht zusätzliche Bandbreite. Bei jedem Laden der Seite ausgeschaltet."
         },
         "inventory": {
             "status": {
@@ -184,7 +189,10 @@
                 "clear": "Filter löschen",
                 "search_placeholder": "Spiele suchen...",
                 "use_tracked_games": "Verfolgte Spiele verwenden",
-                "no_tracked_games": "Noch keine verfolgten Spiele unter Einstellungen > Zu beobachtende Spiele."
+                "no_tracked_games": "Noch keine verfolgten Spiele unter Einstellungen > Zu beobachtende Spiele.",
+                "account_link": "Kontoverknüpfung",
+                "all": "Alle",
+                "linked": "Verknüpft"
             }
         },
         "settings": {
@@ -251,7 +259,10 @@
             "confirm_btn": "Bestätigen",
             "cancel_btn": "Abbrechen",
             "game_priority": "Priorität für {game}",
-            "remove_game": "{game} entfernen"
+            "remove_game": "{game} entfernen",
+            "allow_unlinked_campaigns": "Mining für als nicht verknüpft gemeldete Kampagnen erlauben",
+            "allow_unlinked_campaigns_warning": "Warnung: Dies umgeht nur TDMs Prüfung der Kontoverknüpfung. Es verknüpft keine Konten und garantiert weder Twitch-Fortschritt noch das Einfordern oder die Lieferung von Spielbelohnungen. TDM kann geschätzte Minuten anzeigen. Prüfe dein Twitch-Drops-Inventar und verknüpfe das richtige Spielkonto, um Belohnungen zu erhalten.",
+            "allow_unlinked_campaigns_save_error": "Die Mining-Einstellung zur Kontoverknüpfung konnte nicht gespeichert werden. Bitte versuche es erneut."
         },
         "help": {
             "about": "Über Twitch Drops Miner",

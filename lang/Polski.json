@@ -151,7 +151,12 @@
             "no_channels_for_games": "Nie znaleziono kanałów dla wybranych gier...",
             "channel_count": "kanał",
             "channel_count_plural": "kanały",
-            "viewers": "widzowie"
+            "viewers": "widzowie",
+            "now_watching": "Teraz oglądany kanał",
+            "show_preview": "Pokaż miniaturę",
+            "hide_preview": "Ukryj miniaturę",
+            "preview_off": "Miniatura jest wyłączona",
+            "preview_help": "Ładuje miniatury Twitch i zużywa dodatkową przepustowość. Wyłączony przy każdym wczytaniu strony."
         },
         "inventory": {
             "status": {
@@ -184,7 +189,10 @@
                 "clear": "Wyczyść filtry",
                 "search_placeholder": "Szukaj gier...",
                 "use_tracked_games": "Użyj śledzonych gier",
-                "no_tracked_games": "Brak śledzonych gier w Ustawienia > Gry do obserwowania."
+                "no_tracked_games": "Brak śledzonych gier w Ustawienia > Gry do obserwowania.",
+                "account_link": "Połączenie konta",
+                "all": "Wszystkie",
+                "linked": "Połączone"
             }
         },
         "settings": {
@@ -251,7 +259,10 @@
             "confirm_btn": "Potwierdź",
             "cancel_btn": "Anuluj",
             "game_priority": "Priorytet gry {game}",
-            "remove_game": "Usuń {game}"
+            "remove_game": "Usuń {game}",
+            "allow_unlinked_campaigns": "Zezwalaj na zbieranie dropów z kampanii oznaczonych jako niepołączone",
+            "allow_unlinked_campaigns_warning": "Ostrzeżenie: pomija to tylko sprawdzanie połączenia konta przez TDM. Nie łączy kont ani nie gwarantuje postępu na Twitchu, odbioru dropów lub nagród w grze. TDM może wyświetlać szacowane minuty. Sprawdź ekwipunek Drops na Twitchu i połącz właściwe konto gry, aby otrzymać nagrody.",
+            "allow_unlinked_campaigns_save_error": "Nie udało się zapisać opcji zbierania dropów bez połączenia konta. Spróbuj ponownie."
         },
         "help": {
             "about": "O Twitch Drops Miner",

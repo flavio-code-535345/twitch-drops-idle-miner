@@ -151,7 +151,12 @@
             "no_channels_for_games": "No channels found for selected games...",
             "channel_count": "channel",
             "channel_count_plural": "channels",
-            "viewers": "viewers"
+            "viewers": "viewers",
+            "now_watching": "Now Watching",
+            "show_preview": "Show thumbnail",
+            "hide_preview": "Hide thumbnail",
+            "preview_off": "Thumbnail is off",
+            "preview_help": "Loads Twitch thumbnails and uses extra bandwidth. Off on each page load."
         },
         "settings": {
             "general": {
@@ -217,7 +222,10 @@
             "confirm_btn": "Confirm",
             "cancel_btn": "Cancel",
             "game_priority": "Priority for {game}",
-            "remove_game": "Remove {game}"
+            "remove_game": "Remove {game}",
+            "allow_unlinked_campaigns": "Allow mining campaigns reported as Not Linked",
+            "allow_unlinked_campaigns_warning": "Warning: This bypasses only TDM's account-link check. It does not link accounts or guarantee Twitch progress, claims, or in-game rewards. TDM may show estimated minutes. Check Twitch's Drops inventory and link the correct game account to receive rewards.",
+            "allow_unlinked_campaigns_save_error": "Could not save the account-link mining option. Please try again."
         },
         "help": {
             "about": "About Twitch Drops Miner",
@@ -310,7 +318,10 @@
                 "clear": "Clear Filters",
                 "search_placeholder": "Type to search games...",
                 "use_tracked_games": "Use Tracked Games",
-                "no_tracked_games": "No tracked games in Settings > Games to Watch yet."
+                "no_tracked_games": "No tracked games in Settings > Games to Watch yet.",
+                "account_link": "Account link",
+                "all": "All",
+                "linked": "Linked"
             }
         },
         "history": {

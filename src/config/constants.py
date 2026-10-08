@@ -117,10 +117,12 @@ class GQLQuery(JsonType):
 
 
 class GQLRawQuery(JsonType):
-    """Raw GraphQL query with plain variables, for fields no persisted operation returns."""
+    """Raw GraphQL query operation without persisted query hash."""
 
-    def __init__(self, query: str, variables: JsonType):
-        super().__init__(query=query, variables=variables)
+    def __init__(self, query: str, variables: JsonType | None = None):
+        super().__init__(query=query)
+        if variables is not None:
+            self.__setitem__("variables", variables)
 
 
 class WebsocketTopic:

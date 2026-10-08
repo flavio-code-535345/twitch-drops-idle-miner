@@ -151,7 +151,12 @@
             "no_channels_for_games": "Pro vybrané hry nebyly nalezeny žádné kanály...",
             "channel_count": "kanál",
             "channel_count_plural": "kanály",
-            "viewers": "diváci"
+            "viewers": "diváci",
+            "now_watching": "Právě sledovaný kanál",
+            "show_preview": "Zobrazit miniaturu",
+            "hide_preview": "Skrýt miniaturu",
+            "preview_off": "Miniatura je vypnutá",
+            "preview_help": "Načítá miniatury Twitch a využívá další přenosová data. Při každém načtení stránky je vypnutý."
         },
         "inventory": {
             "status": {
@@ -184,7 +189,10 @@
                 "clear": "Vymazat filtry",
                 "search_placeholder": "Hledat hry...",
                 "use_tracked_games": "Použít sledované hry",
-                "no_tracked_games": "Zatím žádné sledované hry v Nastavení > Hry ke sledování."
+                "no_tracked_games": "Zatím žádné sledované hry v Nastavení > Hry ke sledování.",
+                "account_link": "Propojení účtu",
+                "all": "Všechny",
+                "linked": "Propojeno"
             }
         },
         "settings": {
@@ -251,7 +259,10 @@
             "confirm_btn": "Potvrdit",
             "cancel_btn": "Zrušit",
             "game_priority": "Priorita hry {game}",
-            "remove_game": "Odebrat {game}"
+            "remove_game": "Odebrat {game}",
+            "allow_unlinked_campaigns": "Povolit těžbu kampaní označených jako nepropojené",
+            "allow_unlinked_campaigns_warning": "Varování: Toto obchází pouze kontrolu propojení účtu v TDM. Nepropojí účty ani nezaručí postup na Twitchi, vyzvednutí nebo odměny ve hře. TDM může zobrazovat odhadované minuty. Zkontrolujte inventář Twitch Drops a propojte správný herní účet, abyste získali odměny.",
+            "allow_unlinked_campaigns_save_error": "Možnost těžby bez propojení účtu se nepodařilo uložit. Zkuste to znovu."
         },
         "help": {
             "about": "O Twitch Drops Miner",

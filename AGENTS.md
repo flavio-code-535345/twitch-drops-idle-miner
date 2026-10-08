@@ -24,17 +24,23 @@ project's process, not an active process here.
   `UPSTREAM_VERSION` rather than `MY_VERSION` (`tests/test_helper_download_version.py`).
   Upstream's release, validation, helper-build workflows and issue templates are not part
   of this fork.
-- Fork fix in upstream code: `SessionAPI.viewer` also suppresses `WebSocketDisconnect` when
-  closing the sign-in viewer, because Starlette raises it (not `OSError`) once the dashboard
-  tab has gone, which otherwise logs an "Exception in ASGI application" traceback on every
-  viewer disconnect (`tests/test_vnc_viewer_disconnect.py`). Keep it when syncing upstream.
+- Dashboard styling is layered: the fork's earlier redesign (design tokens, cards, accent
+  bar, sign-in card) comes first in `web/static/styles.css`, upstream 2.2's dashboard
+  refresh block (header with tabs and avatar, padding-free main-grid panels, neutral dark
+  palette) follows and wins where both style the same element, and a short fork section at
+  the very end adapts fork-only components (Output panel view tabs, Campaign Searches log)
+  to upstream's layout. Keep that order when syncing upstream CSS.
+- Fork settings read by shared code use `getattr(settings, "<name>", default)` (for example
+  `farm_mode` in `StreamSelector`), because upstream tests build minimal settings objects
+  without fork-only fields.
 - Developing on Windows: `tests/conftest.py` defaults subprocess pipes and `Path.read_text()`
-  to UTF-8 and skips the upstream tests that need POSIX (`os.killpg`, owner-only file
-  modes, unprivileged symlinks); the container sign-in desktop tests skip themselves off
-  Linux. They pass on Linux, where the Docker image runs. Test with Python 3.12+ as
-  `pyproject.toml` requires: on 3.11 the desktop helper's profile-cleanup tests fail because
-  `shutil.rmtree(onexc=...)` does not exist yet. Upstream's Firefox capture tests use 20 ms
-  timeouts and can flake on a loaded Windows machine; rerun before suspecting code. Check types with
+  to UTF-8 and skips one upstream test that creates symlinks (Windows needs admin rights or
+  Developer Mode); the container sign-in desktop tests skip themselves off Linux. Test with
+  Python 3.12+ as `pyproject.toml` requires. On 3.11 the desktop helper's profile-cleanup
+  tests fail (`shutil.rmtree(onexc=...)` is new in 3.12), and so do upstream's playlist,
+  watch-cadence and avatar tests that detect deadlines through `asyncio.Timeout`, which
+  3.11's `asyncio.wait_for` does not use. Upstream's Firefox capture tests use short
+  timeouts and can flake on a loaded machine; rerun before suspecting code. Check types with
   `mypy --platform linux src/` (POSIX-only `os`/`signal` attributes otherwise fail on
   Windows). Ruff findings in upstream's own session test files are left as shipped.
 - `src/version.py` tracks two numbers: `UPSTREAM_VERSION` (the upstream release this fork
@@ -65,6 +71,14 @@ It is the repository's contribution policy, not optional background reading.
   or PR. Never claim completion of checks that did not run or approval not received.
 - Do not declare a PR ready to merge while required checks or review are missing or
   blocking findings remain. Document the gap and keep an incomplete PR in draft.
+- When taking on an issue or PR, first post a comment there acknowledging that work
+  is starting and briefly stating the scope, before investigation, implementation,
+  or review. If both an issue and a PR are being worked on, acknowledge both.
+- Before ending or pausing work, update every issue or PR being worked on with the
+  outcome, relevant evidence or validation, and any remaining action or request for
+  information. Post this update for every outcome, including resolved, closed,
+  no change needed, blocked, or more information needed, even when no code changed
+  or the issue or PR remains open.
 
 ## Development Guidelines
 
@@ -241,6 +255,23 @@ lang/                # Translation JSON files (20 languages)
   with the application version and serves `/` with `Cache-Control: no-cache`
 - Any `app.js` or `styles.css` change requires an application version bump through the release
   workflow before deployment so existing clients receive a new asset cache key
+- Now Watching offers a page-local thumbnail toggle, off on each page load. Only an
+  explicit opt-in loads a JPEG; channel events refresh it at most once per minute.
+  Disabling it clears the image source, and losing the watched channel resets the toggle.
+  Keep translated labels, native keyboard activation and `aria-pressed` state in sync.
+  The dashboard does not play stream video or audio.
+  Use canonical channel `login`/`url` for thumbnails and Twitch links; `name` is a display
+  label and may contain localized characters. Keep the card title translated.
+  Regression: `test_stream_preview.py`.
+- The dashboard header keeps brand, translated tabs and account controls in one row
+  from 1280 CSS pixels. Narrower screens give navigation a separate row; screens through
+  768 pixels also group account controls and allow account text to wrap. Desktop
+  account/renewal text may shorten with ellipsis, but its full translated text remains
+  in the DOM and title.
+  Update both titles on state changes, including logout and renewal errors. Check all
+  20 locales, dashboard logout controls, keyboard tab navigation and narrow viewports
+  in a rendered browser. `test_header_frontend.py` and `test_browser_login_panel.py`
+  cover full tooltip text and removal of stale account/renewal information.
 
 **src/websocket/pool.py** - WebSocket management:
 
@@ -283,8 +314,16 @@ lang/                # Translation JSON files (20 languages)
   case-insensitive substrings entered one per line; whitespace and blanks are removed and
   duplicates are casefolded while preserving the first spelling/order.
 - Inventory filters (Status, Benefit Type, Game Search); Active/Upcoming/Expired use
-  OR semantics, Not Linked narrows the result, and Finished opts claimed campaigns in.
-  Zero-minute subscription rewards are omitted from Inventory and Wanted Drops Queue;
+  OR semantics; All / Linked / Not Linked narrows the result using Twitch-reported
+  linkage, independently of mining eligibility. Finished opts claimed campaigns in.
+  Persist `inventory_filters.link_status`; migrate the previous `show_only_not_linked`
+  checkbox before merging defaults. The older `show_not_linked` key stays ignored.
+- `allow_unlinked_campaigns` defaults false. Only explicit boolean true bypasses the
+  campaign account-link gate; preserve raw `linked` metadata, badge/emote eligibility,
+  timing, ACL/category, Games to Watch, prerequisites, claims, and ignore checks.
+  Changes trigger game selection refresh. Keep the warning and save-failure feedback
+  translated and safely rendered. Estimated minutes do not prove Twitch progress.
+- Zero-minute subscription rewards are omitted from Inventory and Wanted Drops Queue;
   individually expired and non-mineable rewards are omitted from the queue without hiding
   upcoming or sequential rewards; successful claims refresh the queue immediately; the
   actively watched channel remains visible while game settings are changing
@@ -386,9 +425,24 @@ progress to an ignored drop while the miner intentionally targets another reward
   logged out, preserving its single form and listeners. Embedded login stays the default;
   desktop helpers are an explicit fallback. Detailed user
   guidance lives in `docs/authentication.md`; private tests and credentials stay ignored.
+- `SessionAPI.viewer()` drains its bridge tasks, closes the VNC connection and releases
+  its viewer slot on disconnect or cancellation. Its final WebSocket close must tolerate
+  `WebSocketDisconnect`, including Starlette's conversion of transport `OSError`.
+  Preserve regression coverage for abrupt viewer closure, task cancellation and
+  propagation of unexpected close errors; disconnecting a viewer does not end login.
 - Preserve matching WEB client/device/token/integrity/user-agent for imported requests,
   `Channel.url` on WEB for beacon discovery, locale/schema parity and safe DOM rendering.
   Never include session, SDK, password or verification data in dashboard status/logs.
+- `LoginFormManager` may publish the account's Twitch avatar as an optional `avatar_url`
+  in login status. It is fetched once per account change through the authenticated
+  `currentUser` GQL raw query (`GQLRawQuery`), accepted only when it is an `https://`
+  URL, and rendered by the frontend as a CSS background on `#user-avatar` with the
+  initial-letter fallback preserved. It must never be sourced from or expose credentials.
+  Avatar requests are optional, bounded to ten seconds, attempted once per account
+  context, and accepted only for the matching `currentUser.id`. Track and cancel them
+  when login clears; cancel AND await them before identity replacement and shutdown.
+  Keep exception details out of avatar logs. Preserve responsive wrapping of header
+  navigation and account controls at tablet widths.
 - `HelperConnections` owns only temporary admission and receipts. It must call the
   shared `SessionController.accept()`; never add a second renewal worker or bypass
   current account validation, authentication-change draining, or logged-out persistence.
@@ -462,12 +516,24 @@ progress to an ignored drop while the miner intentionally targets another reward
 
 ### Drop Mining Mechanism
 
-The application sends periodic "watch" payloads through Twitch GraphQL `sendSpadeEvents`:
-
-- Payload contains gzip/base64-encoded minute-watched events with channel/broadcast IDs
-- Twitch reports progress via websocket (User.Drops topic)
-- If websocket updates stop, fallback to GQL CurrentDrop query
-- Extrapolation via "bump minutes" when no updates received
+- `Channel.send_watch()` polls the lowest-bandwidth HLS playlist and sends HEAD requests
+  for every new media segment, without downloading stream audio or video. `WatchService`
+  polls about every ten seconds, within the rolling playlist window.
+- Deduplicate successful segments in a bounded 256-entry cache per channel/broadcast;
+  retain it and the cached playlist URL across same-broadcast metadata refreshes. Reset
+  on a new broadcast; account replacement drains watch tasks and derived channel state.
+  Retry failed segments, refresh expired playlist URLs, and stop stale batches when the
+  selected channel or broadcast changes or goes offline. Bound the entire poll and
+  each request; propagate cancellation and process exit. Never log signed URLs or bodies.
+- Spade minute-watched telemetry remains auxiliary and runs at most once per 59 seconds.
+  Its HTTP 204 response and a Watching label do not prove Twitch has credited progress.
+  Keep fallback CurrentDrop queries and estimated-minute bumps on the existing minute
+  cadence when changing playlist polling, including across restarts/channel events.
+- Twitch reports authoritative progress through User.Drops websocket events and GraphQL
+  Inventory/CurrentDrop. Distinguish those readings from dashboard estimates and mocks.
+  Playlist/transport, lifecycle, and controlled-clock regressions live in
+  `tests/test_playlist_watch.py`, `tests/test_watch_transport.py`, and
+  `tests/test_watch_poll_cadence.py`.
 
 ### GraphQL Operations
 
@@ -703,6 +769,14 @@ missing category/drops flags, offline and nonparticipating channels, disabled or
 Games to Watch selection, campaign/drop eligibility, active-campaign selection, and fallback
 priority and failover. It uses mocked Twitch state and does not verify live Twitch progress.
 
+Session persistence tests retain POSIX 0600/0700 assertions only on POSIX; Windows
+credential files inherit their destination directory ACLs, so mode bits cannot prove
+Windows privacy. Keep those directories private. Owned Chromium cleanup uses process
+groups on POSIX and terminate/kill on Windows without requiring SIGKILL there; retain
+both platform branches and graceful/forced-stop regression coverage. Firefox URL
+allowlist tests need a realistic capture deadline so scheduling delay does not mask
+protocol rejection; preserve rejection and target-cleanup assertions.
+
 ### Continuous Integration
 
 There is no automated lint/type-check/test workflow in this fork — run Ruff, Mypy, and
@@ -778,8 +852,14 @@ The application uses a web-based interface accessible via browser:
 
 **Dockerfile:**
 
-- Based on `python:3-alpine`, including Chromium for internal SDK renewal
-- Installs dependencies from `pyproject.toml`
+- Uses floating `python:alpine` and `alpine:latest` base tags, including Chromium for
+  internal SDK renewal. Upgrade Alpine packages during builds; security rebuilds must
+  pull current base images and bypass cached package-install layers.
+  Copy noVNC browser assets from a separate stage; the application's authenticated VNC
+  proxy replaces websockify, so its unused server dependencies stay out of the runtime.
+- Installs dependencies from `pyproject.toml`, then removes installed pip and its vendored
+  modules; Python's bundled `ensurepip` bootstrap wheel remains. Dependency changes
+  require rebuilding the image.
 - Exposes port 8080
 - Health check on the public `/healthz` endpoint
 
@@ -819,7 +899,6 @@ with this policy when reviewing proposals or documenting deployment options.
 
 - Multi-account support
 - Channel points mining
-- Mining for unlinked campaigns
 - Desktop GUI
 
 ### Claimed Drop History
