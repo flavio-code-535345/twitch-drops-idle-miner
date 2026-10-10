@@ -1,3 +1,40 @@
+# Release Notes - v2.2.2 (upstream sync)
+
+This patch skips channels that Twitch reports as banned for your account and adds
+deidentified diagnosis files for bug reports, addressing
+[#165](https://github.com/rangermix/TwitchDropsMiner/issues/165).
+
+- Exclude both permanent and temporary bans from discovery and watching, including
+  manual selections. Temporary bans stop excluding the channel at their reported
+  expiry; otherwise a later check must confirm that the ban is gone.
+- Preserve confirmed bans through failed checks and **Clear All Cache**. Missing
+  ban information does not create a ban or change other campaign eligibility checks.
+- Add **Settings → Dump diagnosis data** in all 20 languages. Reproduce the problem,
+  then save miner state, runtime/browser details, progress, and recent sanitized
+  responses from the miner's operational APIs in the existing data volume at
+  `/app/data/diagnostics`.
+- Replace identities and free text with aliases and exclude credentials, headers,
+  cookies and browser profiles. Diagnosis files retain bounded recent evidence,
+  with ten files kept at up to 8 MiB each. Files are not uploaded automatically.
+- Keep Twitch-reported progress separate from local estimates in diagnosis data.
+
+Pull this fork's image, `twitch-drops-idle-miner:latest`, from its Docker Hub account while
+preserving your existing data mount, settings, timezone and container options, then reload
+the dashboard to load the new controls. Diagnosis files are written to the data volume at
+`/app/data/diagnostics`; see the
+[diagnosis guide](docs/troubleshooting.md#save-diagnosis-data).
+
+Synced from [upstream rangermix/TwitchDropsMiner v2.2.2](https://github.com/rangermix/TwitchDropsMiner/releases/tag/v2.2.2).
+
+## This fork
+
+- Banned channels are also skipped by everything the fork adds: Farm Mode and campaigns
+  found through the channel-based discovery are watched through the same channel checks.
+- The update check, which compares both this fork and upstream, records its GitHub
+  responses in diagnosis data like upstream's single check does.
+- Diagnosis data keeps the fork's campaign-discovery query (`ChannelDropCampaigns`) in
+  its own entry instead of an unnamed GraphQL bucket.
+
 # Release Notes - v2.2.1 (upstream sync)
 
 This patch fixes stalled Twitch Drop progress reported in

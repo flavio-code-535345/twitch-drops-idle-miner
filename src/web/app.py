@@ -20,6 +20,7 @@ from src.config.paths import DATA_DIR
 from src.config.settings import InventoryFilterSettings
 from src.version import UPSTREAM_VERSION, __version__
 from src.web.auth import AuthAPI, AuthMiddleware, AuthSocketServer, WebAuth
+from src.web.diagnostics_api import DiagnosticsAPI
 from src.web.helper_api import HelperAPI
 from src.web.session_api import SessionAPI
 
@@ -46,7 +47,7 @@ socket_app = AuthMiddleware(socketio.ASGIApp(sio, app), web_auth)
 
 @app.exception_handler(RequestValidationError)
 async def validation_error(request, exc):
-    if request.url.path.startswith("/api/auth/"):
+    if request.url.path.startswith(("/api/auth/", "/api/diagnostics")):
         return JSONResponse({"detail": "invalid_request"}, status_code=422)
     return await request_validation_exception_handler(request, exc)
 
@@ -57,6 +58,7 @@ _server_instance: uvicorn.Server | None = None
 
 app.include_router(SessionAPI(web_auth, lambda: twitch_client).router)
 app.include_router(HelperAPI(web_auth, lambda: twitch_client).router)
+app.include_router(DiagnosticsAPI(lambda: twitch_client).router)
 
 
 def set_managers(gui: WebGUIManager, twitch: Twitch):
@@ -271,6 +273,8 @@ async def verify_proxy(request: ProxyVerifyRequest):
             aiohttp.ClientSession() as session,
             session.get("https://www.twitch.tv", proxy=proxy_url, timeout=10) as response,
         ):
+            if twitch_client is not None:
+                twitch_client.diagnostics.record_http("GET", "https://www.twitch.tv", response.status)
             # Just checking if we can connect and get a response
             if response.status < 500:
                 latency = round((time.time() - start_time) * 1000)
@@ -285,6 +289,8 @@ async def verify_proxy(request: ProxyVerifyRequest):
                     "message": f"Proxy reachable but returned {response.status}",
                 }
     except Exception as e:
+        if twitch_client is not None:
+            twitch_client.diagnostics.record("twitch_page", outcome="timeout" if isinstance(e, TimeoutError) else "connection")
         return {"success": False, "message": f"Connection failed: {str(e)}"}
 
 
@@ -317,7 +323,7 @@ async def test_telegram(request: TelegramTestRequest):
         return {"success": False, "message": "Bot token and chat ID are required"}
 
     try:
-        notifier = TelegramNotifier(bot_token, chat_id)
+        notifier = TelegramNotifier(bot_token, chat_id, diagnostics=getattr(twitch_client, "diagnostics", None))
         result = await notifier.test_connection()
 
         if result:
@@ -337,13 +343,24 @@ async def test_telegram(request: TelegramTestRequest):
         }
 async def _fetch_latest_release(session, repo: str) -> tuple[str | None, str | None]:
     """Return (tag version without leading 'v', release html_url) for a repo's latest release."""
-    async with session.get(
-        f"https://api.github.com/repos/{repo}/releases/latest", timeout=5
-    ) as response:
-        if response.status != 200:
-            return None, None
-        data = await response.json()
-        return data.get("tag_name", "").lstrip("v") or None, data.get("html_url")
+    url = f"https://api.github.com/repos/{repo}/releases/latest"
+    try:
+        async with session.get(url, timeout=5) as response:
+            if response.status != 200:
+                if twitch_client is not None:
+                    twitch_client.diagnostics.record_http("GET", url, response.status)
+                return None, None
+            data = await response.json()
+            if twitch_client is not None:
+                twitch_client.diagnostics.record_http("GET", url, response.status, payload=data)
+            return data.get("tag_name", "").lstrip("v") or None, data.get("html_url")
+    except Exception as error:
+        if twitch_client is not None:
+            twitch_client.diagnostics.record(
+                "github_version",
+                outcome="timeout" if isinstance(error, TimeoutError) else "connection",
+            )
+        raise
 
 
 def _is_newer_version(candidate: str | None, current: str) -> bool:

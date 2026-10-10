@@ -28,6 +28,17 @@ query ChannelDropCampaigns($id: ID!) {
 """
 
 
+# Optional account-specific channel check; keep existing persisted stream reads intact.
+CHANNEL_BAN_QUERY = """
+query ChannelBanStatus($channelID: ID!) {
+    user(id: $channelID) {
+        id
+        self { banStatus { isPermanent expiresAt } }
+    }
+}
+"""
+
+
 GQL_OPERATIONS: dict[str, GQLOperation] = {
     # returns stream information for a particular channel
     "GetStreamInfo": GQLOperation(
