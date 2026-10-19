@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections import OrderedDict, abc, deque
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from datetime import datetime, timedelta, timezone
 from functools import partial
 from time import time
@@ -44,6 +44,7 @@ from src.services.stream_selector import StreamSelector
 from src.services.watch_service import WatchService
 from src.utils import (
     AwaitableValue,
+    window_status,
 )
 from src.websocket import WebsocketPool
 
@@ -107,6 +108,9 @@ class Twitch:
         self.websocket = WebsocketPool(self)
         # Maintenance task
         self._mnt_task: asyncio.Task[None] | None = None
+        # Mining-hours schedule task
+        self._schedule_task: asyncio.Task[None] | None = None
+        self._schedule_changed = asyncio.Event()
         # Services
         self._maintenance_service: MaintenanceService = MaintenanceService(self)
         self._channel_service: ChannelService = ChannelService(self)
@@ -176,12 +180,12 @@ class Twitch:
         self._changing_auth = True
         self._resume_mining.clear()
         try:
-            tasks = [task for task in (self._run_task, self._watching_task, self._mnt_task)
+            tasks = [task for task in (self._run_task, self._schedule_task, self._watching_task, self._mnt_task)
                      if task is not None and task is not asyncio.current_task()]
             for task in tasks:
                 task.cancel()
             await asyncio.gather(*tasks, return_exceptions=True)
-            self._watching_task = self._mnt_task = None
+            self._schedule_task = self._watching_task = self._mnt_task = None
             await self.websocket.stop(clear_topics=True)
             await self._stop_channel_tasks()
             await self.gui.login.stop_avatar()
@@ -246,6 +250,7 @@ class Twitch:
         if self._mnt_task is not None:
             self._mnt_task.cancel()
             self._mnt_task = None
+        await self._stop_mining_schedule()
         # stop websocket and close HTTP session
         await self.websocket.stop(clear_topics=True)
         await self._stop_channel_tasks()
@@ -280,6 +285,7 @@ class Twitch:
         if self._state is State.EXIT:
             return False
         self._games_update_pending = True
+        self._schedule_changed.set()
         self._state_change.set()
         return True
 
@@ -293,6 +299,7 @@ class Twitch:
         """Prioritize a queued settings recalculation before the next wait."""
         if (
             self._games_update_pending
+            and self.is_mining_time()
             and self._inventory_loaded
             and self._state not in (State.INVENTORY_FETCH, State.EXIT)
         ):
@@ -336,13 +343,67 @@ class Twitch:
 
     def _activate_pending_inventory_refresh(self) -> None:
         """Prioritize a queued refresh over the next normal state transition."""
-        if self._inventory_refresh_pending and self._state is not State.EXIT:
+        if (
+            self._inventory_refresh_pending
+            and self._state is not State.EXIT
+            and self.is_mining_time()
+        ):
             self._state = State.INVENTORY_FETCH
             self._state_change.set()
 
     def get_change_state_callable(self, state: State) -> abc.Callable[[], None]:
         """Return a callable that changes state when invoked (deferred call for GUI usage)."""
         return partial(self.change_state, state)
+
+    def is_mining_time(self) -> bool:
+        """Return whether the configured mining window includes the current local time."""
+        hours = getattr(self.settings, "mining_hours", None)
+        if not isinstance(hours, dict) or hours.get("mode") != "range":
+            return True
+        in_window, _ = window_status(
+            hours.get("start", ""), hours.get("end", ""), datetime.now()
+        )
+        return in_window
+
+    async def _stop_mining_schedule(self) -> None:
+        task, self._schedule_task = self._schedule_task, None
+        if task is not None:
+            task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
+
+    async def _mining_schedule_loop(self) -> None:
+        """Enforce both boundaries, and recompute immediately after policy edits."""
+        was_open = self.is_mining_time()
+        while self._state is not State.EXIT:
+            self._schedule_changed.clear()
+            is_open = self.is_mining_time()
+            if not is_open:
+                # Clear selection before cancelling so stale playlist batches stop too.
+                self.stop_watching()
+                self.gui.progress.stop_timer()
+                task, self._watching_task = self._watching_task, None
+                if task is not None:
+                    task.cancel()
+                    await asyncio.gather(task, return_exceptions=True)
+                self.gui.status.update(_.t["gui"]["status"]["outside_hours"])
+                if was_open:
+                    self.change_state(State.IDLE)
+            else:
+                if self._watching_task is None:
+                    self._watching_task = asyncio.create_task(self._watch_service.watch_loop())
+                if not was_open:
+                    self.request_inventory_refresh(trigger="mining_hours")
+            if is_open != was_open:
+                # The campaign search log shows scheduled searches as paused off-hours.
+                self.gui.broadcast_refresh_log()
+            was_open = is_open
+            hours = getattr(self.settings, "mining_hours", None)
+            delay = 60.0
+            if isinstance(hours, dict) and hours.get("mode") == "range":
+                _in_window, delay = window_status(hours.get("start", ""), hours.get("end", ""), datetime.now())
+            # Bound wall-clock/DST resampling; monotonic multi-hour sleeps go stale.
+            with suppress(TimeoutError):
+                await asyncio.wait_for(self._schedule_changed.wait(), timeout=max(0.01, min(delay, 60)))
 
     def close(self) -> None:
         """
@@ -351,6 +412,7 @@ class Twitch:
         """
         self.change_state(State.EXIT)
         self._resume_mining.set()
+        self._schedule_changed.set()
         if self._browser is not None:
             self._browser.request_stop()
 
@@ -390,6 +452,7 @@ class Twitch:
                 except aiohttp.ContentTypeError as exc:
                     raise RequestException(_.t["login"]["unexpected_content"]) from exc
         finally:
+            await self._stop_mining_schedule()
             self._channel_service.clear_bans()
             self.diagnostics.stop_logs()
             await self.login_browser.stop()
@@ -412,7 +475,9 @@ class Twitch:
         # NOTE: watch task is explicitly restarted on each new run
         if self._watching_task is not None:
             self._watching_task.cancel()
-        self._watching_task = asyncio.create_task(self._watch_service.watch_loop())
+        self._watching_task = (
+            asyncio.create_task(self._watch_service.watch_loop()) if self.is_mining_time() else None
+        )
         # Add default topics
         self.websocket.add_topics(
             [
@@ -427,14 +492,24 @@ class Twitch:
                 ),
             ]
         )
+        # Replace and drain the previous account/run's schedule before starting.
+        await self._stop_mining_schedule()
+        self._schedule_task = asyncio.create_task(self._mining_schedule_loop())
         full_cleanup: bool = False
         channels: Final[OrderedDict[int, Channel]] = self.channels
         self.request_inventory_refresh(trigger="startup")
         while True:
             self._activate_pending_inventory_refresh()
             self._activate_pending_games_update()
+            if self._state not in (State.EXIT, State.IDLE) and not self.is_mining_time():
+                # Defer queued work until reopening without reactivating its event.
+                self.stop_watching()
+                self.change_state(State.IDLE)
             if self._state is State.IDLE:
-                self.gui.status.update(_.t["gui"]["status"]["idle"])
+                if self.is_mining_time():
+                    self.gui.status.update(_.t["gui"]["status"]["idle"])
+                else:
+                    self.gui.status.update(_.t["gui"]["status"]["outside_hours"])
                 self.stop_watching()
                 # clear the flag and wait until it's set again
                 self._state_change.clear()
@@ -464,11 +539,12 @@ class Twitch:
                         for drop in campaign.drops:
                             if drop.can_claim:
                                 await drop.claim()
-                # figure out which games we want based on games_to_watch whitelist
+                # figure out which games we want based on selected priorities
                 self.wanted_games.clear()
                 games_to_watch: list[str] = self.settings.games_to_watch
                 next_hour: datetime = datetime.now(timezone.utc) + timedelta(hours=1)
                 logger.info("games_to_watch: %s", games_to_watch)
+                logger.info("priority_list_only: %s", self.settings.priority_list_only)
                 logger.info(
                     "inventory has %d eligible campaigns",
                     sum(1 for c in self.inventory if c.eligible),
@@ -480,7 +556,8 @@ class Twitch:
                     self._output_campaign_mapping(next_hour)
 
                 logger.info("Building wanted games list")
-                # Build wanted_games list preserving the order from games_to_watch
+                # Build wanted_games list preserving selected priority order,
+                # optionally appending all other eligible games as fallback.
                 self.wanted_games = self._stream_selector.get_wanted_games(
                     self.settings, self.inventory
                 )
@@ -605,7 +682,7 @@ class Twitch:
                     unbanned_channels, key=ChannelService.get_viewers_key, reverse=True
                 )
                 ordered_channels.sort(key=lambda ch: ch.acl_based, reverse=True)
-                ordered_channels.sort(key=self._channel_service.get_priority)
+                ordered_channels.sort(key=self._channel_service.get_mining_priority)
                 # ensure that we won't end up with more channels than we can handle
                 # NOTE: we trim from the end because that's where the non-priority,
                 # offline (or online but low viewers) channels end up
@@ -712,7 +789,7 @@ class Twitch:
                 # Auto-select best channel based on priority
                 else:
                     for channel in sorted(
-                        channels.values(), key=self._channel_service.get_priority
+                        channels.values(), key=self._channel_service.get_mining_priority
                     ):
                         if self.can_watch(channel) and self.should_switch(channel):
                             new_watching = channel
@@ -754,7 +831,7 @@ class Twitch:
 
     def can_watch(self, channel: Channel) -> bool:
         """Delegate to WatchService."""
-        return self._watch_service.can_watch(channel)
+        return self.is_mining_time() and self._watch_service.can_watch(channel)
 
     def should_switch(self, channel: Channel) -> bool:
         """Delegate to WatchService."""
@@ -762,7 +839,8 @@ class Twitch:
 
     def watch(self, channel: Channel, *, update_status: bool = True) -> None:
         """Delegate to WatchService."""
-        self._watch_service.watch(channel, update_status=update_status)
+        if self.is_mining_time():
+            self._watch_service.watch(channel, update_status=update_status)
 
     def stop_watching(self) -> None:
         """Delegate to WatchService."""

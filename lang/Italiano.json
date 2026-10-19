@@ -69,6 +69,7 @@
             "in": "tra {duration}",
             "due_now": "prevista ora",
             "overdue": "in ritardo di {duration}",
+            "paused": "Ricerche programmate in pausa fuori dall'orario di mining",
             "searching_now": "Ricerca in corso · {duration}",
             "col_started": "Avvio",
             "col_trigger": "Motivo",
@@ -93,6 +94,7 @@
                 "drop_notification": "Notifica drop",
                 "campaign_finished": "Campagna terminata",
                 "unknown_claim": "Drop sconosciuto riscattato",
+                "mining_hours": "Inizio dell'orario di mining",
                 "other": "Altro"
             }
         },
@@ -107,7 +109,8 @@
             "fetching_inventory": "Recupero dell'inventario...",
             "fetching_campaigns": "Recupero delle campagne...",
             "adding_campaigns": "Aggiunta delle campagne all'inventario... {counter}",
-            "ready": "Pronto"
+            "ready": "Pronto",
+            "outside_hours": "Fuori dall'orario di mining"
         },
         "tabs": {
             "main": "Principale",
@@ -203,6 +206,8 @@
             "reload": "Ricarica",
             "games_to_watch": "Giochi da guardare",
             "games_help": "Seleziona i giochi da guardare. L'ordine è importante - trascina per riordinare la priorità (in alto = priorità massima).",
+            "priority_list_only": "Solo lista priorità (mina solo i giochi selezionati)",
+            "priority_list_only_save_error": "Impossibile salvare l’opzione di priorità dei giochi. Riprova.",
             "search_games": "Cerca giochi...",
             "select_all": "Seleziona tutto",
             "deselect_all": "Deseleziona tutto",
@@ -268,7 +273,38 @@
             "diagnostics_saving": "Salvataggio dei dati diagnostici…",
             "diagnostics_saved": "Dati diagnostici salvati in {path}.",
             "diagnostics_error": "Impossibile salvare i dati diagnostici. Riprova.",
-            "diagnostics_busy": "Un salvataggio diagnostico è già in corso o è appena terminato. Attendi qualche secondo e riprova."
+            "diagnostics_busy": "Un salvataggio diagnostico è già in corso o è appena terminato. Attendi qualche secondo e riprova.",
+            "mining_hours": "Orario di mining",
+            "mining_hours_help": "Usa l’ora locale del miner (Docker TZ). L’intervallo può attraversare la mezzanotte; orari uguali indicano tutto il giorno. Fuori intervallo, la visione viene sospesa e riprende automaticamente.",
+            "mining_hours_always": "Tutto il giorno (24/7)",
+            "mining_hours_range": "Intervallo di tempo personalizzato",
+            "mining_hours_start": "Inizio",
+            "mining_hours_end": "Fine",
+            "mining_hours_save_error": "Impossibile salvare gli orari. Riprova.",
+            "discord": {
+                "name": "Notifiche Discord",
+                "description": "Ricevi notifiche su Discord quando riscatti i drop.",
+                "webhook_url": "URL Webhook di Discord",
+                "webhook_url_hint": "Incolla l'URL completo del webhook (include il tuo token segreto).",
+                "setup_steps": [
+                    "Apri il tuo server Discord e vai alle impostazioni del canale (icona ingranaggio accanto al nome del canale)",
+                    "Vai su Integrazioni → Webhooks",
+                    "Clicca su Nuovo webhook, dagli un nome e scegli il canale testuale (vedi <a href=\"https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks\" target=\"_blank\">Introduzione ai webhook</a>)",
+                    "Clicca su Copia URL webhook - ha questo aspetto: https://discord.com/api/webhooks/ID/TOKEN",
+                    "Incolla l'URL nel campo URL Webhook di Discord nelle Impostazioni e clicca su Salva impostazioni",
+                    "Clicca su Prova connessione per verificare e ricevere una notifica di prova"
+                ],
+                "success": "✓ Connessione a Discord riuscita! Riceverai le notifiche dei drop.",
+                "saved": "✓ Impostazioni salvate con successo!",
+                "error": "Connessione a Discord non riuscita. Controlla l'URL del webhook.",
+                "missing_credentials": "Inserisci un URL Webhook di Discord. Consulta le istruzioni nella scheda Aiuto.",
+                "remove_webhook": "Rimuovi webhook",
+                "removed": "Webhook rimosso. Le notifiche Discord sono disattivate.",
+                "credentials_help": "Lascia vuoto l’URL per riutilizzare il webhook salvato. Rimuovi webhook disattiva le notifiche ed elimina l’URL salvato.",
+                "save_error": "Impossibile salvare le impostazioni Discord.",
+                "save_settings": "Salva impostazioni",
+                "test_connection": "Prova Connessione"
+            }
         },
         "help": {
             "about": "Informazioni su Twitch Drops Miner",

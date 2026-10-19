@@ -69,6 +69,7 @@
             "in": "za {duration}",
             "due_now": "naplánováno nyní",
             "overdue": "zpožděno o {duration}",
+            "paused": "Plánovaná hledání jsou mimo dobu těžby pozastavena",
             "searching_now": "Probíhá hledání · {duration}",
             "col_started": "Zahájeno",
             "col_trigger": "Spouštěč",
@@ -93,6 +94,7 @@
                 "drop_notification": "Oznámení o dropu",
                 "campaign_finished": "Kampaň dokončena",
                 "unknown_claim": "Vyzvednut neznámý drop",
+                "mining_hours": "Začátek doby těžby",
                 "other": "Jiné"
             }
         },
@@ -107,7 +109,8 @@
             "fetching_inventory": "Načítání inventáře...",
             "fetching_campaigns": "Načítání dropů...",
             "adding_campaigns": "Přidávám dropy... {counter}",
-            "ready": "Připraveno"
+            "ready": "Připraveno",
+            "outside_hours": "Mimo dobu těžby"
         },
         "tabs": {
             "main": "Hlavní",
@@ -203,6 +206,8 @@
             "reload": "Obnovit",
             "games_to_watch": "Hry ke sledování",
             "games_help": "Vyberte hry ke sledování. Záleží na pořadí - přetáhněte pro změnu priority (nahoře = nejvyšší priorita).",
+            "priority_list_only": "Pouze seznam priorit (těžit pouze vybrané hry)",
+            "priority_list_only_save_error": "Nastavení priority her se nepodařilo uložit. Zkuste to znovu.",
             "search_games": "Hledat hry...",
             "select_all": "Vybrat vše",
             "deselect_all": "Zrušit výběr",
@@ -268,7 +273,38 @@
             "diagnostics_saving": "Ukládání diagnostických dat…",
             "diagnostics_saved": "Diagnostická data byla uložena do {path}.",
             "diagnostics_error": "Diagnostická data se nepodařilo uložit. Zkuste to znovu.",
-            "diagnostics_busy": "Ukládání diagnostiky již probíhá nebo právě skončilo. Počkejte několik sekund a zkuste to znovu."
+            "diagnostics_busy": "Ukládání diagnostiky již probíhá nebo právě skončilo. Počkejte několik sekund a zkuste to znovu.",
+            "mining_hours": "Doba těžby",
+            "mining_hours_help": "Používá místní čas mineru (Docker TZ). Interval může přejít přes půlnoc; shodný začátek a konec znamená celý den. Mimo interval se sledování pozastaví a automaticky obnoví.",
+            "mining_hours_always": "Celý den (24/7)",
+            "mining_hours_range": "Vlastní časový rozsah",
+            "mining_hours_start": "Začátek",
+            "mining_hours_end": "Konec",
+            "mining_hours_save_error": "Čas těžby se nepodařilo uložit. Zkuste to znovu.",
+            "discord": {
+                "name": "Notifikace Discord",
+                "description": "Dostávejte upozornění na Discordu, když obdržíte dropy.",
+                "webhook_url": "URL webhooku Discord",
+                "webhook_url_hint": "Vložte celou URL webhooku (obsahuje váš tajný token).",
+                "setup_steps": [
+                    "Otevřete svůj server Discord a přejděte do nastavení kanálu (ikona ozubeného kola vedle názvu kanálu)",
+                    "Přejděte do Integrace → Webhooky",
+                    "Klikněte na Nový webhook, dejte mu název a vyberte textový kanál (viz <a href=\"https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks\" target=\"_blank\">Úvod do webhooků</a>)",
+                    "Klikněte na Zkopírovat URL webhooku - vypadá takto: https://discord.com/api/webhooks/ID/TOKEN",
+                    "Vložte URL do pole URL webhooku Discord v Nastavení a klikněte na Uložit nastavení",
+                    "Klikněte na Otestovat připojení pro ověření a obdržení zkušebního upozornění"
+                ],
+                "success": "✓ Připojení k Discordu úspěšné! Budete dostávat upozornění na dropy.",
+                "saved": "✓ Nastavení úspěšně uloženo!",
+                "error": "Nepodařilo se připojit k Discordu. Zkontrolujte URL webhooku.",
+                "missing_credentials": "Zadejte URL webhooku Discord. Návod najdete na kartě Nápověda.",
+                "remove_webhook": "Odstranit webhook",
+                "removed": "Webhook odstraněn. Oznámení Discord jsou vypnuta.",
+                "credentials_help": "Pro použití uloženého webhooku nechte URL prázdné. Odstranit webhook vypne oznámení a smaže uloženou URL.",
+                "save_error": "Nastavení Discord se nepodařilo uložit.",
+                "save_settings": "Uložit nastavení",
+                "test_connection": "Testovat připojení"
+            }
         },
         "help": {
             "about": "O Twitch Drops Miner",

@@ -123,5 +123,47 @@ class TestFarmMode(unittest.TestCase):
         self.assertTrue(by_name["Untracked Badge Game"]["farm_mode"])
 
 
+    def test_farm_mode_follows_upstream_priority_fallback_and_queues_each_game_once(self):
+        # Upstream 2.3 fallback (priority_list_only off) queues other games with the user's
+        # own reward preferences first; Farm Mode then adds the remaining badge/emote games.
+        self.settings.farm_mode = True
+        self.settings.priority_list_only = False
+        self.settings.mining_benefits = {
+            "BADGE": False,
+            "EMOTE": False,
+            "DIRECT_ENTITLEMENT": True,
+            "UNKNOWN": False,
+        }
+        tracked = _campaign(1, "Tracked Game", BenefitType.DIRECT_ENTITLEMENT)
+        fallback_late = _campaign(2, "Late Item Game", BenefitType.DIRECT_ENTITLEMENT)
+        fallback_soon = _campaign(3, "Soon Item Game", BenefitType.DIRECT_ENTITLEMENT)
+        badge_only = _campaign(4, "Badge Only Game", BenefitType.BADGE)
+        for campaign, day in ((tracked, 9), (fallback_late, 20), (fallback_soon, 10), (badge_only, 1)):
+            campaign.ends_at = datetime(2099, 1, day, tzinfo=timezone.utc)
+
+        tree = self.selector.get_wanted_game_tree(
+            self.settings, [badge_only, fallback_late, tracked, fallback_soon]
+        )
+
+        self.assertEqual(
+            [g["game_name"] for g in tree],
+            ["Tracked Game", "Soon Item Game", "Late Item Game", "Badge Only Game"],
+        )
+        self.assertEqual([bool(g.get("farm_mode")) for g in tree], [False, False, False, True])
+
+    def test_game_queued_by_priority_fallback_is_not_farmed_again(self):
+        self.settings.farm_mode = True
+        self.settings.priority_list_only = False
+        both = _campaign(5, "Both Game", BenefitType.DIRECT_ENTITLEMENT)
+        both.ends_at = datetime(2099, 1, 1, tzinfo=timezone.utc)
+        badge = _campaign(5, "Both Game", BenefitType.BADGE, drop_name="Badge Drop")
+        badge.id = "Both Game-badge-campaign"
+        badge.ends_at = datetime(2099, 1, 2, tzinfo=timezone.utc)
+
+        wanted_games = self.selector.get_wanted_games(self.settings, [both, badge])
+
+        self.assertEqual([g.name for g in wanted_games], ["Both Game"])
+
+
 if __name__ == "__main__":
     unittest.main()

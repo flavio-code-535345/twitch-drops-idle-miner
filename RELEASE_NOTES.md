@@ -1,3 +1,71 @@
+# Release Notes - v2.3.0 (upstream sync)
+
+This minor release adds automatic fallback beyond your saved game priorities, daily
+mining hours, Discord claim notifications, and clearer desktop-helper login errors.
+
+## Game priorities and automatic fallback
+
+- **Priority list only** is enabled by default, preserving mining of selected games.
+  Disable it in Settings → General to prefer those games and mine other eligible
+  games when no selected game can currently progress. Other games stay out of your
+  saved priority list; an empty list with fallback enabled allows all eligible games.
+- Fallback games prefer campaigns ending soonest. Selected Special Events and IRL
+  campaigns retain precedence over fallback on participating cross-category channels.
+- Both modes retain reward-type preferences, account eligibility, expiry, ignored
+  names and dependency rules. Zero-minute subscription rewards and empty groups do
+  not enter the wanted queue. Claiming the last wanted reward refreshes selection,
+  including campaigns that still contain unwanted rewards.
+- Failed mode saves restore the confirmed option and show an error; unrelated
+  settings saves do not overwrite a pending mode change.
+
+## Daily mining hours
+
+- **Settings → Mining Hours** can limit watching to a daily time window. **All day
+  (24/7)** remains the default; overnight windows are supported.
+- Times follow the miner host's local timezone, including Docker's `TZ` setting.
+  Outside the window, watching stops while login remains available. Deferred reloads
+  and mining-policy changes resume with fresh inventory when the window opens.
+- This pauses watching, rather than earned-reward claims already handled by the
+  existing claim paths. Invalid hours and failed saves do not silently change the
+  active schedule.
+
+## Discord claim notifications
+
+- Configure a Discord webhook in Settings to receive alerts after successful drop
+  claims, including startup, inventory-refresh and websocket claim paths.
+- Saved webhook credentials stay server-side and are masked in the dashboard. Test,
+  save and remove controls report failures; notification failures do not undo a
+  successful Twitch claim, and repeated claim events do not send duplicate alerts.
+
+## Login-helper diagnostics
+
+- Desktop-helper failures identify the stage and a redacted error code, making
+  admission, Twitch sign-in and catalog validation failures easier to distinguish.
+- Retry and cleanup preserve the existing account, origin and credential boundaries.
+  Diagnostic output excludes session credentials and browser-profile contents.
+
+## Updating
+
+Pull this fork's image, `twitch-drops-idle-miner:latest`, from its Docker Hub account while
+preserving the existing data mount, settings, timezone and custom container options, then
+reload the dashboard. Existing settings keep strict game selection (**Priority list only**
+on) and all-day mining unless you change those options. These controls do not guarantee
+Twitch progress or reward delivery; check Twitch's Drops inventory for authoritative progress.
+
+Synced from [upstream rangermix/TwitchDropsMiner v2.3.0](https://github.com/rangermix/TwitchDropsMiner/releases/tag/v2.3.0).
+
+## This fork
+
+- **Farm Mode and the priority fallback combine.** The wanted queue lists Games to Watch
+  first, then upstream's fallback games when **Priority list only** is off (your reward
+  preferences, campaigns ending soonest first), then Farm Mode's badge and emote games for
+  everything else, marked **FARM**. Each game is queued once. With the defaults (Priority
+  list only on) Farm Mode behaves exactly as before.
+- **Campaign Searches and mining hours.** Outside the mining window the log shows that
+  scheduled searches are paused instead of flagging them as overdue, and the search run when
+  the window opens is labelled **Mining hours started** (a scheduled search that was waiting
+  keeps its **Scheduled** label). Both strings are translated into all 20 languages.
+
 # Release Notes - v2.2.2 (upstream sync)
 
 This patch skips channels that Twitch reports as banned for your account and adds

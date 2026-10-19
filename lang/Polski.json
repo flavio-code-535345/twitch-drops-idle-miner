@@ -69,6 +69,7 @@
             "in": "za {duration}",
             "due_now": "zaplanowane teraz",
             "overdue": "opóźnione o {duration}",
+            "paused": "Zaplanowane wyszukiwania wstrzymane poza godzinami zbierania",
             "searching_now": "Trwa wyszukiwanie · {duration}",
             "col_started": "Rozpoczęto",
             "col_trigger": "Przyczyna",
@@ -93,6 +94,7 @@
                 "drop_notification": "Powiadomienie o dropie",
                 "campaign_finished": "Kampania zakończona",
                 "unknown_claim": "Odebrano nieznany drop",
+                "mining_hours": "Początek godzin zbierania",
                 "other": "Inne"
             }
         },
@@ -107,7 +109,8 @@
             "fetching_inventory": "Odświeżanie ekwipunku...",
             "fetching_campaigns": "Odświeżanie kampanii...",
             "adding_campaigns": "Dodawanie kampanii do ekwipunku... {counter}",
-            "ready": "Gotowy"
+            "ready": "Gotowy",
+            "outside_hours": "Poza godzinami zbierania"
         },
         "tabs": {
             "main": "Główna",
@@ -203,6 +206,8 @@
             "reload": "Przeładuj",
             "games_to_watch": "Gry do oglądania",
             "games_help": "Wybierz gry do oglądania. Kolejność ma znaczenie - przeciągnij, aby zmienić priorytet (góra = najwyższy priorytet).",
+            "priority_list_only": "Tylko lista priorytetów (wydobywaj tylko wybrane gry)",
+            "priority_list_only_save_error": "Nie udało się zapisać opcji priorytetu gier. Spróbuj ponownie.",
             "search_games": "Szukaj gier...",
             "select_all": "Zaznacz wszystko",
             "deselect_all": "Odznacz wszystko",
@@ -268,7 +273,38 @@
             "diagnostics_saving": "Zapisywanie danych diagnostycznych…",
             "diagnostics_saved": "Dane diagnostyczne zapisano w {path}.",
             "diagnostics_error": "Nie udało się zapisać danych diagnostycznych. Spróbuj ponownie.",
-            "diagnostics_busy": "Zapis danych diagnostycznych trwa lub właśnie się zakończył. Poczekaj kilka sekund i spróbuj ponownie."
+            "diagnostics_busy": "Zapis danych diagnostycznych trwa lub właśnie się zakończył. Poczekaj kilka sekund i spróbuj ponownie.",
+            "mining_hours": "Godziny zbierania",
+            "mining_hours_help": "Używa czasu lokalnego minera (Docker TZ). Przedział może przechodzić przez północ; równe godziny oznaczają cały dzień. Poza przedziałem oglądanie zostaje wstrzymane i wznowione automatycznie.",
+            "mining_hours_always": "Cała doba (24/7)",
+            "mining_hours_range": "Własny zakres godzin",
+            "mining_hours_start": "Początek",
+            "mining_hours_end": "Koniec",
+            "mining_hours_save_error": "Nie udało się zapisać godzin. Spróbuj ponownie.",
+            "discord": {
+                "name": "Powiadomienia Discord",
+                "description": "Otrzymuj powiadomienia na Discordzie, gdy odbierzesz dropy.",
+                "webhook_url": "Adres URL webhooka Discord",
+                "webhook_url_hint": "Wklej pełny adres URL webhooka (zawiera Twój tajny token).",
+                "setup_steps": [
+                    "Otwórz swój serwer Discord i wejdź w ustawienia kanału (ikona zębatki obok nazwy kanału)",
+                    "Przejdź do zakładki Integracje → Webhooki",
+                    "Kliknij Nowy webhook, nadaj mu nazwę i wybierz kanał tekstowy (zobacz <a href=\"https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks\" target=\"_blank\">Wprowadzenie do webhooków</a>)",
+                    "Kliknij Kopiuj adres URL webhooka - wygląda tak: https://discord.com/api/webhooks/ID/TOKEN",
+                    "Wklej adres URL w pole Adres URL webhooka Discord w ustawieniach i kliknij Zapisz ustawienia",
+                    "Kliknij Testuj połączenie, aby zweryfikować i otrzymać testowe powiadomienie"
+                ],
+                "success": "✓ Połączenie z Discordem pomyślne! Będziesz otrzymywać powiadomienia o dropach.",
+                "saved": "✓ Ustawienia zapisane pomyślnie!",
+                "error": "Nie udało się połączyć z Discordem. Sprawdź swój adres URL webhooka.",
+                "missing_credentials": "Podaj adres URL webhooka Discord. Instrukcje znajdziesz w zakładce Pomoc.",
+                "remove_webhook": "Usuń webhook",
+                "removed": "Webhook usunięty. Powiadomienia Discord są wyłączone.",
+                "credentials_help": "Pozostaw URL pusty, aby użyć zapisanego webhooka. Usuń webhook wyłącza powiadomienia i usuwa zapisany URL.",
+                "save_error": "Nie udało się zapisać ustawień Discord.",
+                "save_settings": "Zapisz ustawienia",
+                "test_connection": "Testuj połączenie"
+            }
         },
         "help": {
             "about": "O Twitch Drops Miner",

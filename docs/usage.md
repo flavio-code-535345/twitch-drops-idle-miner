@@ -36,6 +36,15 @@ adding games to refresh the miner's selection.
 games. **Deselect All** asks for confirmation. You can cancel a confirmation with
 **Escape**. Your choices are saved for future runs.
 
+Version 2.3.0 adds **Settings → General → Priority list only**, enabled by default.
+Leave it enabled to mine only games in **Games to Watch**. Disable it to prefer
+those games, then mine other eligible games whenever no selected game can currently
+be progressed. Other games stay out of your saved list, so you can keep a short list
+of favorites. With an empty list, disabling this option allows all eligible games.
+Fallback games with campaigns ending soonest are preferred. Account linking, reward
+types, ignored names, mining hours and other eligibility rules still apply. Manual
+channel selection retains its existing behavior.
+
 **Mining Benefits** controls which reward types the miner targets: items, badges,
 emotes, and other rewards. These choices are separate from the display filters on
 the Inventory tab.
@@ -59,7 +68,9 @@ or lacks the drops-enabled flag. Channels must still be live and eligible. A cam
 without an enabled participating-channel list requires the usual matching category.
 
 Participants streaming categories outside Games to Watch have the lowest automatic
-priority. If the watched participant goes offline or becomes ineligible, another
+priority within their mining group. When fallback is enabled, eligible selected
+campaigns still take precedence over games outside your saved list. If the watched
+participant goes offline or becomes ineligible, another
 eligible participant can take over.
 
 ## Inventory and the wanted queue
@@ -133,3 +144,27 @@ returned by Twitch. If progress or eligibility still looks wrong, follow
 [Troubleshooting](troubleshooting.md).
 
 [All guides](README.md) · [Telegram notifications](notifications.md)
+
+## Mining hours
+
+Version 2.3.0 adds **Settings → Mining Hours**. **All day (24/7)** is the default.
+Choose **Custom time range** and enter start and end times to watch only during that
+window each day. The start is included and the end is excluded. A range such as
+22:00–06:00 crosses midnight; equal start and end times mean all day.
+
+Times use the local timezone of the device running TDM, not the dashboard browser.
+For Docker, configure `TZ` to your home internet connection’s timezone, as described
+in the [installation guide](installation.md). Clock or daylight-saving changes are
+rechecked at least once per minute; normal start/end boundaries are scheduled directly.
+
+Outside the window, the status shows **Outside mining hours** and watching stops.
+The miner stays signed in. Reloads, cache clearing, and mining-policy recalculations
+wait until the next window, when TDM fetches fresh inventory and resumes selection.
+Changing the hours takes effect immediately after a successful save. Blank or invalid
+times are rejected; save failures keep the previous schedule and show an error.
+Malformed saved schedules are rejected at startup rather than silently mining all day.
+
+This setting pauses watching, not Twitch reward claims: already earned rewards can
+still be claimed through existing notifications or work already underway. It does
+not guarantee Twitch-side progress. Reload the dashboard after upgrading to load the
+versioned frontend controls.

@@ -112,6 +112,20 @@ def test_gui_snapshot_uses_the_clamped_interval():
     assert manager.get_refresh_log()["interval_minutes"] == 1
 
 
+def test_gui_snapshot_reports_scheduled_searches_paused_outside_mining_hours():
+    manager = object.__new__(WebGUIManager)
+    twitch = SimpleNamespace(
+        settings=SimpleNamespace(minimum_refresh_interval_minutes=30),
+        refresh_log=RefreshLog(),
+        is_mining_time=lambda: False,
+    )
+    manager._twitch = twitch
+    assert manager.get_refresh_log()["paused"] is True
+
+    twitch.is_mining_time = lambda: True
+    assert manager.get_refresh_log()["paused"] is False
+
+
 @pytest.mark.asyncio
 async def test_refresh_log_endpoint():
     gui = MagicMock()

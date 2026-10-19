@@ -69,6 +69,7 @@
             "in": "in {duration}",
             "due_now": "jetzt fällig",
             "overdue": "seit {duration} überfällig",
+            "paused": "Geplante Suchen pausieren außerhalb der Mining-Zeiten",
             "searching_now": "Suche läuft · {duration}",
             "col_started": "Gestartet",
             "col_trigger": "Auslöser",
@@ -93,6 +94,7 @@
                 "drop_notification": "Drop-Benachrichtigung",
                 "campaign_finished": "Kampagne abgeschlossen",
                 "unknown_claim": "Unbekannter Drop eingelöst",
+                "mining_hours": "Mining-Zeiten begonnen",
                 "other": "Sonstiges"
             }
         },
@@ -107,7 +109,8 @@
             "fetching_inventory": "Lade Inventar...",
             "fetching_campaigns": "Lade Kampagnen...",
             "adding_campaigns": "Kampagnen dem Inventar hinzufügen... {counter}",
-            "ready": "Bereit"
+            "ready": "Bereit",
+            "outside_hours": "Außerhalb der Mining-Zeit"
         },
         "tabs": {
             "main": "Hauptseite",
@@ -204,6 +207,8 @@
             "reload_campaigns": "Kampagnen neu laden",
             "games_to_watch": "Spiele zum Ansehen",
             "games_help": "Wählen Sie Spiele zum Ansehen aus. Die Reihenfolge ist wichtig - ziehen Sie, um die Priorität zu ändern (oben = höchste Priorität).",
+            "priority_list_only": "Nur Prioritätsliste (nur ausgewählte Spiele minen)",
+            "priority_list_only_save_error": "Die Spielpriorität konnte nicht gespeichert werden. Bitte erneut versuchen.",
             "search_games": "Spiele suchen...",
             "select_all": "Alle auswählen",
             "deselect_all": "Alle abwählen",
@@ -268,7 +273,38 @@
             "diagnostics_saving": "Diagnosedaten werden gespeichert…",
             "diagnostics_saved": "Diagnosedaten unter {path} gespeichert.",
             "diagnostics_error": "Diagnosedaten konnten nicht gespeichert werden. Bitte erneut versuchen.",
-            "diagnostics_busy": "Diagnosedaten werden bereits gespeichert oder wurden gerade gespeichert. Bitte einige Sekunden warten und erneut versuchen."
+            "diagnostics_busy": "Diagnosedaten werden bereits gespeichert oder wurden gerade gespeichert. Bitte einige Sekunden warten und erneut versuchen.",
+            "mining_hours": "Mining-Zeiten",
+            "mining_hours_help": "Verwendet die Ortszeit des Miners (Docker TZ). Zeiträume können Mitternacht überschreiten; gleiche Start- und Endzeiten bedeuten ganztägig. Außerhalb pausiert das Zuschauen und wird automatisch fortgesetzt.",
+            "mining_hours_always": "Den ganzen Tag (24/7)",
+            "mining_hours_range": "Benutzerdefinierter Zeitraum",
+            "mining_hours_start": "Start",
+            "mining_hours_end": "Ende",
+            "mining_hours_save_error": "Mining-Zeiten konnten nicht gespeichert werden. Bitte erneut versuchen.",
+            "discord": {
+                "name": "Discord-Benachrichtigungen",
+                "description": "Erhalte Benachrichtigungen auf Discord, wenn du Drops einlöst.",
+                "webhook_url": "Discord-Webhook-URL",
+                "webhook_url_hint": "Füge die vollständige Webhook-URL ein (sie enthält dein geheimes Token).",
+                "setup_steps": [
+                    "Öffne deinen Discord-Server und gehe zu den Kanal-Einstellungen (Zahnrad-Symbol neben dem Kanalnamen)",
+                    "Gehe zu Integrationen → Webhooks",
+                    "Klicke auf Neuer Webhook, gib einen Namen ein und wähle den Textkanal aus (siehe <a href=\"https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks\" target=\"_blank\">Einführung in Webhooks</a>)",
+                    "Klicke auf Webhook-URL kopieren - sie sieht so aus: https://discord.com/api/webhooks/ID/TOKEN",
+                    "Füge die URL in das Feld Discord-Webhook-URL in den Einstellungen ein und klicke auf Einstellungen speichern",
+                    "Klicke auf Verbindung testen, um zu prüfen und eine Testbenachrichtigung zu erhalten"
+                ],
+                "success": "✓ Discord-Verbindung erfolgreich! Du erhältst Drop-Benachrichtigungen.",
+                "saved": "✓ Einstellungen erfolgreich gespeichert!",
+                "error": "Verbindung zu Discord fehlgeschlagen. Bitte überprüfe deine Webhook-URL.",
+                "missing_credentials": "Bitte gib eine Discord-Webhook-URL ein. Anleitungen findest du im Help-Tab.",
+                "remove_webhook": "Webhook entfernen",
+                "removed": "Webhook entfernt. Discord-Benachrichtigungen sind deaktiviert.",
+                "credentials_help": "URL leer lassen, um den gespeicherten Webhook zu verwenden. Webhook entfernen deaktiviert Benachrichtigungen und löscht die gespeicherte URL.",
+                "save_error": "Discord-Einstellungen konnten nicht gespeichert werden.",
+                "save_settings": "Einstellungen speichern",
+                "test_connection": "Verbindung testen"
+            }
         },
         "help": {
             "about": "Über Twitch Drops Miner",

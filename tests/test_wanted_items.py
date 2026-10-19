@@ -32,6 +32,7 @@ class TestWantedItems(unittest.TestCase):
     def test_get_wanted_tree(self):
         # Setup Settings
         self.twitch.settings.games_to_watch = ["Game1", "Game2"]
+        self.twitch.settings.priority_list_only = True
         self.twitch.settings.mining_benefits = {"BADGE": True, "DIRECT_ENTITLEMENT": False}
 
         # Setup Inventory
@@ -146,6 +147,7 @@ class TestWantedItems(unittest.TestCase):
     def test_get_wanted_tree_claimed_filtering(self):
         # Setup Settings
         self.twitch.settings.games_to_watch = ["Game1"]
+        self.twitch.settings.priority_list_only = True
         self.twitch.settings.mining_benefits = {"BADGE": True}
 
         # Setup Inventory

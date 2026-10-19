@@ -102,8 +102,8 @@ class WatchService:
         if watching_channel is None or not self.can_watch(watching_channel):
             return True
 
-        channel_order = self._twitch._channel_service.get_priority(channel)
-        watching_order = self._twitch._channel_service.get_priority(watching_channel)
+        channel_order = self._twitch._channel_service.get_mining_priority(channel)
+        watching_order = self._twitch._channel_service.get_mining_priority(watching_channel)
 
         return (
             # this channel's game is higher order than the watching one's
@@ -183,7 +183,7 @@ class WatchService:
         while True:
             channel: Channel = await self._twitch.watching_channel.get()
 
-            if not channel.online or channel.banned:
+            if not self._twitch.is_mining_time() or not channel.online or channel.banned:
                 # if the channel isn't online anymore, we stop watching it
                 self.stop_watching()
                 continue

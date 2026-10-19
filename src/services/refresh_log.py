@@ -53,11 +53,12 @@ class RefreshLog:
         self._records.append(record)
         return record
 
-    def snapshot(self, interval_minutes: int) -> dict[str, Any]:
+    def snapshot(self, interval_minutes: int, *, paused: bool = False) -> dict[str, Any]:
         """Newest-first entries plus when the next scheduled search is due.
 
         The maintenance timer restarts at the end of every successful fetch, so the next
-        scheduled search is the last successful finish plus the interval.
+        scheduled search is the last successful finish plus the interval. ``paused`` is set
+        outside the configured mining hours, when scheduled searches wait for the window.
         """
         last_success = next(
             (r.finished_at for r in reversed(self._records) if r.finished_at and not r.error),
@@ -66,6 +67,7 @@ class RefreshLog:
         return {
             "entries": [record.to_json() for record in reversed(self._records)],
             "interval_minutes": interval_minutes,
+            "paused": paused,
             "next_scheduled_at": (
                 (last_success + timedelta(minutes=interval_minutes)).isoformat()
                 if last_success is not None

@@ -190,7 +190,9 @@ class WebGUIManager:
     def get_refresh_log(self) -> dict:
         """Return the campaign search log with the next scheduled search time."""
         interval = clamp_refresh_interval(self._twitch.settings.minimum_refresh_interval_minutes)
-        return self._twitch.refresh_log.snapshot(interval)
+        is_mining_time = getattr(self._twitch, "is_mining_time", None)
+        paused = callable(is_mining_time) and not is_mining_time()
+        return self._twitch.refresh_log.snapshot(interval, paused=paused)
 
     def broadcast_refresh_log(self) -> None:
         asyncio.create_task(self._broadcaster.emit("refresh_log_update", self.get_refresh_log()))

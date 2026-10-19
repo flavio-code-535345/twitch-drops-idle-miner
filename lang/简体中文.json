@@ -69,6 +69,7 @@
             "in": "{duration}后",
             "due_now": "现在到期",
             "overdue": "已延迟 {duration}",
+            "paused": "开采时段外暂停定时搜索",
             "searching_now": "正在搜索 · {duration}",
             "col_started": "开始时间",
             "col_trigger": "触发原因",
@@ -93,6 +94,7 @@
                 "drop_notification": "掉宝通知",
                 "campaign_finished": "活动已完成",
                 "unknown_claim": "领取了未知掉宝",
+                "mining_hours": "开采时段开始",
                 "other": "其他"
             }
         },
@@ -107,7 +109,8 @@
             "fetching_inventory": "获取库存中...",
             "fetching_campaigns": "获取掉宝活动...",
             "adding_campaigns": "将掉宝活动列表添加至库存... {counter}",
-            "ready": "就绪"
+            "ready": "就绪",
+            "outside_hours": "非开采时段"
         },
         "tabs": {
             "main": "主面板",
@@ -203,6 +206,8 @@
             "reload": "刷新",
             "games_to_watch": "观看游戏",
             "games_help": "选择要观看的游戏。顺序很重要 - 拖动以重新排序优先级（顶部 = 最高优先级）。",
+            "priority_list_only": "仅优先列表（仅挖掘所选游戏）",
+            "priority_list_only_save_error": "无法保存游戏优先级选项，请重试。",
             "search_games": "搜索游戏...",
             "select_all": "全选",
             "deselect_all": "取消全选",
@@ -268,7 +273,38 @@
             "diagnostics_saving": "正在保存诊断数据…",
             "diagnostics_saved": "诊断数据已保存到 {path}。",
             "diagnostics_error": "无法保存诊断数据，请重试。",
-            "diagnostics_busy": "诊断数据正在保存或刚刚保存完成，请稍等几秒后重试。"
+            "diagnostics_busy": "诊断数据正在保存或刚刚保存完成，请稍等几秒后重试。",
+            "mining_hours": "开采时段",
+            "mining_hours_help": "使用运行矿工的设备当地时间（Docker TZ）。时段可以跨越午夜；开始和结束时间相同表示全天运行。时段外暂停观看，到时自动恢复。",
+            "mining_hours_always": "全天（24/7）",
+            "mining_hours_range": "自定义时间段",
+            "mining_hours_start": "开始",
+            "mining_hours_end": "结束",
+            "mining_hours_save_error": "无法保存运行时段，请重试。",
+            "discord": {
+                "name": "Discord 通知",
+                "description": "领取掉落物时在 Discord 上接收通知。",
+                "webhook_url": "Discord Webhook 地址",
+                "webhook_url_hint": "粘贴完整的 Webhook 地址（其中包含你的密钥 Token）。",
+                "setup_steps": [
+                    "打开你的 Discord 服务器，进入频道名称旁的齿轮图标打开的频道设置",
+                    "进入「集成」→「Webhooks」",
+                    "点击「新建 Webhook」、命名并选择文本频道（参见 <a href=\"https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks\" target=\"_blank\">Webhook 入门</a>）",
+                    "点击「复制 Webhook 地址」——格式类似：https://discord.com/api/webhooks/ID/TOKEN",
+                    "将地址粘贴到设置中的 Discord Webhook 地址输入框，点击「保存设置」",
+                    "点击「测试连接」验证，并接收一条测试通知"
+                ],
+                "success": "✓ Discord 连接成功！你将收到掉落物通知。",
+                "saved": "✓ 设置保存成功！",
+                "error": "无法连接到 Discord。请检查你的 Webhook 地址。",
+                "missing_credentials": "请输入 Discord Webhook 地址。操作说明见「帮助」标签页。",
+                "remove_webhook": "移除 Webhook",
+                "removed": "已移除 Webhook，Discord 通知已停用。",
+                "credentials_help": "URL 留空可复用已保存的 Webhook。“移除 Webhook”会停用通知并删除已保存的 URL。",
+                "save_error": "无法保存 Discord 设置。",
+                "save_settings": "保存设置",
+                "test_connection": "测试连接"
+            }
         },
         "help": {
             "about": "关于 Twitch 掉宝矿工",

@@ -69,6 +69,7 @@
             "in": "dalam {duration}",
             "due_now": "jatuh tempo sekarang",
             "overdue": "terlambat {duration}",
+            "paused": "Pencarian terjadwal dijeda di luar jam penambangan",
             "searching_now": "Sedang mencari · {duration}",
             "col_started": "Dimulai",
             "col_trigger": "Pemicu",
@@ -93,6 +94,7 @@
                 "drop_notification": "Notifikasi drop",
                 "campaign_finished": "Kampanye selesai",
                 "unknown_claim": "Drop tak dikenal diklaim",
+                "mining_hours": "Jam penambangan dimulai",
                 "other": "Lainnya"
             }
         },
@@ -107,7 +109,8 @@
             "fetching_inventory": "Mmengambil inventaris...",
             "fetching_campaigns": "Mengambil kampanye...",
             "adding_campaigns": "Menambahkan daftar kampanye ke inventaris... {counter}",
-            "ready": "Siap"
+            "ready": "Siap",
+            "outside_hours": "Di luar jam penambangan"
         },
         "tabs": {
             "main": "Utama",
@@ -203,6 +206,8 @@
             "reload": "Muat Ulang",
             "games_to_watch": "Game untuk Ditonton",
             "games_help": "Pilih game untuk ditonton. Urutan penting - seret untuk mengatur ulang prioritas (atas = prioritas tertinggi).",
+            "priority_list_only": "Hanya daftar prioritas (menambang hanya game yang dipilih)",
+            "priority_list_only_save_error": "Opsi prioritas game tidak dapat disimpan. Silakan coba lagi.",
             "search_games": "Cari game...",
             "select_all": "Pilih Semua",
             "deselect_all": "Batalkan Semua",
@@ -268,7 +273,38 @@
             "diagnostics_saving": "Menyimpan data diagnosis…",
             "diagnostics_saved": "Data diagnosis disimpan ke {path}.",
             "diagnostics_error": "Tidak dapat menyimpan data diagnosis. Coba lagi.",
-            "diagnostics_busy": "Penyimpanan diagnosis sedang berlangsung atau baru selesai. Tunggu beberapa detik lalu coba lagi."
+            "diagnostics_busy": "Penyimpanan diagnosis sedang berlangsung atau baru selesai. Tunggu beberapa detik lalu coba lagi.",
+            "mining_hours": "Jam Penambangan",
+            "mining_hours_help": "Menggunakan waktu lokal miner (Docker TZ). Rentang dapat melewati tengah malam; waktu mulai dan selesai yang sama berarti sepanjang hari. Di luar rentang, tontonan dijeda dan dilanjutkan otomatis.",
+            "mining_hours_always": "Sepanjang hari (24/7)",
+            "mining_hours_range": "Rentang waktu khusus",
+            "mining_hours_start": "Mulai",
+            "mining_hours_end": "Selesai",
+            "mining_hours_save_error": "Gagal menyimpan jam mining. Coba lagi.",
+            "discord": {
+                "name": "Notifikasi Discord",
+                "description": "Terima notifikasi di Discord saat kamu mengklaim drop.",
+                "webhook_url": "URL Webhook Discord",
+                "webhook_url_hint": "Tempel URL webhook lengkap (berisi token rahasia kamu).",
+                "setup_steps": [
+                    "Buka server Discord-mu dan masuk ke pengaturan saluran (ikon roda gigi di samping nama saluran)",
+                    "Masuk ke Integrasi → Webhooks",
+                    "Klik Webhook baru, beri nama, dan pilih saluran teks (lihat <a href=\"https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks\" target=\"_blank\">Pengenalan webhook</a>)",
+                    "Klik Salin URL webhook - bentuknya seperti: https://discord.com/api/webhooks/ID/TOKEN",
+                    "Tempel URL ke kolom URL Webhook Discord di Pengaturan lalu klik Simpan pengaturan",
+                    "Klik Uji koneksi untuk memverifikasi dan menerima notifikasi uji"
+                ],
+                "success": "✓ Koneksi Discord berhasil! Kamu akan menerima notifikasi drop.",
+                "saved": "✓ Pengaturan berhasil disimpan!",
+                "error": "Gagal terhubung ke Discord. Periksa URL webhook-mu.",
+                "missing_credentials": "Masukkan URL Webhook Discord. Lihat petunjuk di tab Bantuan.",
+                "remove_webhook": "Hapus Webhook",
+                "removed": "Webhook dihapus. Notifikasi Discord dinonaktifkan.",
+                "credentials_help": "Kosongkan URL untuk memakai webhook tersimpan. Hapus Webhook menonaktifkan notifikasi dan menghapus URL tersimpan.",
+                "save_error": "Gagal menyimpan pengaturan Discord.",
+                "save_settings": "Simpan Pengaturan",
+                "test_connection": "Uji Koneksi"
+            }
         },
         "help": {
             "about": "Tentang Twitch Drops Miner",

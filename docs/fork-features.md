@@ -16,6 +16,12 @@ Farm Mode is separate from upstream's **Allow mining campaigns reported as Not L
 setting: badge and emote campaigns already count as eligible without a linked account, so
 that setting only changes which Games to Watch campaigns can be mined.
 
+Farm Mode also works with upstream's **Settings → General → Priority list only**. With it
+on (the default), the queue is Games to Watch, then FARM games. With it off, upstream's
+fallback games (other games with your preferred reward types, campaigns ending soonest
+first) come after Games to Watch, and Farm Mode then adds the badge and emote drops of
+every game still left. Each game appears once in the queue.
+
 Farm Mode relies on Twitch's full campaign list. While Twitch withholds that list (see
 below), it cannot discover games outside Games to Watch.
 
@@ -30,6 +36,10 @@ when the next scheduled one is due.
 The schedule follows **Settings → General → minimum refresh interval** (1 to 1440
 minutes, default 30), so you should see a **Scheduled** entry at that interval. An overdue
 schedule is highlighted. The log is kept in memory and resets when the miner restarts.
+
+With **Settings → Mining Hours** limited to a daily window, scheduled searches wait while the
+window is closed: the summary then says they are paused rather than overdue, and the search
+run when the window opens is listed as **Mining hours started**.
 
 ## Campaign discovery when Twitch withholds the catalog
 

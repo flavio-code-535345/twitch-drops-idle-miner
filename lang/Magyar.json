@@ -69,6 +69,7 @@
             "in": "{duration} múlva",
             "due_now": "most esedékes",
             "overdue": "{duration} késésben",
+            "paused": "Az ütemezett keresések szünetelnek a bányászati időn kívül",
             "searching_now": "Keresés folyamatban · {duration}",
             "col_started": "Kezdés",
             "col_trigger": "Kiváltó ok",
@@ -93,6 +94,7 @@
                 "drop_notification": "Drop értesítés",
                 "campaign_finished": "Kampány befejeződött",
                 "unknown_claim": "Ismeretlen drop beváltva",
+                "mining_hours": "Bányászati idő kezdete",
                 "other": "Egyéb"
             }
         },
@@ -107,7 +109,8 @@
             "switching": "Csatorna váltása...",
             "fetching_inventory": "Készlet lekérése...",
             "fetching_campaigns": "Kampányok lekérése...",
-            "adding_campaigns": "Kampányok hozzáadása a készlethez... {counter}"
+            "adding_campaigns": "Kampányok hozzáadása a készlethez... {counter}",
+            "outside_hours": "A bányászati időn kívül"
         },
         "tabs": {
             "main": "Kezdőlap",
@@ -177,6 +180,8 @@
             "clear_all_cache_help": "Törli a helyi kampány-, csatorna- és származtatott bányászállapotot; megtartja a bejelentkezést és a beállításokat, majd újratölti az adatokat a Twitchről.",
             "games_to_watch": "Nézendő játékok",
             "games_help": "Válassza ki a nézendő játékokat. A sorrend számít - húzással módosítható a prioritás (felül = legmagasabb).",
+            "priority_list_only": "Csak a prioritási lista (csak a kiválasztott játékok gyűjtése)",
+            "priority_list_only_save_error": "Nem sikerült menteni a játékprioritás beállítását. Próbálja újra.",
             "search_games": "Játékok keresése...",
             "add_game": "Játék hozzáadása",
             "add_game_hint": " A játék kézi hozzáadásához kattintson a „Játék hozzáadása” gombra.",
@@ -231,7 +236,38 @@
             "diagnostics_saving": "Diagnosztikai adatok mentése…",
             "diagnostics_saved": "Diagnosztikai adatok mentve ide: {path}.",
             "diagnostics_error": "Nem sikerült menteni a diagnosztikai adatokat. Próbálja újra.",
-            "diagnostics_busy": "Egy diagnosztikai mentés már folyamatban van, vagy éppen befejeződött. Várjon néhány másodpercet, majd próbálja újra."
+            "diagnostics_busy": "Egy diagnosztikai mentés már folyamatban van, vagy éppen befejeződött. Várjon néhány másodpercet, majd próbálja újra.",
+            "mining_hours": "Bányászati idő",
+            "mining_hours_help": "A bányász helyi idejét használja (Docker TZ). Az időszak átnyúlhat éjfélen; azonos kezdés és befejezés egész napot jelent. Az időszakon kívül a nézés szünetel, majd automatikusan folytatódik.",
+            "mining_hours_always": "Egész nap (24/7)",
+            "mining_hours_range": "Egyéni időtartomány",
+            "mining_hours_start": "Kezdés",
+            "mining_hours_end": "Vége",
+            "mining_hours_save_error": "A bányászati idő nem menthető. Próbáld újra.",
+            "discord": {
+                "name": "Discord értesítések",
+                "description": "Értesítést kapsz Discordon, amikor lehozod a dropokat.",
+                "webhook_url": "Discord webhook URL",
+                "webhook_url_hint": "Illeszd be a teljes webhook URL-t (tartalmazza a titkos tokent).",
+                "setup_steps": [
+                    "Nyisd meg Discord szerveredet, és lépj a csatorna beállításaihoz (fogaskerék ikon a csatorna neve mellett)",
+                    "Lépj az Integrációk → Webhookok menübe",
+                    "Kattints új webhook létrehozására, adj neki nevet és válaszd ki a szöveges csatornát (lásd <a href=\"https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks\" target=\"_blank\">Bevezetés a webhookokhoz</a>)",
+                    "Kattints a Webhook URL másolása gombra - így néz ki: https://discord.com/api/webhooks/ID/TOKEN",
+                    "Illeszd be az URL-t a Discord webhook URL mezőbe a Beállításokban, majd kattints a Beállítások mentése gombra",
+                    "Kattints a Kapcsolat tesztelése gombra az ellenőrzéshez és egy tesztértesítés fogadásához"
+                ],
+                "success": "✓ Sikeres Discord kapcsolat! Drop-értesítéseket fogsz kapni.",
+                "saved": "✓ Beállítások sikeresen mentve!",
+                "error": "Nem sikerült csatlakozni a Discordhoz. Ellenőrizd a webhook URL-t.",
+                "missing_credentials": "Adj meg egy Discord webhook URL-t. Útmutató a Súgó lapon található.",
+                "remove_webhook": "Webhook eltávolítása",
+                "removed": "Webhook eltávolítva. A Discord-értesítések kikapcsolva.",
+                "credentials_help": "A mentett webhook használatához hagyd üresen az URL-t. A Webhook eltávolítása kikapcsolja az értesítéseket és törli a mentett URL-t.",
+                "save_error": "A Discord-beállítások mentése sikertelen.",
+                "save_settings": "Beállítások mentése",
+                "test_connection": "Kapcsolat tesztelése"
+            }
         },
         "help": {
             "about": "A Twitch Drops Miner-ről",
