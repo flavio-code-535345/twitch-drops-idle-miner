@@ -3644,3 +3644,31 @@ header h1 {
 .main-grid .console-panel .search-log {
     margin: 0 12px 14px;
 }
+
+/* Fork: MCP access settings. */
+.mcp-token-box {
+    margin-top: 14px;
+    padding: 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-panel-alt);
+}
+
+.mcp-command {
+    margin: 8px 0 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-family: "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    user-select: all;
+}
+
+#mcp-warning {
+    margin-top: 10px;
+    color: var(--warning-color);
+}

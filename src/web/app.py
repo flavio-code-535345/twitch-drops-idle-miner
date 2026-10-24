@@ -22,6 +22,7 @@ from src.version import UPSTREAM_VERSION, __version__
 from src.web.auth import AuthAPI, AuthMiddleware, AuthSocketServer, WebAuth
 from src.web.diagnostics_api import DiagnosticsAPI
 from src.web.helper_api import HelperAPI
+from src.web.mcp_server import MCPAccess, MCPServer
 from src.web.session_api import SessionAPI
 
 
@@ -59,6 +60,9 @@ _server_instance: uvicorn.Server | None = None
 app.include_router(SessionAPI(web_auth, lambda: twitch_client).router)
 app.include_router(HelperAPI(web_auth, lambda: twitch_client).router)
 app.include_router(DiagnosticsAPI(lambda: twitch_client).router)
+# Fork: MCP endpoint for Claude Code, off until a token is generated in Settings.
+mcp_access = MCPAccess(DATA_DIR / "mcp_access.json")
+app.include_router(MCPServer(mcp_access, lambda: gui_manager, lambda: twitch_client).router)
 
 
 def set_managers(gui: WebGUIManager, twitch: Twitch):

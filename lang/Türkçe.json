@@ -98,6 +98,22 @@
                 "other": "Diğer"
             }
         },
+        "mcp": {
+            "header": "MCP erişimi (Claude Code)",
+            "help": "Claude Code'un bu madenciyi Model Context Protocol üzerinden okumasını ve yönetmesini sağlar. Bir token oluşturun, ardından aşağıdaki komutu Claude Code kullandığınız bilgisayarda çalıştırın.",
+            "state_off": "MCP erişimi kapalı.",
+            "state_on": "MCP erişimi açık (token oluşturulma: {date}).",
+            "generate": "Token oluştur",
+            "regenerate": "Token'ı değiştir",
+            "revoke": "MCP erişimini kapat",
+            "token_once": "Komutu şimdi kopyalayın. Token yalnızca bir kez gösterilir; kaybederseniz yenisini oluşturun.",
+            "warning": "Bu token'a sahip olan herkes madenciyi yönetebilir. Gizli tutun.",
+            "copy": "Komutu kopyala",
+            "copied": "Kopyalandı.",
+            "confirm_replace": "Mevcut token değiştirilsin mi? Yeni komutu çalıştırana kadar Claude Code çalışmaz.",
+            "confirm_revoke": "MCP erişimi kapatılsın mı? Claude Code artık bu madenciye ulaşamaz.",
+            "failed": "MCP erişimi değiştirilemedi. Madencinin günlüğüne bakın."
+        },
         "status": {
             "name": "Durum",
             "idle": "Boşta",

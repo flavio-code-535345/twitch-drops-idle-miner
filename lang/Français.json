@@ -98,6 +98,22 @@
                 "other": "Autre"
             }
         },
+        "mcp": {
+            "header": "Accès MCP (Claude Code)",
+            "help": "Permet à Claude Code de consulter et de contrôler ce mineur via le Model Context Protocol. Générez un jeton, puis exécutez la commande ci-dessous sur l'ordinateur où vous utilisez Claude Code.",
+            "state_off": "L'accès MCP est désactivé.",
+            "state_on": "L'accès MCP est activé (jeton créé le {date}).",
+            "generate": "Générer un jeton",
+            "regenerate": "Remplacer le jeton",
+            "revoke": "Désactiver l'accès MCP",
+            "token_once": "Copiez la commande maintenant. Le jeton n'est affiché qu'une seule fois ; générez-en un nouveau si vous le perdez.",
+            "warning": "Toute personne possédant ce jeton peut contrôler le mineur. Gardez-le privé.",
+            "copy": "Copier la commande",
+            "copied": "Copié.",
+            "confirm_replace": "Remplacer le jeton actuel ? Claude Code ne fonctionnera plus tant que vous n'aurez pas exécuté la nouvelle commande.",
+            "confirm_revoke": "Désactiver l'accès MCP ? Claude Code ne pourra plus joindre ce mineur.",
+            "failed": "Impossible de modifier l'accès MCP. Consultez le journal du mineur."
+        },
         "status": {
             "name": "État",
             "idle": "Inactif",

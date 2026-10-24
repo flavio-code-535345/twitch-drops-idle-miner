@@ -98,6 +98,22 @@
                 "other": "Jiné"
             }
         },
+        "mcp": {
+            "header": "Přístup MCP (Claude Code)",
+            "help": "Umožní Claude Code číst a ovládat tento miner přes Model Context Protocol. Vygenerujte token a poté spusťte níže uvedený příkaz na počítači, kde používáte Claude Code.",
+            "state_off": "Přístup MCP je vypnutý.",
+            "state_on": "Přístup MCP je zapnutý (token vytvořen {date}).",
+            "generate": "Vygenerovat token",
+            "regenerate": "Nahradit token",
+            "revoke": "Vypnout přístup MCP",
+            "token_once": "Zkopírujte si příkaz hned. Token se zobrazí jen jednou; pokud ho ztratíte, vygenerujte nový.",
+            "warning": "Kdokoli s tímto tokenem může miner ovládat. Uchovejte ho v soukromí.",
+            "copy": "Kopírovat příkaz",
+            "copied": "Zkopírováno.",
+            "confirm_replace": "Nahradit současný token? Claude Code přestane fungovat, dokud nespustíte nový příkaz.",
+            "confirm_revoke": "Vypnout přístup MCP? Claude Code se k tomuto mineru už nepřipojí.",
+            "failed": "Přístup MCP se nepodařilo změnit. Zkontrolujte protokol mineru."
+        },
         "status": {
             "name": "Status",
             "idle": "Dokončeno načítání",

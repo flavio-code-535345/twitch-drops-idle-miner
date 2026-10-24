@@ -98,6 +98,22 @@
                 "other": "其他"
             }
         },
+        "mcp": {
+            "header": "MCP 访问 (Claude Code)",
+            "help": "允许 Claude Code 通过 Model Context Protocol 查看和控制此矿工。生成令牌后，在你使用 Claude Code 的电脑上运行下方命令。",
+            "state_off": "MCP 访问已关闭。",
+            "state_on": "MCP 访问已开启（令牌创建于 {date}）。",
+            "generate": "生成令牌",
+            "regenerate": "替换令牌",
+            "revoke": "关闭 MCP 访问",
+            "token_once": "请立即复制该命令。令牌只显示一次；如果丢失，请重新生成。",
+            "warning": "任何拥有此令牌的人都可以控制矿工。请妥善保管。",
+            "copy": "复制命令",
+            "copied": "已复制。",
+            "confirm_replace": "替换当前令牌？在运行新命令之前，Claude Code 将无法使用。",
+            "confirm_revoke": "关闭 MCP 访问？Claude Code 将无法再连接此矿工。",
+            "failed": "无法更改 MCP 访问。请查看矿工日志。"
+        },
         "status": {
             "name": "状态",
             "idle": "已完成获取",

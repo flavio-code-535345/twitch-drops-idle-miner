@@ -85,6 +85,39 @@ this fork's unchanged login code. While helper access is open (up to ten minutes
 first helper to reach the dashboard is accepted without the dashboard password, so start
 it only right before running the helper.
 
+## MCP access for Claude Code
+
+The miner can act as an MCP (Model Context Protocol) server, so Claude Code can answer
+questions like "what is my drops miner doing?" or "is there a Tarkov campaign right now?"
+and change Games to Watch for you.
+
+1. Open **Settings → MCP access (Claude Code)** and select **Generate token**.
+2. Copy the command it shows. The token appears only once. Then run it in a terminal on the
+   computer where you use Claude Code, for example:
+
+   ```bash
+   claude mcp add --transport http twitch-drops https://drops.example.com/mcp --header "Authorization: Bearer tdm_mcp_..."
+   ```
+3. Start Claude Code and ask about the miner; `/mcp` inside Claude Code lists the connection.
+
+Claude can then use these tools:
+
+- **Read:** status and current drop, campaigns (filter by game, status or link state),
+  the wanted queue, tracked channels, settings (without secrets), the Campaign Searches log,
+  drop history and recent log messages.
+- **Control:** set, add, remove or reorder Games to Watch; change Farm Mode, Priority list
+  only, mining of Not Linked campaigns, reward types or mining hours; reload campaigns;
+  watch a specific channel or return to automatic selection. These go through the same code
+  as the dashboard controls.
+
+The endpoint is `/mcp` on the dashboard's own address, so a reverse proxy that serves the
+dashboard serves it too. It is off until a token exists. The token gives full control of
+the miner, so keep it private: **Replace token** makes the old one stop working and **Turn
+off MCP access** disables the endpoint. Only a hash of the token is stored (in
+`data/mcp_access.json`), repeated wrong tokens are rate-limited, and requests from other
+websites are rejected. Generating a token needs dashboard access, so set a dashboard password
+if the dashboard is reachable from the internet.
+
 ## Update notifier
 
 The dashboard footer shows this fork's version and the upstream version it is synced

@@ -42,6 +42,18 @@ project's process, not an active process here.
   requests the window-opening refresh with `trigger="mining_hours"` and re-broadcasts the
   log at window boundaries; `RefreshLog.snapshot(paused=...)` reports closed windows so the
   dashboard shows "paused" instead of "overdue" (`tests/test_mining_hours_search_log.py`).
+- MCP server (fork): `src/web/mcp_server.py` implements the Streamable HTTP transport in
+  JSON response mode by hand (no SDK dependency): `POST /mcp` takes one JSON-RPC message or a
+  batch, `GET`/`DELETE` return 405, `initialize` negotiates protocol versions up to
+  `2025-11-25`, and the 2026 stateless probe (`server/discover`) gets "method not found" so
+  clients fall back to the handshake. `MCPAccess` keeps one bearer token as a SHA-256 digest
+  in `data/mcp_access.json` (fails closed when damaged) and rate-limits failures per client.
+  `AuthMiddleware` exempts only `/mcp` from the dashboard cookie and `X-TDM-Request`
+  checks; origin and cross-site checks and the 64 KiB body cap still apply. `/api/mcp` and
+  `/api/mcp/token` (dashboard token management) keep full dashboard protection. Tools call
+  the same managers as the REST API; add new ones in `_build_tools` with a JSON schema and
+  `read_only`. `tests/test_mcp_server.py` drives the production app. The official `mcp`
+  Python client (2.3) was verified against it in both auto and legacy modes.
 - Fork settings read by shared code use `getattr(settings, "<name>", default)` (for example
   `farm_mode` in `StreamSelector`), because upstream tests build minimal settings objects
   without fork-only fields.

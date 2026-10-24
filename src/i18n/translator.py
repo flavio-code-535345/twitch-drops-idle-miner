@@ -436,11 +436,29 @@ GUISearchLog = TypedDict(
 )
 
 
+class GUIMcp(TypedDict):
+    header: str
+    help: str
+    state_off: str
+    state_on: str
+    generate: str
+    regenerate: str
+    revoke: str
+    token_once: str
+    warning: str
+    copy: str
+    copied: str
+    confirm_replace: str
+    confirm_revoke: str
+    failed: str
+
+
 class GUIMessages(TypedDict):
     auth: GUIAuth
     history: GUIHistory
     output: str
     search_log: GUISearchLog
+    mcp: GUIMcp
     status: GUIStatus
     tabs: GUITabs
     login: GUILoginForm

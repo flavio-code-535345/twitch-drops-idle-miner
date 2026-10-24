@@ -98,6 +98,22 @@
                 "other": "其他"
             }
         },
+        "mcp": {
+            "header": "MCP 存取 (Claude Code)",
+            "help": "允許 Claude Code 透過 Model Context Protocol 查看並控制此礦工。產生權杖後，在你使用 Claude Code 的電腦上執行下方指令。",
+            "state_off": "MCP 存取已關閉。",
+            "state_on": "MCP 存取已開啟（權杖建立於 {date}）。",
+            "generate": "產生權杖",
+            "regenerate": "取代權杖",
+            "revoke": "關閉 MCP 存取",
+            "token_once": "請立即複製此指令。權杖只會顯示一次；若遺失，請重新產生。",
+            "warning": "任何擁有此權杖的人都能控制礦工。請妥善保管。",
+            "copy": "複製指令",
+            "copied": "已複製。",
+            "confirm_replace": "取代目前的權杖？在執行新指令前，Claude Code 將無法使用。",
+            "confirm_revoke": "關閉 MCP 存取？Claude Code 將無法再連線到此礦工。",
+            "failed": "無法變更 MCP 存取。請查看礦工記錄。"
+        },
         "status": {
             "name": "狀態",
             "idle": "已完成獲取",

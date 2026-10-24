@@ -98,6 +98,22 @@
                 "other": "その他"
             }
         },
+        "mcp": {
+            "header": "MCP アクセス (Claude Code)",
+            "help": "Claude Code が Model Context Protocol を通じてこのマイナーを参照・操作できるようにします。トークンを生成し、Claude Code を使うコンピューターで下のコマンドを実行してください。",
+            "state_off": "MCP アクセスはオフです。",
+            "state_on": "MCP アクセスはオンです（トークン作成日時: {date}）。",
+            "generate": "トークンを生成",
+            "regenerate": "トークンを置き換え",
+            "revoke": "MCP アクセスをオフにする",
+            "token_once": "今すぐコマンドをコピーしてください。トークンは一度しか表示されません。紛失した場合は新しく生成してください。",
+            "warning": "このトークンを持つ人は誰でもマイナーを操作できます。他人に知られないようにしてください。",
+            "copy": "コマンドをコピー",
+            "copied": "コピーしました。",
+            "confirm_replace": "現在のトークンを置き換えますか？新しいコマンドを実行するまで Claude Code は動作しません。",
+            "confirm_revoke": "MCP アクセスをオフにしますか？Claude Code はこのマイナーに接続できなくなります。",
+            "failed": "MCP アクセスを変更できませんでした。マイナーのログを確認してください。"
+        },
         "status": {
             "name": "ステータス",
             "idle": "アイドル",

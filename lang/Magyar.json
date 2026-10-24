@@ -98,6 +98,22 @@
                 "other": "Egyéb"
             }
         },
+        "mcp": {
+            "header": "MCP-hozzáférés (Claude Code)",
+            "help": "Lehetővé teszi, hogy a Claude Code a Model Context Protocolon keresztül olvassa és vezérelje ezt a minert. Hozz létre egy tokent, majd futtasd az alábbi parancsot azon a gépen, ahol a Claude Code-ot használod.",
+            "state_off": "Az MCP-hozzáférés ki van kapcsolva.",
+            "state_on": "Az MCP-hozzáférés be van kapcsolva (token létrehozva: {date}).",
+            "generate": "Token létrehozása",
+            "regenerate": "Token cseréje",
+            "revoke": "MCP-hozzáférés kikapcsolása",
+            "token_once": "Másold ki most a parancsot. A token csak egyszer jelenik meg; ha elveszíted, hozz létre újat.",
+            "warning": "Akinél ez a token van, vezérelheti a minert. Tartsd titokban.",
+            "copy": "Parancs másolása",
+            "copied": "Kimásolva.",
+            "confirm_replace": "Lecseréled a jelenlegi tokent? A Claude Code addig nem működik, amíg le nem futtatod az új parancsot.",
+            "confirm_revoke": "Kikapcsolod az MCP-hozzáférést? A Claude Code többé nem éri el ezt a minert.",
+            "failed": "Az MCP-hozzáférés nem módosítható. Nézd meg a miner naplóját."
+        },
         "status": {
             "name": "Állapot",
             "idle": "Tétlen",

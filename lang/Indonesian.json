@@ -98,6 +98,22 @@
                 "other": "Lainnya"
             }
         },
+        "mcp": {
+            "header": "Akses MCP (Claude Code)",
+            "help": "Memungkinkan Claude Code membaca dan mengendalikan miner ini melalui Model Context Protocol. Buat token, lalu jalankan perintah di bawah pada komputer tempat Anda menggunakan Claude Code.",
+            "state_off": "Akses MCP nonaktif.",
+            "state_on": "Akses MCP aktif (token dibuat {date}).",
+            "generate": "Buat token",
+            "regenerate": "Ganti token",
+            "revoke": "Matikan akses MCP",
+            "token_once": "Salin perintah ini sekarang. Token hanya ditampilkan sekali; buat yang baru jika hilang.",
+            "warning": "Siapa pun yang memiliki token ini dapat mengendalikan miner. Jaga kerahasiaannya.",
+            "copy": "Salin perintah",
+            "copied": "Disalin.",
+            "confirm_replace": "Ganti token saat ini? Claude Code tidak akan berfungsi sampai Anda menjalankan perintah baru.",
+            "confirm_revoke": "Matikan akses MCP? Claude Code tidak akan bisa lagi menjangkau miner ini.",
+            "failed": "Tidak dapat mengubah akses MCP. Periksa log miner."
+        },
         "status": {
             "name": "Status",
             "idle": "Tidak aktif",

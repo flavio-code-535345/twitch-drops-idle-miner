@@ -223,6 +223,7 @@ socket.on('connect', () => {
     console.log('Connected to server');
     state.connected = true;
     globalThis.browserLoginPanel?.load();
+    loadMcpAccess();
     const connText = state.translations.gui?.websocket?.connected || 'Connected';
     document.getElementById('connection-indicator').textContent = '● ' + connText;
     document.getElementById('connection-indicator').className = 'connected';
@@ -2611,6 +2612,7 @@ function applyTranslations(t) {
         if (diagnosticsButton) diagnosticsButton.textContent = t.gui.settings.dump_diagnostics;
         const diagnosticsHelp = document.getElementById('diagnostics-help');
         if (diagnosticsHelp) diagnosticsHelp.textContent = t.gui.settings.diagnostics_help;
+        if (typeof translateMcp === "function") translateMcp();
 
         // Re-render games to watch with translated empty messages
         renderGamesToWatch();
@@ -2817,6 +2819,99 @@ async function clearAllCache() {
     await requestCampaignRefresh('/api/cache/clear', button, 'clear cache');
 }
 
+// ==================== MCP access (fork) ====================
+
+let mcpStatus = { enabled: false, created_at: null };
+
+function mcpText(key, fallback) {
+    return state.translations?.gui?.mcp?.[key] || fallback;
+}
+
+function renderMcpAccess() {
+    const stateEl = document.getElementById('mcp-state');
+    if (!stateEl) return;
+    const created = mcpStatus.created_at ? new Date(mcpStatus.created_at).toLocaleString() : '';
+    stateEl.textContent = mcpStatus.enabled
+        ? fillTemplate(mcpText('state_on', 'MCP access is on (token created {date}).'), { date: created })
+        : mcpText('state_off', 'MCP access is off.');
+    document.getElementById('mcp-generate-btn').textContent = mcpStatus.enabled
+        ? mcpText('regenerate', 'Replace token')
+        : mcpText('generate', 'Generate token');
+    const revoke = document.getElementById('mcp-revoke-btn');
+    revoke.hidden = !mcpStatus.enabled;
+    revoke.textContent = mcpText('revoke', 'Turn off MCP access');
+    if (!mcpStatus.enabled) document.getElementById('mcp-token-box').hidden = true;
+}
+
+function translateMcp() {
+    for (const [id, key] of [['mcp-header', 'header'], ['mcp-help', 'help'], ['mcp-token-once', 'token_once'],
+        ['mcp-copy-btn', 'copy'], ['mcp-warning', 'warning']]) {
+        const el = document.getElementById(id);
+        const text = state.translations?.gui?.mcp?.[key];
+        if (el && text) el.textContent = text;
+    }
+    renderMcpAccess();
+}
+
+async function loadMcpAccess() {
+    try {
+        const response = await fetch('/api/mcp', { cache: 'no-store' });
+        if (!response.ok) return;
+        const data = await response.json();
+        mcpStatus = { enabled: Boolean(data.enabled), created_at: data.created_at || null };
+        renderMcpAccess();
+    } catch (_) {
+        // Reconnecting reloads the status.
+    }
+}
+
+async function changeMcpAccess(action) {
+    const result = document.getElementById('mcp-result');
+    if (action === 'generate' && mcpStatus.enabled
+        && !window.confirm(mcpText('confirm_replace', 'Replace the current token? Claude Code stops working until you run the new command.'))) return;
+    if (action === 'revoke'
+        && !window.confirm(mcpText('confirm_revoke', 'Turn off MCP access? Claude Code will no longer reach this miner.'))) return;
+    result.textContent = '';
+    try {
+        const response = await fetch('/api/mcp/token', {
+            method: action === 'generate' ? 'POST' : 'DELETE',
+            headers: { 'X-TDM-Request': '1' },
+        });
+        if (!response.ok) throw new Error('mcp');
+        const data = await response.json();
+        mcpStatus = { enabled: Boolean(data.enabled), created_at: data.created_at || null };
+        renderMcpAccess();
+        const command = document.getElementById('mcp-command');
+        const box = document.getElementById('mcp-token-box');
+        if (data.token) {
+            const url = new URL('/mcp', window.location.href).href;
+            command.textContent = `claude mcp add --transport http twitch-drops ${url} --header "Authorization: Bearer ${data.token}"`;
+            box.hidden = false;
+        } else {
+            command.textContent = '';
+            box.hidden = true;
+        }
+    } catch (_) {
+        result.textContent = mcpText('failed', "Could not change MCP access. Check the miner's log.");
+    }
+}
+
+async function copyMcpCommand() {
+    const command = document.getElementById('mcp-command');
+    const result = document.getElementById('mcp-result');
+    try {
+        await navigator.clipboard.writeText(command.textContent);
+        result.textContent = mcpText('copied', 'Copied.');
+    } catch (_) {
+        // No clipboard access (e.g. plain HTTP): select the text for a manual copy.
+        const range = document.createRange();
+        range.selectNodeContents(command);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+}
+
 async function dumpDiagnostics() {
     const button = document.getElementById('dump-diagnostics-btn');
     const result = document.getElementById('diagnostics-result');
@@ -2957,6 +3052,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('reload-btn').addEventListener('click', reloadCampaigns);
     document.getElementById('clear-cache-btn').addEventListener('click', clearAllCache);
     document.getElementById('dump-diagnostics-btn').addEventListener('click', dumpDiagnostics);
+    document.getElementById('mcp-generate-btn').addEventListener('click', () => changeMcpAccess('generate'));
+    document.getElementById('mcp-revoke-btn').addEventListener('click', () => changeMcpAccess('revoke'));
+    document.getElementById('mcp-copy-btn').addEventListener('click', copyMcpCommand);
 
     // History tab
     document.getElementById('history-btn-filter')?.addEventListener('click', () => {

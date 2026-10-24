@@ -54,7 +54,9 @@ styling on top of upstream's refreshed layout; see
 Docker Hub workflow as `<your-docker-hub-user>/twitch-drops-idle-miner:latest`; use it in
 place of `rangermix/twitch-drops-miner` below; the image includes the Chromium and display
 components that the dashboard sign-in below needs. The optional desktop helper is not built
-here; the sign-in screen links to the matching upstream release.
+here; the sign-in screen links to the matching upstream release. The fork can also act as an
+MCP server so Claude Code can read and control the miner; see
+[MCP access](docs/fork-features.md#mcp-access-for-claude-code).
 
 ## Quick start
 

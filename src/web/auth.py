@@ -159,6 +159,8 @@ class AuthMiddleware:
               "/static/auth.js", "/static/auth.css", "/static/styles.css", "/static/favicon.png"}
     HELPER_NATIVE = frozenset({("POST", "/api/helper/connect"), ("POST", "/api/helper/session"),
                               ("GET", "/api/helper/result")})
+    # Fork: the MCP endpoint authenticates with its own bearer token (src/web/mcp_server.py).
+    MCP = "/mcp"
 
     def __init__(self, app: ASGIApp, auth: WebAuth):
         self.app, self.auth = app, auth
@@ -173,20 +175,22 @@ class AuthMiddleware:
         mutation = scope.get("method", "GET") not in ("GET", "HEAD", "OPTIONS")
         origin = connection.headers.get("origin")
         helper_native = (scope.get("method"), path) in self.HELPER_NATIVE
+        mcp = path == self.MCP and scope["type"] == "http"
         unsafe_origin = origin is not None and origin != self.auth.origin.expected(connection)
         forbidden = (mutation or socket or helper_native) and (
             unsafe_origin or connection.headers.get("sec-fetch-site") == "cross-site"
-            or ((mutation or helper_native) and not socket and connection.headers.get("x-tdm-request") != "1")
+            or ((mutation or helper_native) and not socket and not mcp
+                and connection.headers.get("x-tdm-request") != "1")
         )
         if forbidden:
             return await self.reject(scope, receive, send, 403, "forbidden")
-        if path not in self.PUBLIC and not helper_native and not self.auth.allowed(self.auth.token(scope)):
+        if path not in self.PUBLIC and not helper_native and not mcp and not self.auth.allowed(self.auth.token(scope)):
             if path == "/" and scope["type"] == "http":
                 return await RedirectResponse("/login", status_code=303,
                     headers={"Cache-Control": "no-store"})(scope, receive, send)
             return await self.reject(scope, receive, send, 401, "authentication_required")
         # Bound auth payloads before Pydantic parses them; do not echo submitted secrets.
-        if mutation and path.startswith(("/api/auth/", "/api/session/", "/api/helper/", "/api/diagnostics")):
+        if mutation and (mcp or path.startswith(("/api/auth/", "/api/session/", "/api/helper/", "/api/diagnostics"))):
             limit = 4096 if path.startswith("/api/diagnostics") else 16384 if path.startswith("/api/auth/") else 65536
             body = b""
             while True:

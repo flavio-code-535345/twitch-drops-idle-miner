@@ -1,3 +1,22 @@
+# Release Notes - v2.3.0.1 (fork)
+
+Fork addition on top of upstream 2.3.0.
+
+## MCP access for Claude Code
+
+- The miner can act as an MCP server: **Settings → MCP access (Claude Code)** generates a
+  token and shows the `claude mcp add` command to connect Claude Code to
+  `https://<your dashboard>/mcp`.
+- Claude can read status, campaigns, the wanted queue, channels, settings, the Campaign
+  Searches log, drop history and recent messages, and can change Games to Watch, mining
+  settings and mining hours, reload campaigns and switch channels, using the same code paths
+  as the dashboard.
+- The endpoint is off until a token exists. Only a hash of the token is stored, replacing or
+  turning off the token takes effect immediately, wrong tokens are rate-limited, and
+  cross-site requests are rejected. Translated into all 20 languages.
+
+See [fork features](docs/fork-features.md#mcp-access-for-claude-code).
+
 # Release Notes - v2.3.0 (upstream sync)
 
 This minor release adds automatic fallback beyond your saved game priorities, daily

@@ -98,6 +98,22 @@
                 "other": "Andet"
             }
         },
+        "mcp": {
+            "header": "MCP-adgang (Claude Code)",
+            "help": "Giver Claude Code mulighed for at læse og styre denne miner via Model Context Protocol. Generér et token, og kør derefter kommandoen nedenfor på den computer, hvor du bruger Claude Code.",
+            "state_off": "MCP-adgang er slået fra.",
+            "state_on": "MCP-adgang er slået til (token oprettet {date}).",
+            "generate": "Generér token",
+            "regenerate": "Erstat token",
+            "revoke": "Slå MCP-adgang fra",
+            "token_once": "Kopiér kommandoen nu. Tokenet vises kun én gang; generér et nyt, hvis du mister det.",
+            "warning": "Alle med dette token kan styre mineren. Hold det privat.",
+            "copy": "Kopiér kommando",
+            "copied": "Kopieret.",
+            "confirm_replace": "Erstat det nuværende token? Claude Code virker ikke, før du kører den nye kommando.",
+            "confirm_revoke": "Slå MCP-adgang fra? Claude Code kan så ikke længere nå denne miner.",
+            "failed": "MCP-adgangen kunne ikke ændres. Se minerens log."
+        },
         "status": {
             "name": "Status",
             "idle": "Ledig",

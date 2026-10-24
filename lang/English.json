@@ -98,6 +98,22 @@
                 "other": "Other"
             }
         },
+        "mcp": {
+            "header": "MCP access (Claude Code)",
+            "help": "Lets Claude Code read and control this miner through the Model Context Protocol. Generate a token, then run the command below on the computer where you use Claude Code.",
+            "state_off": "MCP access is off.",
+            "state_on": "MCP access is on (token created {date}).",
+            "generate": "Generate token",
+            "regenerate": "Replace token",
+            "revoke": "Turn off MCP access",
+            "token_once": "Copy this command now. The token is shown only once; generate a new one if you lose it.",
+            "warning": "Anyone with this token can control the miner. Keep it private.",
+            "copy": "Copy command",
+            "copied": "Copied.",
+            "confirm_replace": "Replace the current token? Claude Code stops working until you run the new command.",
+            "confirm_revoke": "Turn off MCP access? Claude Code will no longer reach this miner.",
+            "failed": "Could not change MCP access. Check the miner's log."
+        },
         "status": {
             "name": "Status",
             "idle": "Idle",

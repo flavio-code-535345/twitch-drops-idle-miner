@@ -448,6 +448,23 @@
                     </div>
                 </section>
 
+                <section id="mcp-settings" class="settings-section">
+                    <h2 id="mcp-header">MCP access (Claude Code)</h2>
+                    <p id="mcp-help" class="help-text">Lets Claude Code read and control this miner through the Model Context Protocol. Generate a token, then run the command below on the computer where you use Claude Code.</p>
+                    <p id="mcp-state">MCP access is off.</p>
+                    <div class="mcp-actions settings-actions">
+                        <button id="mcp-generate-btn" class="action-button" type="button">Generate token</button>
+                        <button id="mcp-revoke-btn" class="action-button" type="button" hidden>Turn off MCP access</button>
+                    </div>
+                    <div id="mcp-token-box" class="mcp-token-box" hidden>
+                        <p id="mcp-token-once" class="help-text">Copy this command now. The token is shown only once; generate a new one if you lose it.</p>
+                        <pre id="mcp-command" class="mcp-command"></pre>
+                        <button id="mcp-copy-btn" class="action-button" type="button">Copy command</button>
+                        <p id="mcp-warning" class="help-text">Anyone with this token can control the miner. Keep it private.</p>
+                    </div>
+                    <p id="mcp-result" class="help-text" role="status" aria-live="polite"></p>
+                </section>
+
                 <section class="settings-section">
                     <h2 id="settings-actions-header">Actions</h2>
                     <div class="settings-actions">

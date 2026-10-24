@@ -98,6 +98,22 @@
                 "other": "Outro"
             }
         },
+        "mcp": {
+            "header": "Acesso MCP (Claude Code)",
+            "help": "Permite que o Claude Code consulte e controle este minerador através do Model Context Protocol. Gere um token e depois execute o comando abaixo no computador onde usa o Claude Code.",
+            "state_off": "O acesso MCP está desativado.",
+            "state_on": "O acesso MCP está ativado (token criado em {date}).",
+            "generate": "Gerar token",
+            "regenerate": "Substituir token",
+            "revoke": "Desativar acesso MCP",
+            "token_once": "Copie o comando agora. O token só é mostrado uma vez; gere um novo se o perder.",
+            "warning": "Qualquer pessoa com este token pode controlar o minerador. Mantenha-o privado.",
+            "copy": "Copiar comando",
+            "copied": "Copiado.",
+            "confirm_replace": "Substituir o token atual? O Claude Code deixará de funcionar até executar o novo comando.",
+            "confirm_revoke": "Desativar o acesso MCP? O Claude Code deixará de conseguir aceder a este minerador.",
+            "failed": "Não foi possível alterar o acesso MCP. Verifique o registo do minerador."
+        },
         "status": {
             "name": "Status",
             "idle": "Em espera",
