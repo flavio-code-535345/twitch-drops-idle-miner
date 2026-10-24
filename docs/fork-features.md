@@ -96,9 +96,12 @@ and change Games to Watch for you.
    computer where you use Claude Code, for example:
 
    ```bash
-   claude mcp add --transport http twitch-drops https://drops.example.com/mcp --header "Authorization: Bearer tdm_mcp_..."
+   claude mcp add --scope user --transport http twitch-drops https://drops.example.com/mcp --header "Authorization: Bearer tdm_mcp_..."
    ```
-3. Start Claude Code and ask about the miner; `/mcp` inside Claude Code lists the connection.
+   `--scope user` makes the miner available in every Claude Code session, not just the
+   folder the command was run in. `claude mcp list` shows whether it is connected.
+3. Start a new Claude Code session and ask about the miner; `/mcp` inside Claude Code lists
+   the connection.
 
 Claude can then use these tools:
 

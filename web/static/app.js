@@ -2889,7 +2889,7 @@ async function changeMcpAccess(action) {
         const box = document.getElementById('mcp-token-box');
         if (data.token) {
             const url = new URL('/mcp', window.location.href).href;
-            command.textContent = `claude mcp add --transport http twitch-drops ${url} --header "Authorization: Bearer ${data.token}"`;
+            command.textContent = `claude mcp add --scope user --transport http twitch-drops ${url} --header "Authorization: Bearer ${data.token}"`;
             box.hidden = false;
         } else {
             command.textContent = '';

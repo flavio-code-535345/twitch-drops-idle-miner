@@ -1,10 +1,12 @@
-# Release Notes - v2.3.0.2 (fork)
+# Release Notes - v2.3.0.3 (fork)
 
 - Fixed the Inventory hiding campaigns when the game filter (for example from **Use Tracked
   Games**) spells a game with different capitalisation than Twitch, such as "Escape From
   Tarkov" versus "Escape from Tarkov". The filter, the game dropdown and the Games to Watch
   picker now compare names case-insensitively, and **Use Tracked Games** copies Twitch's
   spelling. Mining was not affected.
+- The MCP setup command shown in Settings now includes `--scope user`, so Claude Code can use
+  the miner from every session instead of only the folder where the command was run.
 
 # Release Notes - v2.3.0.1 (fork)
 
