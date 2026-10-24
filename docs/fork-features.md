@@ -126,7 +126,9 @@ with, and flags a newer release of either on GitHub.
 ## Inventory: Use Tracked Games
 
 The Inventory game filter has a **Use Tracked Games** button that adds every game from
-Games to Watch to the filter.
+Games to Watch to the filter, using Twitch's spelling of each game. The game filter ignores
+capitalisation, so a Games to Watch entry spelled "Escape From Tarkov" still shows Twitch's
+"Escape from Tarkov" campaigns.
 
 ## Dashboard look
 

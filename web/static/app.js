@@ -943,9 +943,10 @@ function campaignMatchesFilters(campaign, filters) {
 
     // Check game name filter (AND logic with status filters, OR logic among selected games)
     if (hasGameFilter) {
-        const gameName = campaign.game_name;
-        // Campaign must match at least ONE of the selected games
-        const gameMatch = filters.game_name_search.includes(gameName);
+        // Campaign must match at least ONE of the selected games. Fork: ignore capitalisation,
+        // since names copied from Games to Watch may be spelled differently than Twitch's.
+        const gameName = String(campaign.game_name || '').toLowerCase();
+        const gameMatch = filters.game_name_search.some(name => String(name).toLowerCase() === gameName);
         if (!gameMatch) {
             return false;
         }
@@ -996,10 +997,12 @@ function useTrackedGamesFilter() {
     }
 
     const existingLower = new Set(selectedInventoryGames.map(g => g.toLowerCase()));
+    // Prefer Twitch's spelling of a game over the one typed into Games to Watch.
+    const knownSpelling = new Map(getAvailableGamesForDropdown().map(g => [g.toLowerCase(), g]));
     tracked.forEach(gameName => {
         const key = gameName.toLowerCase();
         if (!existingLower.has(key)) {
-            selectedInventoryGames.push(gameName);
+            selectedInventoryGames.push(knownSpelling.get(key) || gameName);
             existingLower.add(key);
         }
     });
@@ -1073,7 +1076,7 @@ function renderGameDropdown(searchTerm = '') {
     }
 
     filteredGames.forEach((gameName, index) => {
-        const isSelected = selectedInventoryGames.includes(gameName);
+        const isSelected = selectedInventoryGames.some(g => g.toLowerCase() === gameName.toLowerCase());
         const isFocused = index === gameDropdownFocusedIndex;
 
         const item = document.createElement('div');
@@ -1104,7 +1107,7 @@ function renderGameDropdown(searchTerm = '') {
 }
 
 function toggleGameSelection(gameName) {
-    const index = selectedInventoryGames.indexOf(gameName);
+    const index = selectedInventoryGames.findIndex(g => g.toLowerCase() === gameName.toLowerCase());
     if (index >= 0) {
         // Remove game
         selectedInventoryGames.splice(index, 1);
@@ -1589,8 +1592,9 @@ function renderGamesToWatch() {
     renderSelectedGames(selectedGames);
 
     // Render available games (checkboxes for unselected games)
+    const selectedLower = new Set(selectedGames.map(game => game.toLowerCase()));
     const unselectedGames = Array.from(availableGames)
-        .filter(game => !selectedGames.includes(game))
+        .filter(game => !selectedLower.has(game.toLowerCase()))
         .filter(game => game.toLowerCase().includes(filterText))
         .sort();
 

@@ -1,3 +1,11 @@
+# Release Notes - v2.3.0.2 (fork)
+
+- Fixed the Inventory hiding campaigns when the game filter (for example from **Use Tracked
+  Games**) spells a game with different capitalisation than Twitch, such as "Escape From
+  Tarkov" versus "Escape from Tarkov". The filter, the game dropdown and the Games to Watch
+  picker now compare names case-insensitively, and **Use Tracked Games** copies Twitch's
+  spelling. Mining was not affected.
+
 # Release Notes - v2.3.0.1 (fork)
 
 Fork addition on top of upstream 2.3.0.
