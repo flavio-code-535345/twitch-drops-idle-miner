@@ -367,6 +367,24 @@ fetch(url, {method: body === null ? 'GET' : 'POST', headers,
             await login.browser_pending(None)
 
     @staticmethod
+    def catalog_withheld(row: Any) -> bool:
+        """Fork: Twitch answered Campaigns with only an integrity rejection and no catalog.
+
+        The Inventory query still succeeds, so the session is valid; the miner then finds
+        campaigns through live channels (see InventoryService) instead of refusing to sign in.
+        """
+        try:
+            errors = row["errors"]
+            return (
+                isinstance(errors, list) and bool(errors)
+                and all(isinstance(error, dict) and error.get("message") == "failed integrity check"
+                        for error in errors)
+                and row["data"]["currentUser"]["dropCampaigns"] is None
+            )
+        except (KeyError, TypeError):
+            return False
+
+    @staticmethod
     def campaign_count(results: Any) -> int:
         """Validate both catalog operations without inferring account eligibility."""
         try:
@@ -374,16 +392,18 @@ fetch(url, {method: body === null ? 'GET' : 'POST', headers,
                 raise ValueError
             inventory = results[0]["data"]["currentUser"]["inventory"]
             campaigns = results[1]["data"]["currentUser"]["dropCampaigns"]
+            withheld = BrowserSession.catalog_withheld(results[1])
             if (
-                any(item.get("errors") for item in results)
+                results[0].get("errors")
+                or (results[1].get("errors") and not withheld)
                 or not isinstance(inventory, dict)
                 or not isinstance(inventory.get("gameEventDrops"), list)
                 or "dropCampaignsInProgress" not in inventory
                 or not isinstance(inventory.get("dropCampaignsInProgress"), (list, type(None)))
-                or not isinstance(campaigns, list)
+                or not (isinstance(campaigns, list) or withheld)
             ):
                 raise ValueError
-            return len(campaigns)
+            return len(campaigns or [])
         except (IndexError, KeyError, TypeError, ValueError, AttributeError):
             raise browser_error("CATALOG") from None
 

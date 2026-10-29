@@ -17,7 +17,7 @@ from dateutil.parser import isoparse
 from src.api import GQLClient
 from src.config import CHANNEL_CAMPAIGNS_QUERY, GQL_OPERATIONS, GQLRawQuery
 from src.config.reward_priority import RewardPriority
-from src.exceptions import ExitRequest, MinerException
+from src.exceptions import ExitRequest, GQLException, MinerException
 from src.i18n import _
 from src.models import DropsCampaign
 from src.utils import chunk
@@ -297,8 +297,20 @@ class InventoryService:
         inventory_data: dict[str, JsonType] = {c["id"]: c for c in ongoing_campaigns}
 
         # fetch general available campaigns data (campaigns)
-        response = await self._twitch.gql_request(GQL_OPERATIONS["Campaigns"])
-        catalog: list[JsonType] | None = response["data"]["currentUser"]["dropCampaigns"]
+        catalog: list[JsonType] | None
+        try:
+            response = await self._twitch.gql_request(GQL_OPERATIONS["Campaigns"])
+            catalog = response["data"]["currentUser"]["dropCampaigns"]
+        except GQLException as exc:
+            # Twitch can reject only this query's integrity check while the session is
+            # otherwise fine; treat it like a withheld catalog instead of failing the refresh.
+            errors = exc.args[0] if exc.args else None
+            if not (isinstance(errors, list) and errors and all(
+                isinstance(error, dict) and error.get("message") == "failed integrity check"
+                for error in errors
+            )):
+                raise
+            catalog = None
         if catalog is None:
             # Twitch withholds the catalog (and campaign details) from the Smart TV client,
             # which previously left only already-started campaigns visible.

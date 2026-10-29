@@ -1,3 +1,13 @@
+# Release Notes - v2.4.0.1 (fork)
+
+- Sign-in and the campaign refresh no longer fail when Twitch rejects only the **Campaigns**
+  request with "failed integrity check" while the Inventory request still works (logged as
+  `Catalog validation rejected ... 'Campaigns': {'errors': ['integrity'] ...}`, also reported
+  upstream in rangermix#187 and #190). The session is accepted, and the miner finds
+  campaigns through live channels of your Games to Watch, exactly as when Twitch withholds
+  the catalog (see [fork features](docs/fork-features.md#campaign-discovery-when-twitch-withholds-the-catalog)).
+  Any other catalog error still blocks sign-in. Farm Mode only sees games found this way.
+
 # Release Notes - v2.4.0 (upstream sync)
 
 This minor release organizes Settings into tabs, adds temporary mining pauses, and

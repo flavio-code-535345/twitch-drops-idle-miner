@@ -47,7 +47,8 @@ run when the window opens is listed as **Mining hours started**.
 
 ## Campaign discovery when Twitch withholds the catalog
 
-If Twitch returns no campaign catalog, the miner searches up to 100 live drops-enabled
+If Twitch returns no campaign catalog (including when it rejects only the Campaigns request
+with an integrity error, which would otherwise stop sign-in), the miner searches up to 100 live drops-enabled
 channels per Games to Watch entry for the campaigns they offer, then loads each
 campaign's complete details (account linking, reward types, participating channels and
 progress). Found campaigns are remembered until they end, so the miner can switch as soon
