@@ -6,10 +6,10 @@ Everything else in these guides applies unchanged.
 
 ## Farm Mode
 
-**Settings → Farm Mode → Farm all available badges & emotes** also mines badge and emote
+**Settings → Mining → Farm Mode → Farm all available badges & emotes** also mines badge and emote
 drops from every other available campaign, beyond your **Games to Watch**. Games to Watch
 always keep priority for channel slots; farmed games are appended after them and marked
-**FARM** in the Wanted Drops Queue. Farm Mode ignores the Mining Benefits filter and only
+**FARM** in the Wanted Drops Queue. Farm Mode ignores your **Reward types** choices and only
 considers badges and emotes, which Twitch awards without account linking.
 
 Farm Mode is separate from upstream's **Allow mining campaigns reported as Not Linked**
@@ -22,6 +22,10 @@ fallback games (other games with your preferred reward types, campaigns ending s
 first) come after Games to Watch, and Farm Mode then adds the badge and emote drops of
 every game still left. Each game appears once in the queue.
 
+With upstream's **Mining → Reward types** ordering switched on, Games to Watch still come
+first in your saved order. Fallback and FARM games after them are then sorted by the best
+reward type they offer (earlier deadlines break ties), instead of by deadline alone.
+
 Farm Mode relies on Twitch's full campaign list. While Twitch withholds that list (see
 below), it cannot discover games outside Games to Watch.
 
@@ -33,11 +37,11 @@ it (startup, the schedule, a manual reload, a Games to Watch change, a drop noti
 and so on), how long it took, and what it found. The summary shows the last search and
 when the next scheduled one is due.
 
-The schedule follows **Settings → General → minimum refresh interval** (1 to 1440
+The schedule follows **Settings → General → Minimum Refresh Interval** (1 to 1440
 minutes, default 30), so you should see a **Scheduled** entry at that interval. An overdue
 schedule is highlighted. The log is kept in memory and resets when the miner restarts.
 
-With **Settings → Mining Hours** limited to a daily window, scheduled searches wait while the
+With **Settings → Mining → Mining Hours** limited to a daily window, scheduled searches wait while the
 window is closed: the summary then says they are paused rather than overdue, and the search
 run when the window opens is listed as **Mining hours started**.
 
@@ -58,7 +62,7 @@ stays idle unless Twitch withholds the catalog again.
 ## Signing in again
 
 A saved login keeps working across updates. The **Sign in to Twitch** screen only appears
-when Twitch needs a new login, or after **Settings → Log out of Twitch** (use that to
+when Twitch needs a new login, or after **Settings → Account & Maintenance → Log out of Twitch** (use that to
 switch accounts). Sign-in happens entirely in the dashboard: the image's own Chromium is
 shown in the page, you sign in and complete any verification there, then select **Finish
 sign in**. See [Sign in](authentication.md) for the full guide. Things to check on a
@@ -66,7 +70,10 @@ server like this fork's (Docker behind an HTTPS reverse proxy):
 
 - **Reverse proxy:** the browser view streams over a WebSocket at `/api/session/vnc` on
   the dashboard's own address. A proxy that already carries the dashboard's live updates
-  carries it too. If `PUBLIC_BASE_URL` is set, it must be the exact address you open.
+  carries it too. Since upstream 2.4 the dashboard also rejects host names it does not
+  trust (DNS-rebinding protection), which includes the MCP endpoint. Set
+  `PUBLIC_BASE_URL=https://your-host` (or `ALLOWED_HOSTS=your-host`) in the compose file; it
+  must be the exact address you open. IP addresses and local names keep working.
 - **Dashboard password:** the browser view is protected only by the dashboard password
   (the sign-in screen offers to set one first). Set one if the dashboard is reachable from
   the internet, or anyone who can open it could use the sign-in browser.
@@ -91,7 +98,7 @@ The miner can act as an MCP (Model Context Protocol) server, so Claude Code can 
 questions like "what is my drops miner doing?" or "is there a Tarkov campaign right now?"
 and change Games to Watch for you.
 
-1. Open **Settings → MCP access (Claude Code)** and select **Generate token**.
+1. Open **Settings → Account & Maintenance → MCP access (Claude Code)** and select **Generate token**.
 2. Copy the command it shows. The token appears only once. Then run it in a terminal on the
    computer where you use Claude Code, for example:
 

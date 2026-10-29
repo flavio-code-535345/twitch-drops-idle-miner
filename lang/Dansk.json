@@ -4,6 +4,7 @@
     "status": {
         "terminated": "\nProgram Afsluttet.\nLuk vinduet for at afslutte programmet.",
         "watching": "Ser på: {channel}",
+        "mining_resumed": "Mining genoptaget",
         "goes_online": "{channel} går ONLINE, skifter...",
         "goes_offline": "{channel} går OFFLINE, skifter...",
         "claimed_drop": "Hentet belønning: {drop}",
@@ -126,6 +127,15 @@
             "fetching_campaigns": "Henter kampagner...",
             "adding_campaigns": "Tilføjer kampagner til beholdning... {counter}",
             "ready": "Klar",
+            "paused": "Sat på pause",
+            "pause": "Pause",
+            "resume": "Genoptag",
+            "paused_until": "Sat på pause til {time}",
+            "pause_10m": "I 10 minutter",
+            "pause_1h": "I 1 time",
+            "pause_tomorrow": "Indtil i morgen",
+            "pause_indefinite": "Indtil jeg genoptager",
+            "pause_error": "Pausetilstanden kunne ikke ændres. Prøv igen.",
             "outside_hours": "Uden for minedriftstid"
         },
         "tabs": {
@@ -201,30 +211,47 @@
                 "upcoming": "Kommende",
                 "expired": "Udløbet",
                 "finished": "Afsluttet",
-                "item": "Genstand",
-                "badge": "Badge",
-                "emote": "Emote",
-                "other": "Andet",
+                "item": "Spilbelønning",
+                "badge": "Chatbadge",
+                "emote": "Chatemote",
+                "other": "Anden belønning",
                 "clear": "Ryd filtre",
                 "search_placeholder": "Søg efter spil...",
                 "use_tracked_games": "Brug sporede spil",
                 "no_tracked_games": "Ingen sporede spil under Indstillinger > Spil at overvåge endnu.",
                 "account_link": "Kontoforbindelse",
+                "status_heading": "Status",
+                "rewards_heading": "Belønninger",
                 "all": "Alle",
                 "linked": "Forbundet"
-            }
+            },
+            "add_game": "Føj til miningliste",
+            "adding_game": "Tilføjer…",
+            "add_game_error": "Kunne ikke gemme mininglisten. Prøv igen.",
+            "link_account": "Tilknyt konto",
+            "card_view": "Kortvisning",
+            "list_view": "Listevisning"
         },
         "settings": {
             "general": {
                 "name": "Generelt",
                 "dark_mode": "Mørk tilstand: "
             },
+            "tab_mining": "Mining",
+            "tab_games": "Spil",
+            "tab_notifications": "Notifikationer",
+            "tab_account": "Konto og vedligeholdelse",
             "reload": "Genindlæs",
-            "games_to_watch": "Spil at se",
+            "games_to_watch": "Miningliste",
             "games_help": "Vælg spil at se. Rækkefølgen er vigtig - træk for at ændre prioritet (top = højeste prioritet).",
             "priority_list_only": "Kun prioritetsliste (minér kun valgte spil)",
             "priority_list_only_save_error": "Kunne ikke gemme indstillingen for spilprioritet. Prøv igen.",
             "search_games": "Søg spil...",
+            "select_linked": "Vælg forbundne",
+            "game_linked": "FORBUNDET",
+            "game_not_linked": "IKKE FORBUNDET",
+            "game_linked_title": "Konto er forbundet",
+            "game_not_linked_title": "Konto er ikke forbundet",
             "select_all": "Vælg alle",
             "deselect_all": "Fravælg alle",
             "selected_games": "Valgte spil (træk for at ændre rækkefølge)",
@@ -269,8 +296,6 @@
             "drop_name_blacklist_placeholder": "(JP)\n[KR]\nJapan",
             "clear_all_cache": "Ryd hele cachen",
             "clear_all_cache_help": "Rydder lokal kampagne-, kanal- og afledt minerstatus; bevarer login og indstillinger og genindlæser derefter data fra Twitch.",
-            "mining_benefits": "Mining Fordele",
-            "mining_benefits_help": "Vælg hvilke typer drops du vil mine.",
             "farm_mode": "Farm-tilstand",
             "farm_mode_label": "Farm alle tilgængelige badges & emotes",
             "farm_mode_help": "Miner også badge- og emote-drops fra alle andre tilgængelige kampagner, ud over Spil at overvåge. Spil at overvåge har altid prioritet for kanalpladser.",
@@ -297,6 +322,7 @@
             "mining_hours_start": "Start",
             "mining_hours_end": "Slut",
             "mining_hours_save_error": "Kunne ikke gemme minedriftstiden. Prøv igen.",
+            "proxy_save_error": "Proxyen kunne ikke gemmes. Indtast adgangskoden igen, og prøv igen.",
             "discord": {
                 "name": "Discord-underretninger",
                 "description": "Få besked på Discord, når du gør krav på drops.",
@@ -320,7 +346,13 @@
                 "save_error": "Kunne ikke gemme Discord-indstillinger.",
                 "save_settings": "Gem indstillinger",
                 "test_connection": "Test forbindelse"
-            }
+            },
+            "reward_priority_title": "Belønningstyper",
+            "reward_priority_enable": "Foretræk belønningstyper i denne rækkefølge",
+            "reward_priority_rank": "Placering af {type}",
+            "reward_priority_not_mined": "Mines ikke",
+            "reward_priority_error": "Belønningsrækkefølgen kunne ikke gemmes. Prøv igen.",
+            "reward_priority_help": "Fjern fluebenet for en type for at stoppe med at mine den. Slå rækkefølge til, og træk rækkerne for at foretrække bestemte typer; ved lighed går tidligere deadlines forrest, og valgte spil kommer stadig før reservespil. Spilbelønninger kommer fra spillet eller udgiveren, badges og emotes er Twitch-chatbelønninger, og Andet er en type, Twitch ikke kunne identificere."
         },
         "help": {
             "about": "Om Twitch Drops Miner",
@@ -413,7 +445,7 @@
         },
         "browser_login": {
             "title": "Log ind på Twitch",
-            "instructions": "Log ind nedenfor, og fuldfør Twitch-bekræftelsen. Vælg derefter „Afslut login”; TDM kontrollerer sessionen og vender tilbage til oversigten.",
+            "instructions": "Log ind nedenfor og gennemfør Twitch-bekræftelsen. Browseren lukker automatisk, og TDM kontrollerer sessionen. Ellers vælg Afslut login.",
             "finish": "Afslut login",
             "retry": "Prøv igen",
             "starting": "Starter browser…",
@@ -445,7 +477,15 @@
             "helper_linux": "Linux (x64)",
             "helper_macos_arm": "macOS (Apple silicon)",
             "helper_macos_intel": "macOS (Intel)",
-            "helper_access_help": "Den første hjælper, der opretter forbindelse, accepteres. Tilbagevenden til den indbyggede browser lukker hjælperadgangen."
+            "helper_access_help": "Den første hjælper, der opretter forbindelse, accepteres. Tilbagevenden til den indbyggede browser lukker hjælperadgangen.",
+            "clipboard_title": "Kopiér og indsæt",
+            "clipboard_help": "Åbn venstre noVNC-sidepanel og vælg Udklipsholder. Indsæt tekst, gå tilbage til Twitch-feltet og tryk Ctrl+V. Teksten slettes efter afsendelse eller lukning.",
+            "clipboard_label": "Udklipsholdertekst",
+            "clipboard_send": "Indsæt i Twitch-browser",
+            "token_title": "Brug en eksisterende Twitch-session",
+            "token_help": "Avanceret: indsæt kun auth-token-cookiens værdi fra din egen browser, hvor du er logget ind på Twitch. Beskyt den som en adgangskode. TDM validerer kontoen og opretter et nyt bevis; afviste eller udløbne tokens giver ikke adgang.",
+            "token_label": "Twitch auth-token",
+            "token_send": "Log ind med token"
         }
     },
     "helper": {

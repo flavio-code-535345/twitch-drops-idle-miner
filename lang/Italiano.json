@@ -4,6 +4,7 @@
     "status": {
         "terminated": "\nApplicazione Terminata.\nChiudi la finestra per uscire dall'applicazione.",
         "watching": "Guardando: {channel}",
+        "mining_resumed": "Raccolta ripresa",
         "goes_online": "{channel} è ONLINE, cambiando...",
         "goes_offline": "{channel} è OFFLINE, cambiando...",
         "claimed_drop": "Contenuti riscattati: {drop}",
@@ -126,6 +127,15 @@
             "fetching_campaigns": "Recupero delle campagne...",
             "adding_campaigns": "Aggiunta delle campagne all'inventario... {counter}",
             "ready": "Pronto",
+            "paused": "In pausa",
+            "pause": "Pausa",
+            "resume": "Riprendi",
+            "paused_until": "In pausa fino alle {time}",
+            "pause_10m": "Per 10 minuti",
+            "pause_1h": "Per 1 ora",
+            "pause_tomorrow": "Fino a domani",
+            "pause_indefinite": "Finché non riprendo",
+            "pause_error": "Impossibile modificare lo stato di pausa. Riprova.",
             "outside_hours": "Fuori dall'orario di mining"
         },
         "tabs": {
@@ -201,30 +211,47 @@
                 "upcoming": "In Arrivo",
                 "expired": "Scaduto",
                 "finished": "Finito",
-                "item": "Oggetto",
-                "badge": "Badge",
-                "emote": "Emote",
-                "other": "Altro",
+                "item": "Ricompensa di gioco",
+                "badge": "Distintivo chat",
+                "emote": "Emote chat",
+                "other": "Altra ricompensa",
                 "clear": "Pulisci Filtri",
                 "search_placeholder": "Cerca giochi...",
                 "use_tracked_games": "Usa giochi monitorati",
                 "no_tracked_games": "Nessun gioco monitorato ancora in Impostazioni > Giochi da guardare.",
                 "account_link": "Collegamento account",
+                "status_heading": "Stato",
+                "rewards_heading": "Ricompense",
                 "all": "Tutte",
                 "linked": "Collegato"
-            }
+            },
+            "add_game": "Aggiungi alla lista di mining",
+            "adding_game": "Aggiunta…",
+            "add_game_error": "Impossibile salvare la lista di mining. Riprova.",
+            "link_account": "Collega account",
+            "card_view": "Vista a schede",
+            "list_view": "Vista a elenco"
         },
         "settings": {
             "general": {
                 "name": "Generale",
                 "dark_mode": "Modalità scura"
             },
+            "tab_mining": "Mining",
+            "tab_games": "Giochi",
+            "tab_notifications": "Notifiche",
+            "tab_account": "Account e manutenzione",
             "reload": "Ricarica",
-            "games_to_watch": "Giochi da guardare",
+            "games_to_watch": "Lista di mining",
             "games_help": "Seleziona i giochi da guardare. L'ordine è importante - trascina per riordinare la priorità (in alto = priorità massima).",
             "priority_list_only": "Solo lista priorità (mina solo i giochi selezionati)",
             "priority_list_only_save_error": "Impossibile salvare l’opzione di priorità dei giochi. Riprova.",
             "search_games": "Cerca giochi...",
+            "select_linked": "Seleziona collegati",
+            "game_linked": "COLLEGATO",
+            "game_not_linked": "NON COLLEGATO",
+            "game_linked_title": "L'account è collegato",
+            "game_not_linked_title": "L'account non è collegato",
             "select_all": "Seleziona tutto",
             "deselect_all": "Deseleziona tutto",
             "selected_games": "Giochi selezionati (trascina per riordinare)",
@@ -269,8 +296,6 @@
             "drop_name_blacklist_placeholder": "(JP)\n[KR]\nJapan",
             "clear_all_cache": "Svuota tutta la cache",
             "clear_all_cache_help": "Cancella lo stato locale di campagne, canali e i dati derivati del miner; mantiene l’accesso e le impostazioni, quindi ricarica i dati da Twitch.",
-            "mining_benefits": "Vantaggi Minatori",
-            "mining_benefits_help": "Seleziona quali tipi di drop vuoi minare.",
             "farm_mode": "Modalità Farming",
             "farm_mode_label": "Farma tutti i badge e le emote disponibili",
             "farm_mode_help": "Estrae anche drop di badge ed emote da qualsiasi altra campagna disponibile, oltre ai Giochi da guardare. I Giochi da guardare mantengono sempre la priorità per gli slot dei canali.",
@@ -297,6 +322,7 @@
             "mining_hours_start": "Inizio",
             "mining_hours_end": "Fine",
             "mining_hours_save_error": "Impossibile salvare gli orari. Riprova.",
+            "proxy_save_error": "Impossibile salvare il proxy. Reinserisci la password e riprova.",
             "discord": {
                 "name": "Notifiche Discord",
                 "description": "Ricevi notifiche su Discord quando riscatti i drop.",
@@ -320,7 +346,13 @@
                 "save_error": "Impossibile salvare le impostazioni Discord.",
                 "save_settings": "Salva impostazioni",
                 "test_connection": "Prova Connessione"
-            }
+            },
+            "reward_priority_title": "Tipi di ricompensa",
+            "reward_priority_enable": "Preferisci i tipi di ricompensa in questo ordine",
+            "reward_priority_rank": "Posizione di {type}",
+            "reward_priority_not_mined": "Non minato",
+            "reward_priority_error": "Impossibile salvare l'ordine delle ricompense. Riprova.",
+            "reward_priority_help": "Deseleziona un tipo per smettere di minarlo. Attiva l'ordine e trascina le righe per preferire alcuni tipi; a parità vengono prima le scadenze più vicine, e i giochi selezionati restano davanti ai giochi di riserva. Le ricompense di gioco provengono dal gioco o dall'editore, badge ed emote sono ricompense della chat di Twitch, e Altro è un tipo che Twitch non ha identificato."
         },
         "help": {
             "about": "Informazioni su Twitch Drops Miner",
@@ -413,7 +445,7 @@
         },
         "browser_login": {
             "title": "Accedi a Twitch",
-            "instructions": "Accedi qui sotto e completa la verifica Twitch. Seleziona «Completa accesso»; TDM verifica la sessione e torna alla dashboard.",
+            "instructions": "Accedi qui sotto e completa la verifica Twitch. Il browser si chiude automaticamente e TDM verifica la sessione. Se resta aperto, seleziona Termina accesso.",
             "finish": "Completa accesso",
             "retry": "Riprova",
             "starting": "Avvio del browser…",
@@ -445,7 +477,15 @@
             "helper_linux": "Linux (x64)",
             "helper_macos_arm": "macOS (Apple silicon)",
             "helper_macos_intel": "macOS (Intel)",
-            "helper_access_help": "Viene accettato il primo assistente che si collega. Tornare al browser integrato chiude l’accesso dell’assistente."
+            "helper_access_help": "Viene accettato il primo assistente che si collega. Tornare al browser integrato chiude l’accesso dell’assistente.",
+            "clipboard_title": "Copia e incolla",
+            "clipboard_help": "Apri la barra sinistra noVNC e scegli Appunti. Incolla il testo, torna al campo Twitch e premi Ctrl+V. Il testo viene cancellato dopo l’invio o la chiusura.",
+            "clipboard_label": "Testo degli appunti",
+            "clipboard_send": "Incolla nel browser Twitch",
+            "token_title": "Usa una sessione Twitch esistente",
+            "token_help": "Avanzato: incolla solo il valore del cookie auth-token del tuo browser connesso a Twitch. Proteggilo come una password. TDM verifica l’account e crea una nuova prova; un token rifiutato o scaduto non consente l’accesso.",
+            "token_label": "auth-token di Twitch",
+            "token_send": "Accedi con token"
         }
     },
     "helper": {

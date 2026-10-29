@@ -4,6 +4,7 @@
     "status": {
         "terminated": "\nToepassing gestopt.\nSLuit het venster om de toepassing af te sluiten",
         "watching": "{channel} wordt gekeken",
+        "mining_resumed": "Drops verzamelen hervat",
         "goes_online": "{channel} is ONLINE gegaan, wijzig...",
         "goes_offline": "{channel} is OFFLINE gegaan, wijzig...",
         "claimed_drop": "Drop verkregen: {drop}",
@@ -126,6 +127,15 @@
             "fetching_campaigns": "Ophalen van de campagne...",
             "adding_campaigns": "De campagnelijst toevoegen aan de inventaris... {counter}",
             "ready": "Klaar",
+            "paused": "Gepauzeerd",
+            "pause": "Pauzeren",
+            "resume": "Hervatten",
+            "paused_until": "Gepauzeerd tot {time}",
+            "pause_10m": "10 minuten",
+            "pause_1h": "1 uur",
+            "pause_tomorrow": "Tot morgen",
+            "pause_indefinite": "Tot ik hervat",
+            "pause_error": "De pauzestatus kon niet worden gewijzigd. Probeer het opnieuw.",
             "outside_hours": "Buiten de mining-uren"
         },
         "tabs": {
@@ -201,30 +211,47 @@
                 "upcoming": "Aankomend",
                 "expired": "Verlopen",
                 "finished": "Voltooid",
-                "item": "Item",
-                "badge": "Badge",
-                "emote": "Emote",
-                "other": "Overig",
+                "item": "Spelbeloning",
+                "badge": "Chatbadge",
+                "emote": "Chatemote",
+                "other": "Andere beloning",
                 "clear": "Filters wissen",
                 "search_placeholder": "Zoek spellen...",
                 "use_tracked_games": "Gevolgde games gebruiken",
                 "no_tracked_games": "Nog geen gevolgde games in Instellingen > Games om te volgen.",
                 "account_link": "Accountkoppeling",
+                "status_heading": "Status",
+                "rewards_heading": "Beloningen",
                 "all": "Alle",
                 "linked": "Gekoppeld"
-            }
+            },
+            "add_game": "Aan mininglijst toevoegen",
+            "adding_game": "Toevoegen…",
+            "add_game_error": "Kan de mininglijst niet opslaan. Probeer opnieuw.",
+            "link_account": "Account koppelen",
+            "card_view": "Kaartweergave",
+            "list_view": "Lijstweergave"
         },
         "settings": {
             "general": {
                 "name": "Algemeen",
                 "dark_mode": "Donkere Modus"
             },
+            "tab_mining": "Mining",
+            "tab_games": "Games",
+            "tab_notifications": "Meldingen",
+            "tab_account": "Account & onderhoud",
             "reload": "Herladen",
-            "games_to_watch": "Games om te kijken",
+            "games_to_watch": "Mininglijst",
             "games_help": "Selecteer games om te kijken. Volgorde is belangrijk - sleep om prioriteit te wijzigen (bovenaan = hoogste prioriteit).",
             "priority_list_only": "Alleen prioriteitenlijst (mine alleen geselecteerde games)",
             "priority_list_only_save_error": "De spelprioriteitsoptie kon niet worden opgeslagen. Probeer het opnieuw.",
             "search_games": "Zoek games...",
+            "select_linked": "Gekoppelde selecteren",
+            "game_linked": "GEKOPPELD",
+            "game_not_linked": "NIET GEKOPPELD",
+            "game_linked_title": "Account is gekoppeld",
+            "game_not_linked_title": "Account is niet gekoppeld",
             "select_all": "Alles selecteren",
             "deselect_all": "Alles deselecteren",
             "selected_games": "Geselecteerde games (sleep om te herschikken)",
@@ -269,8 +296,6 @@
             "drop_name_blacklist_placeholder": "(JP)\n[KR]\nJapan",
             "clear_all_cache": "Volledige cache wissen",
             "clear_all_cache_help": "Wist de lokale campagne-, kanaal- en afgeleide minerstatus; behoudt je aanmelding en instellingen en laadt daarna opnieuw vanaf Twitch.",
-            "mining_benefits": "Mining Voordelen",
-            "mining_benefits_help": "Selecteer welke soorten drops je wilt minen.",
             "farm_mode": "Farm-modus",
             "farm_mode_label": "Alle beschikbare badges & emotes farmen",
             "farm_mode_help": "Mint ook badge- en emote-drops uit elke andere beschikbare campagne, naast Games om te volgen. Games om te volgen behouden altijd prioriteit voor kanaalplekken.",
@@ -297,6 +322,7 @@
             "mining_hours_start": "Start",
             "mining_hours_end": "Einde",
             "mining_hours_save_error": "De miningtijden konden niet worden opgeslagen. Probeer opnieuw.",
+            "proxy_save_error": "De proxy kon niet worden opgeslagen. Voer het wachtwoord opnieuw in en probeer het opnieuw.",
             "discord": {
                 "name": "Discord-meldingen",
                 "description": "Ontvang meldingen op Discord wanneer je drops opent.",
@@ -320,7 +346,13 @@
                 "save_error": "Discord-instellingen konden niet worden opgeslagen.",
                 "save_settings": "Instellingen opslaan",
                 "test_connection": "Verbinding testen"
-            }
+            },
+            "reward_priority_title": "Beloningstypen",
+            "reward_priority_enable": "Beloningstypen in deze volgorde verkiezen",
+            "reward_priority_rank": "Positie van {type}",
+            "reward_priority_not_mined": "Wordt niet gemined",
+            "reward_priority_error": "De beloningsvolgorde kon niet worden opgeslagen. Probeer het opnieuw.",
+            "reward_priority_help": "Vink een type uit om het niet meer te minen. Zet de volgorde aan en sleep de rijen om bepaalde typen te verkiezen; bij gelijkspel gaan eerdere deadlines voor, en geselecteerde games blijven vóór reservegames. Gamebeloningen komen van de game of uitgever, badges en emotes zijn Twitch-chatbeloningen, en Overig is een type dat Twitch niet herkende."
         },
         "help": {
             "about": "Over Twitch Drops Miner",
@@ -413,7 +445,7 @@
         },
         "browser_login": {
             "title": "Aanmelden bij Twitch",
-            "instructions": "Meld je hieronder aan en voltooi de Twitch-verificatie. Kies daarna „Aanmelding voltooien”; TDM controleert de sessie en keert terug naar het dashboard.",
+            "instructions": "Meld je hieronder aan en voltooi de Twitch-verificatie. De browser sluit automatisch en TDM controleert je sessie. Blijft hij open, kies Aanmelden voltooien.",
             "finish": "Aanmelding voltooien",
             "retry": "Opnieuw proberen",
             "starting": "Browser wordt gestart…",
@@ -445,7 +477,15 @@
             "helper_linux": "Linux (x64)",
             "helper_macos_arm": "macOS (Apple silicon)",
             "helper_macos_intel": "macOS (Intel)",
-            "helper_access_help": "De eerste hulp die verbinding maakt wordt toegelaten. Terugkeren naar de ingebouwde browser sluit de toegang voor de hulp."
+            "helper_access_help": "De eerste hulp die verbinding maakt wordt toegelaten. Terugkeren naar de ingebouwde browser sluit de toegang voor de hulp.",
+            "clipboard_title": "Kopiëren en plakken",
+            "clipboard_help": "Open de linker noVNC-zijbalk en kies Klembord. Plak tekst, ga terug naar het Twitch-veld en druk op Ctrl+V. Tekst wordt na verzenden of sluiten gewist.",
+            "clipboard_label": "Klembordtekst",
+            "clipboard_send": "Plakken in Twitch-browser",
+            "token_title": "Bestaande Twitch-sessie gebruiken",
+            "token_help": "Geavanceerd: plak alleen de auth-token-cookiewaarde uit je eigen aangemelde Twitch-browser. Bescherm deze als een wachtwoord. TDM controleert het account en maakt nieuw bewijs; geweigerde of verlopen tokens geven geen toegang.",
+            "token_label": "Twitch auth-token",
+            "token_send": "Aanmelden met token"
         }
     },
     "helper": {

@@ -1,3 +1,141 @@
+# Release Notes - v2.4.0 (upstream sync)
+
+This minor release organizes Settings into tabs, adds temporary mining pauses, and
+brings reward priorities, Inventory shortcuts and dashboard security fixes together.
+
+## What this means for the fork
+
+- **Update step:** if you reach the dashboard through a custom host name such as
+  `drops.example.com`, set `PUBLIC_BASE_URL=https://drops.example.com` (or
+  `ALLOWED_HOSTS=drops.example.com`) in your compose file before updating. Without it every
+  request, including the MCP endpoint, is rejected with `invalid_host`.
+- **Settings tabs:** Farm Mode now lives under **Mining**, and **MCP access (Claude Code)**
+  under **Account & Maintenance**. The Output panel's Campaign Searches tab and the
+  Inventory's **Use Tracked Games** button are unchanged.
+- **Reward types replace Mining Benefits.** Farm Mode still looks only for badges and emotes
+  regardless of your reward-type choices; with reward ordering on, selected games stay first
+  and fallback and Farm Mode games follow, ordered by their best preferred reward type.
+- The Docker image is this repository's own; wherever the notes below mention
+  `rangermix/twitch-drops-miner`, use `<your-docker-hub-user>/twitch-drops-idle-miner`. The
+  optional desktop helper is still built only upstream.
+
+## Hostname configuration when updating
+
+- The dashboard now rejects untrusted host names to protect against DNS rebinding.
+  Custom names such as `nas.lan`, `nas.fritz.box` or a Tailscale `ts.net` name need
+  `ALLOWED_HOSTS`, or `PUBLIC_BASE_URL` for the browser-facing URL. IP addresses and
+  supported local names continue to work. See the
+  [allowed-host guide](https://github.com/rangermix/TwitchDropsMiner/wiki/Dashboard-access#allowed-host-names).
+- Proxy passwords are masked in the dashboard, API and logs. **Set Proxy** saves the
+  proxy separately; an edited masked address is rejected without changing settings.
+  Sensitive connection errors use fixed messages, and network dependencies are updated.
+
+## Settings and mining controls
+
+- Settings has five tabs: **General**, **Mining**, **Games**, **Notifications**, and
+  **Account & Maintenance**. Existing settings are retained. Reload Campaigns remains
+  in Inventory and beside the Mining list; cache clearing, diagnostics and logout are
+  in Account & Maintenance.
+- **Pause** can stop watching for 10 minutes, 1 hour, until the next midnight in the
+  miner's local timezone, or until you resume. Timed pauses end automatically, and
+  mining hours still apply after resuming. Pause is not saved across restarts and does
+  not disable claiming already-earned rewards.
+- **Mining → Reward types** combines mine/do-not-mine choices with optional drag or
+  position-number ordering. Preferred types come first among currently earnable
+  rewards; earlier deadlines break ties. Selected games stay ahead of fallback games,
+  and the saved game order is unchanged. Ordering is off by default. The guide explains
+  game rewards, chat badges, chat emotes and unrecognized **Other** rewards.
+- Invalid updates and failed saves keep all previous settings intact. Delayed replies
+  preserve later game-list and reward choices, and keyboard focus survives saves,
+  native Tab navigation and control redraws.
+
+## Games and Inventory
+
+- The Mining list shows known account-link status. Available Games can filter linked
+  or unlinked games and offers **Select Linked** while preserving existing priorities.
+- Inventory has expandable campaigns, card/list view buttons and grouped filters.
+  **Add to mining list** appends a linked game without replacing the saved order.
+  Expansion and focus are preserved during updates; cards stay in their columns.
+- Narrow-screen controls wrap instead of being clipped. New and changed labels are
+  included in all 20 languages.
+
+## Session renewal and updating
+
+- Linux/macOS control the private session-renewal browser through a private pipe;
+  Windows keeps loopback control. Commands on an already closed browser session fail
+  promptly. Browser cleanup and same-account/catalog validation remain required.
+- Update to `rangermix/twitch-drops-miner:2.4.0` while keeping the same data mount,
+  timezone and custom container options. Reload the dashboard for the versioned
+  frontend assets. Download matching 2.4.0 helpers for Windows x64, Linux x64, macOS
+  arm64 or macOS x64; archive checksums are in `SHA256SUMS`.
+- Automated tests and isolated browser checks do not guarantee live Twitch progress,
+  successful sign-in or every future unattended renewal.
+
+# Release Notes - v2.3.2
+
+## Discord reward artwork
+
+- Add the first usable public Twitch reward image to successful drop-claim
+  notifications. Bundles retain every reward name, and missing or unsupported
+  artwork falls back to the existing text embed.
+- Forward only bounded HTTPS Twitch CDN URLs without credentials, query values,
+  fragments or control characters. The miner does not download the artwork.
+- Preserve successful Twitch claims, notification failure isolation, disabled
+  mentions, redirect refusal, timeouts and redacted diagnostics.
+
+## Validation and contribution guidance
+
+- Validate submitted Python source without CI automatically rewriting it. Regression
+  tests cover clean source, fixable lint violations and invalid syntax.
+- Require current before/after screenshots for changes to existing dashboard views,
+  with sample data or flattened redaction of personal information. Contributor and
+  agent guidance explains where to attach images and how to handle missing evidence.
+
+Update the miner and downloaded desktop helpers to the matching 2.3.2 release while
+preserving the existing data mount, settings and container options.
+
+# Release Notes - v2.3.1
+
+This patch repairs server-side Twitch session proof issuance and recovery, improves
+embedded sign-in, and fixes missing or outdated progress reconciliation.
+
+## Sign-in and session renewal
+
+- Use the integrity endpoint's dedicated request headers and, where available, an
+  ordinary Chromium window on a private virtual display for SDK issuance and renewal.
+- Recover after SDK cookies expire when the saved WEB OAuth identity remains valid.
+  A fresh proof, matching account and valid campaign catalog are still required;
+  rejected credentials continue to require sign-in.
+- Complete embedded sign-in automatically after the temporary browser observes a
+  login cookie. **Finish sign in** remains available. Password saving is disabled
+  in that temporary browser.
+- Add the native noVNC sidebar with an explicit clipboard panel for pasting into the
+  remote browser. Clipboard text is cleared after sending or closing the panel.
+- Offer an advanced existing-session auth-token option through the same account,
+  proof and catalog validation. This does not restore the legacy device-code flow.
+
+## Progress reconciliation
+
+- Run periodic Twitch progress queries while a reward still has time remaining,
+  independently of the dashboard countdown.
+- Ignore a pending query when a newer observation, claim or replacement supersedes
+  it. Superseded empty or failed replies cannot add estimated progress either.
+- Preserve mining hours, cancellation, eligibility and existing estimation behavior
+  when no newer observation supersedes the request. Local estimates are not proof of
+  Twitch credit; Twitch's Drops inventory remains authoritative.
+
+## Updating
+
+Update to `rangermix/twitch-drops-miner:2.3.1`, preserving the existing data mount,
+settings, timezone and custom container options. Reload the dashboard to receive the
+new versioned sign-in assets. No data reset or credential-file export is needed.
+See the [installation and update guide](https://github.com/rangermix/TwitchDropsMiner/wiki/Installation).
+
+Matching desktop helpers cover Windows x64, Linux x64, macOS arm64 and macOS x64;
+archive checksums are listed in `SHA256SUMS`. Automated regression tests and isolated
+browser checks do not guarantee fresh-token acceptance or every future unattended
+renewal; Twitch can still reject a session or withhold progress.
+
 # Release Notes - v2.3.0.3 (fork)
 
 - Fixed the Inventory hiding campaigns when the game filter (for example from **Use Tracked

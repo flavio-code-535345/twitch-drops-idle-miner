@@ -4,6 +4,7 @@
     "status": {
         "terminated": "\nAplikace byla ukončena.",
         "watching": "Sledování kanálu: {channel}",
+        "mining_resumed": "Získávání dropů obnoveno",
         "goes_online": "Kanál {channel} je online, přepínám...",
         "goes_offline": "Kanál {channel} je offline, přepínám na další...",
         "claimed_drop": "Drop vyzvednut: {drop}",
@@ -126,6 +127,15 @@
             "fetching_campaigns": "Načítání dropů...",
             "adding_campaigns": "Přidávám dropy... {counter}",
             "ready": "Připraveno",
+            "paused": "Pozastaveno",
+            "pause": "Pozastavit",
+            "resume": "Pokračovat",
+            "paused_until": "Pozastaveno do {time}",
+            "pause_10m": "Na 10 minut",
+            "pause_1h": "Na 1 hodinu",
+            "pause_tomorrow": "Do zítřka",
+            "pause_indefinite": "Dokud nepokračuji",
+            "pause_error": "Nepodařilo se změnit stav pozastavení. Zkuste to znovu.",
             "outside_hours": "Mimo dobu těžby"
         },
         "tabs": {
@@ -201,30 +211,47 @@
                 "upcoming": "Nadcházející",
                 "expired": "Vypršelo",
                 "finished": "Dokončeno",
-                "item": "Předmět",
-                "badge": "Odznak",
-                "emote": "Emotikon",
-                "other": "Jiné",
+                "item": "Herní odměna",
+                "badge": "Odznak chatu",
+                "emote": "Emotikon chatu",
+                "other": "Jiná odměna",
                 "clear": "Vymazat filtry",
                 "search_placeholder": "Hledat hry...",
                 "use_tracked_games": "Použít sledované hry",
                 "no_tracked_games": "Zatím žádné sledované hry v Nastavení > Hry ke sledování.",
                 "account_link": "Propojení účtu",
+                "status_heading": "Stav",
+                "rewards_heading": "Odměny",
                 "all": "Všechny",
                 "linked": "Propojeno"
-            }
+            },
+            "add_game": "Přidat do seznamu těžby",
+            "adding_game": "Přidávání…",
+            "add_game_error": "Seznam těžby nelze uložit. Zkuste to znovu.",
+            "link_account": "Propojit účet",
+            "card_view": "Zobrazení karet",
+            "list_view": "Zobrazení seznamu"
         },
         "settings": {
             "general": {
                 "name": "Obecné",
                 "dark_mode": "Tmavý režim"
             },
+            "tab_mining": "Těžba",
+            "tab_games": "Hry",
+            "tab_notifications": "Oznámení",
+            "tab_account": "Účet a údržba",
             "reload": "Obnovit",
-            "games_to_watch": "Hry ke sledování",
+            "games_to_watch": "Seznam těžby",
             "games_help": "Vyberte hry ke sledování. Záleží na pořadí - přetáhněte pro změnu priority (nahoře = nejvyšší priorita).",
             "priority_list_only": "Pouze seznam priorit (těžit pouze vybrané hry)",
             "priority_list_only_save_error": "Nastavení priority her se nepodařilo uložit. Zkuste to znovu.",
             "search_games": "Hledat hry...",
+            "select_linked": "Vybrat propojené",
+            "game_linked": "PROPOJENO",
+            "game_not_linked": "NEPROPOJENO",
+            "game_linked_title": "Účet je propojen",
+            "game_not_linked_title": "Účet není propojen",
             "select_all": "Vybrat vše",
             "deselect_all": "Zrušit výběr",
             "selected_games": "Vybrané hry (přetáhněte pro změnu pořadí)",
@@ -269,8 +296,6 @@
             "drop_name_blacklist_placeholder": "(JP)\n[KR]\nJapan",
             "clear_all_cache": "Vymazat veškerou mezipaměť",
             "clear_all_cache_help": "Vymaže místní stav kampaní, kanálů a odvozený stav mineru; zachová přihlášení a nastavení a poté znovu načte data z Twitche.",
-            "mining_benefits": "Výhody Těžby",
-            "mining_benefits_help": "Vyberte typy dropů, které chcete těžit.",
             "farm_mode": "Farm režim",
             "farm_mode_label": "Farmit všechny dostupné odznaky a emote",
             "farm_mode_help": "Také těží odznaky a emote drops z každé jiné dostupné kampaně, nad rámec Her ke sledování. Hry ke sledování si vždy zachovávají prioritu pro sloty kanálů.",
@@ -297,6 +322,7 @@
             "mining_hours_start": "Začátek",
             "mining_hours_end": "Konec",
             "mining_hours_save_error": "Čas těžby se nepodařilo uložit. Zkuste to znovu.",
+            "proxy_save_error": "Proxy se nepodařilo uložit. Zadejte znovu heslo a zkuste to znovu.",
             "discord": {
                 "name": "Notifikace Discord",
                 "description": "Dostávejte upozornění na Discordu, když obdržíte dropy.",
@@ -320,7 +346,13 @@
                 "save_error": "Nastavení Discord se nepodařilo uložit.",
                 "save_settings": "Uložit nastavení",
                 "test_connection": "Testovat připojení"
-            }
+            },
+            "reward_priority_title": "Typy odměn",
+            "reward_priority_enable": "Upřednostnit typy odměn v tomto pořadí",
+            "reward_priority_rank": "Pořadí: {type}",
+            "reward_priority_not_mined": "Netěží se",
+            "reward_priority_error": "Pořadí odměn se nepodařilo uložit. Zkuste to znovu.",
+            "reward_priority_help": "Zrušením zaškrtnutí typu jeho těžbu zastavíte. Zapněte pořadí a přetáhněte řádky, abyste upřednostnili určité typy; při shodě rozhodují dřívější termíny a vybrané hry zůstávají před záložními hrami. Herní odměny pocházejí od hry nebo vydavatele, odznaky a emotes jsou odměny chatu Twitch a Ostatní je typ, který Twitch nerozpoznal."
         },
         "help": {
             "about": "O Twitch Drops Miner",
@@ -413,7 +445,7 @@
         },
         "browser_login": {
             "title": "Přihlásit se na Twitch",
-            "instructions": "Přihlaste se níže a dokončete ověření Twitch. Zvolte „Dokončit přihlášení“; TDM ověří relaci a vrátí se na přehled.",
+            "instructions": "Přihlaste se níže a dokončete ověření Twitch. Prohlížeč se automaticky zavře a TDM ověří relaci. Pokud zůstane otevřený, zvolte Dokončit přihlášení.",
             "finish": "Dokončit přihlášení",
             "retry": "Zkusit znovu",
             "starting": "Spouštění prohlížeče…",
@@ -445,7 +477,15 @@
             "helper_linux": "Linux (x64)",
             "helper_macos_arm": "macOS (Apple silicon)",
             "helper_macos_intel": "macOS (Intel)",
-            "helper_access_help": "Přijat bude první připojený pomocník. Návrat do vestavěného prohlížeče uzavře přístup pomocníka."
+            "helper_access_help": "Přijat bude první připojený pomocník. Návrat do vestavěného prohlížeče uzavře přístup pomocníka.",
+            "clipboard_title": "Kopírovat a vložit",
+            "clipboard_help": "Otevřete levý panel noVNC a zvolte Schránka. Vložte text, vraťte se do pole Twitch a stiskněte Ctrl+V. Text se po odeslání nebo zavření vymaže.",
+            "clipboard_label": "Text schránky",
+            "clipboard_send": "Vložit do prohlížeče Twitch",
+            "token_title": "Použít existující relaci Twitch",
+            "token_help": "Pokročilé: vložte pouze hodnotu cookie auth-token z vlastního prohlížeče přihlášeného k Twitch. Chraňte ji jako heslo. TDM ověří účet a vytvoří nový důkaz; odmítnutý nebo prošlý token přihlášení neumožní.",
+            "token_label": "Twitch auth-token",
+            "token_send": "Přihlásit tokenem"
         }
     },
     "helper": {

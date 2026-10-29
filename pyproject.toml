@@ -1,16 +1,16 @@
 [project]
 name = "twitch-drops-miner"
-version = "2.3.0.3"  # Keep in sync with MY_VERSION in src/version.py
+version = "2.4.0"  # Keep in sync with MY_VERSION in src/version.py
 description = "Automatically mine Twitch drops without downloading stream data"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "aiohttp>=3.9",
+    "aiohttp>=3.14.4",
     "truststore",
     "python-dateutil",
     "fastapi>=0.104.0",
     "uvicorn[standard]>=0.24.0",
-    "python-socketio>=5.10.0",
+    "python-socketio>=5.16.2",
     "yarl>=1.9.2",
     "pydantic>=2.7.0",
     "coverage>=7.3.1",

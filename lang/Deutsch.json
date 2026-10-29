@@ -4,6 +4,7 @@
     "status": {
         "terminated": "\nAnwendung gestoppt.\nFenster schließen, um die Anwendung zu beenden",
         "watching": "{channel} wird zugesehen",
+        "mining_resumed": "Farmen fortgesetzt",
         "goes_online": "{channel} ist ONLINE gegangen, wechseln...",
         "goes_offline": "{channel} ist OFFLINE gegangen, wechseln...",
         "claimed_drop": "Drop abgeholt: {drop}",
@@ -126,6 +127,15 @@
             "fetching_campaigns": "Lade Kampagnen...",
             "adding_campaigns": "Kampagnen dem Inventar hinzufügen... {counter}",
             "ready": "Bereit",
+            "paused": "Pausiert",
+            "pause": "Pausieren",
+            "resume": "Fortsetzen",
+            "paused_until": "Pausiert bis {time}",
+            "pause_10m": "Für 10 Minuten",
+            "pause_1h": "Für 1 Stunde",
+            "pause_tomorrow": "Bis morgen",
+            "pause_indefinite": "Bis ich fortsetze",
+            "pause_error": "Pausenstatus konnte nicht geändert werden. Bitte erneut versuchen.",
             "outside_hours": "Außerhalb der Mining-Zeit"
         },
         "tabs": {
@@ -201,31 +211,48 @@
                 "upcoming": "Kommend",
                 "expired": "Abgelaufen",
                 "finished": "Beendet",
-                "item": "Gegenstand",
-                "badge": "Abzeichen",
-                "emote": "Emote",
-                "other": "Andere",
+                "item": "Spielbelohnung",
+                "badge": "Chat-Abzeichen",
+                "emote": "Chat-Emote",
+                "other": "Andere Belohnung",
                 "clear": "Filter löschen",
                 "search_placeholder": "Spiele suchen...",
                 "use_tracked_games": "Verfolgte Spiele verwenden",
                 "no_tracked_games": "Noch keine verfolgten Spiele unter Einstellungen > Zu beobachtende Spiele.",
                 "account_link": "Kontoverknüpfung",
+                "status_heading": "Status",
+                "rewards_heading": "Belohnungen",
                 "all": "Alle",
                 "linked": "Verknüpft"
-            }
+            },
+            "add_game": "Zur Mining-Liste hinzufügen",
+            "adding_game": "Wird hinzugefügt…",
+            "add_game_error": "Mining-Liste konnte nicht gespeichert werden. Erneut versuchen.",
+            "link_account": "Konto verknüpfen",
+            "card_view": "Kartenansicht",
+            "list_view": "Listenansicht"
         },
         "settings": {
             "general": {
                 "name": "Allgemein",
                 "dark_mode": "Dunkler Modus"
             },
+            "tab_mining": "Mining",
+            "tab_games": "Spiele",
+            "tab_notifications": "Benachrichtigungen",
+            "tab_account": "Konto & Wartung",
             "reload": "Neu laden",
             "reload_campaigns": "Kampagnen neu laden",
-            "games_to_watch": "Spiele zum Ansehen",
-            "games_help": "Wählen Sie Spiele zum Ansehen aus. Die Reihenfolge ist wichtig - ziehen Sie, um die Priorität zu ändern (oben = höchste Priorität).",
+            "games_to_watch": "Mining-Liste",
+            "games_help": "Wählen Sie Mining-Liste aus. Die Reihenfolge ist wichtig - ziehen Sie, um die Priorität zu ändern (oben = höchste Priorität).",
             "priority_list_only": "Nur Prioritätsliste (nur ausgewählte Spiele minen)",
             "priority_list_only_save_error": "Die Spielpriorität konnte nicht gespeichert werden. Bitte erneut versuchen.",
             "search_games": "Spiele suchen...",
+            "select_linked": "Verknüpfte auswählen",
+            "game_linked": "VERKNÜPFT",
+            "game_not_linked": "NICHT VERKNÜPFT",
+            "game_linked_title": "Konto ist verknüpft",
+            "game_not_linked_title": "Konto ist nicht verknüpft",
             "select_all": "Alle auswählen",
             "deselect_all": "Alle abwählen",
             "selected_games": "Ausgewählte Spiele (ziehen zum Neuordnen)",
@@ -269,8 +296,6 @@
             "clear_all_cache_help": "Löscht lokale Kampagnen-, Kanal- und abgeleitete Miner-Daten; Anmeldung und Einstellungen bleiben erhalten, anschließend werden die Daten von Twitch neu geladen.",
             "add_game": "Add Game",
             "add_game_hint": " Click \"Add Game\" to add it manually.",
-            "mining_benefits": "Mining-Vorteile",
-            "mining_benefits_help": "Wählen Sie, welche Arten von Drops Sie minen möchten.",
             "farm_mode": "Farm-Modus",
             "farm_mode_label": "Alle verfügbaren Abzeichen & Emotes farmen",
             "farm_mode_help": "Schürft zusätzlich Abzeichen- und Emote-Drops aus jeder anderen verfügbaren Kampagne, über die Zu beobachtenden Spiele hinaus. Zu beobachtende Spiele behalten immer Vorrang bei Kanal-Plätzen.",
@@ -297,6 +322,7 @@
             "mining_hours_start": "Start",
             "mining_hours_end": "Ende",
             "mining_hours_save_error": "Mining-Zeiten konnten nicht gespeichert werden. Bitte erneut versuchen.",
+            "proxy_save_error": "Der Proxy konnte nicht gespeichert werden. Gib das Passwort erneut ein und versuche es noch einmal.",
             "discord": {
                 "name": "Discord-Benachrichtigungen",
                 "description": "Erhalte Benachrichtigungen auf Discord, wenn du Drops einlöst.",
@@ -320,7 +346,13 @@
                 "save_error": "Discord-Einstellungen konnten nicht gespeichert werden.",
                 "save_settings": "Einstellungen speichern",
                 "test_connection": "Verbindung testen"
-            }
+            },
+            "reward_priority_title": "Belohnungsarten",
+            "reward_priority_enable": "Belohnungsarten in dieser Reihenfolge bevorzugen",
+            "reward_priority_rank": "Position von {type}",
+            "reward_priority_not_mined": "Wird nicht gemint",
+            "reward_priority_error": "Die Belohnungsreihenfolge konnte nicht gespeichert werden. Bitte erneut versuchen.",
+            "reward_priority_help": "Entferne das Häkchen bei einer Art, um sie nicht mehr zu minen. Aktiviere die Reihenfolge und ziehe die Zeilen, um bestimmte Arten zu bevorzugen; bei Gleichstand entscheiden frühere Fristen, und ausgewählte Spiele bleiben vor Ausweichspielen. Spielbelohnungen stammen vom Spiel oder Publisher, Abzeichen und Emotes sind Twitch-Chat-Belohnungen, und Sonstiges ist eine Art, die Twitch nicht erkannt hat."
         },
         "help": {
             "about": "Über Twitch Drops Miner",
@@ -413,7 +445,7 @@
         },
         "browser_login": {
             "title": "Bei Twitch anmelden",
-            "instructions": "Melde dich unten an und bestätige Twitchs Verifizierung. Wähle danach „Anmeldung abschließen“. TDM prüft die Sitzung und zeigt wieder das Dashboard.",
+            "instructions": "Unten anmelden und die Twitch-Verifizierung abschließen. Der Browser schließt automatisch; TDM prüft die Sitzung. Bleibt er offen, Anmeldung abschließen wählen.",
             "finish": "Anmeldung abschließen",
             "retry": "Erneut versuchen",
             "starting": "Browser wird gestartet…",
@@ -445,7 +477,15 @@
             "helper_linux": "Linux (x64)",
             "helper_macos_arm": "macOS (Apple silicon)",
             "helper_macos_intel": "macOS (Intel)",
-            "helper_access_help": "Der zuerst verbundene Helfer wird zugelassen. Die Rückkehr zum eingebetteten Browser schließt den Helferzugriff."
+            "helper_access_help": "Der zuerst verbundene Helfer wird zugelassen. Die Rückkehr zum eingebetteten Browser schließt den Helferzugriff.",
+            "clipboard_title": "Kopieren und einfügen",
+            "clipboard_help": "In der linken noVNC-Leiste die Zwischenablage öffnen. Text einfügen, zum Twitch-Feld wechseln und Strg+V drücken. Nach Senden oder Schließen wird der Text gelöscht.",
+            "clipboard_label": "Text der Zwischenablage",
+            "clipboard_send": "Im Twitch-Browser einfügen",
+            "token_title": "Vorhandene Twitch-Sitzung verwenden",
+            "token_help": "Erweitert: Nur den Wert des auth-token-Cookies aus dem eigenen angemeldeten Twitch-Browser einfügen. Wie ein Passwort schützen. TDM prüft das Konto und erstellt einen neuen Nachweis; abgelehnte oder abgelaufene Tokens erlauben keine Anmeldung.",
+            "token_label": "Twitch auth-token",
+            "token_send": "Mit Token anmelden"
         }
     },
     "helper": {

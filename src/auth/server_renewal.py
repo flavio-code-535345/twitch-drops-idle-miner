@@ -8,32 +8,69 @@ import base64
 import json
 import os
 import re
+import secrets
+import shutil
 import signal
+import sys
 import tempfile
 import time
-from collections.abc import AsyncIterator, Callable
+from collections.abc import AsyncIterator, Callable, Mapping
 from contextlib import AbstractAsyncContextManager, asynccontextmanager, suppress
+from dataclasses import dataclass, field
 from pathlib import Path
+from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Protocol
 
 from src.auth.browser_session import BrowserSession
 from src.auth.imported_session import SessionTransport
 from src.auth.server_seed import SDKCookie, ServerSeed
 from src.auth.session_bundle import PrivateSessionFile, SessionBundle, SessionError
-from src.auth.session_helper import BrowserExporter, CaptureProtocol
+from src.auth.session_helper import BrowserExporter, CaptureProtocol, DevToolsPipe
 from src.auth.session_renewal import RenewalConnection, RenewalLoop, RenewalSender
+from src.config import ClientType
 
 
 if TYPE_CHECKING:
     from src.diagnostics import Diagnostics
 
 
+class BrowserTargets(Protocol):
+    def target(self, *, extra_events: frozenset[str] = frozenset()) -> AbstractAsyncContextManager[CaptureProtocol]: ...
+
+
 class BrowserOwner(Protocol):
-    def start(self) -> AbstractAsyncContextManager[str]: ...
+    def start(self) -> AbstractAsyncContextManager[BrowserTargets]: ...
+
+
+@dataclass(frozen=True)
+class SDKBootstrap:
+    """Identity-validated OAuth input, with no invented proof or expiry."""
+
+    headers: Mapping[str, str] = field(repr=False)
+
+    @classmethod
+    def from_token(cls, token: str) -> SDKBootstrap:
+        if not SessionBundle.valid_token(token):
+            raise SessionError("FORMAT")
+        return cls(MappingProxyType({"authorization": f"OAuth {token}",
+            "client-id": ClientType.WEB.CLIENT_ID, "x-device-id": secrets.token_hex(16),
+            "client-session-id": secrets.token_hex(16)}))
 
 
 class OwnedChromium:
     """Own a temporary profile and process group; never attach to a user's browser."""
+
+    # Chromium reads commands on fd 3 and writes replies on fd 4. subprocess keeps
+    # inherited descriptor numbers, so remap them here and exec in place: the PID,
+    # process group and cleanup stay Chromium's own.
+    LAUNCHER = (
+        "import fcntl,os,sys\n"
+        "fds=[int(fd) for fd in sys.argv[1:3]]\n"
+        "high=[fcntl.fcntl(fd,fcntl.F_DUPFD,5) for fd in fds]\n"
+        "[os.dup2(fd,target) for fd,target in zip(high,(3,4))]\n"
+        "[os.close(fd) for fd in {*fds,*high}-{3,4}]\n"
+        "os.execvp(sys.argv[3],sys.argv[3:])\n"
+    )
 
     def __init__(self, executable: str, *, no_sandbox: bool = False, startup_timeout: float = 20):
         self.executable, self.no_sandbox = executable, no_sandbox
@@ -89,36 +126,77 @@ class OwnedChromium:
         if interrupted:
             raise asyncio.CancelledError
 
+    async def wait_pipe(self, pipe: DevToolsPipe) -> None:
+        await pipe.browser.command("Browser.getVersion", timeout=self.startup_timeout)
+
     @asynccontextmanager
-    async def start(self) -> AsyncIterator[str]:
+    async def process(self, args: list[str], profile: Path, **options: Any) -> AsyncIterator[asyncio.subprocess.Process]:
         process = None
+        try:
+            process = await asyncio.create_subprocess_exec(
+                *args, stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL,
+                start_new_session=os.name == "posix",
+                env={**os.environ, "XDG_CONFIG_HOME": str(profile / "config"),
+                     "XDG_CACHE_HOME": str(profile / "cache")},
+                **options,
+            )
+            yield process
+        except OSError:
+            raise SessionError("BROWSER_START") from None
+        finally:
+            if process is not None:
+                await self.finish_stop(process)
+
+    @asynccontextmanager
+    async def start(self) -> AsyncIterator[BrowserTargets]:
         with tempfile.TemporaryDirectory(prefix="tdm-renew-") as directory:
             profile = Path(directory)
             args = [
-                self.executable, "--headless=new", f"--user-data-dir={profile}",
-                "--remote-debugging-address=127.0.0.1", "--remote-debugging-port=0",
+                self.executable, f"--user-data-dir={profile}",
+                # pass_fds is POSIX-only; Windows keeps the owned loopback port.
+                *(["--remote-debugging-pipe"] if os.name == "posix" else
+                  ["--remote-debugging-address=127.0.0.1", "--remote-debugging-port=0"]),
                 "--no-first-run", "--no-default-browser-check", "--disable-dev-shm-usage",
                 "--disable-blink-features=AutomationControlled", "about:blank",
             ]
             if self.no_sandbox:
                 args.insert(1, "--no-sandbox")
+            display_runner = shutil.which("xvfb-run") if os.name == "posix" else None
+            if display_runner:
+                # Keep SDK issuance in a normal browser, matching interactive login.
+                # Keep Xauthority in the owned profile so forced cleanup removes it too.
+                # Never share the interactive VNC display. xvfb-run leaves fds 3/4 alone.
+                args.append("--window-size=1200,760")
+                args = [display_runner, "-a", "-f", str(profile / "Xauthority"),
+                        "-s", "-screen 0 1280x800x24 -nolisten tcp", *args]
+            else:
+                args.insert(1, "--headless=new")
+            if os.name != "posix":
+                async with self.process(args, profile) as process:
+                    try:
+                        address = await self.wait_ready(process, profile)
+                    except (OSError, ValueError, TimeoutError):
+                        raise SessionError("BROWSER_START") from None
+                    yield BrowserExporter(address)
+                return
+            child_in, parent_out = os.pipe()
+            parent_in, child_out = os.pipe()
+            owned = [child_in, child_out, parent_in, parent_out]
             try:
-                process = await asyncio.create_subprocess_exec(
-                    *args, stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL,
-                    start_new_session=os.name == "posix",
-                    env={**os.environ, "XDG_CONFIG_HOME": str(profile / "config"),
-                         "XDG_CACHE_HOME": str(profile / "cache")},
-                )
-                try:
-                    address = await self.wait_ready(process, profile)
-                except (OSError, ValueError, TimeoutError):
-                    raise SessionError("BROWSER_START") from None
-                yield address
-            except OSError:
-                raise SessionError("BROWSER_START") from None
+                launcher = [sys.executable, "-I", "-S", "-c", self.LAUNCHER, str(child_in), str(child_out)]
+                async with self.process([*launcher, *args], profile, pass_fds=(child_in, child_out)):
+                    for fd in (child_in, child_out):
+                        os.close(fd)
+                    owned = []  # DevToolsPipe.open owns the parent ends from here.
+                    async with DevToolsPipe.open(parent_out, parent_in) as pipe:
+                        try:
+                            await self.wait_pipe(pipe)
+                        except (SessionError, TimeoutError):
+                            raise SessionError("BROWSER_START") from None
+                        yield pipe
             finally:
-                if process is not None:
-                    await self.finish_stop(process)
+                for fd in owned:
+                    os.close(fd)
 
 
 class SDKExchange:
@@ -228,7 +306,18 @@ class SDKAcquisition:
         self.clock, self.timeout = clock, timeout
         self.diagnostics = diagnostics
 
-    async def run(self, protocol: CaptureProtocol, bundle: SessionBundle,
+    @staticmethod
+    def issuance_headers(bundle: SessionBundle | SDKBootstrap) -> dict[str, str]:
+        """Use the integrity endpoint's contract rather than GraphQL-only headers."""
+        return {
+            **{key: bundle.headers[key] for key in (
+                "authorization", "client-id", "client-session-id", "client-version",
+            ) if key in bundle.headers},
+            "x-device-id": bundle.headers.get("x-device-id") or bundle.headers["device-id"],
+            "client-request-id": secrets.token_hex(16),
+        }
+
+    async def run(self, protocol: CaptureProtocol, bundle: SessionBundle | SDKBootstrap,
                   cookie: SDKCookie | None = None, *, initial: bool = False) -> ServerSeed:
         try:
             async with asyncio.timeout(self.timeout):  # type: ignore[attr-defined]
@@ -253,7 +342,7 @@ class SDKAcquisition:
 
     async def acquire(
         self, protocol: CaptureProtocol, exchange: SDKExchange,
-        original: SessionBundle, previous_cookie: SDKCookie | None,
+        original: SessionBundle | SDKBootstrap, previous_cookie: SDKCookie | None,
         *, initial: bool = False,
     ) -> ServerSeed:
         await protocol.command("Network.enable")
@@ -271,7 +360,7 @@ class SDKAcquisition:
         result = await protocol.command("Runtime.evaluate", {"expression": "navigator.userAgent", "returnByValue": True})
         user_agent = result["result"]["value"]
         result = await protocol.command("Runtime.evaluate", {"expression": "globalThis"})
-        headers = {key: value for key, value in original.headers.items() if key != "client-integrity"}
+        headers = self.issuance_headers(original)
         result = await protocol.command("Runtime.callFunctionOn", {
             "objectId": result["result"]["objectId"], "functionDeclaration": self.SCRIPT,
             "arguments": [{"value": headers}, {"value": self.SDK_URL}],
@@ -290,12 +379,12 @@ class SDKAcquisition:
             raise SessionError("SDK_ISSUANCE")
         bundle = SessionBundle.from_dict({
             "version": 1, "captured_at": self.clock(), "expires_at": data["expiration"] / 1000,
-            "user_agent": user_agent, "headers": {**headers, "client-integrity": data.get("token")},
+            "user_agent": user_agent, "headers": {**original.headers, "client-integrity": data.get("token")},
         }, now=self.clock())
         minimum_expiry = self.clock() + 30
-        if previous_cookie is not None and not initial:
+        if previous_cookie is not None and not initial and isinstance(original, SessionBundle):
             minimum_expiry = max(minimum_expiry, original.expires_at)
-        if (bundle.headers["client-integrity"] == original.headers["client-integrity"]
+        if (bundle.headers["client-integrity"] == original.headers.get("client-integrity")
                 or bundle.expires_at <= minimum_expiry):
             raise SessionError("REPLAY")
         result = await protocol.command("Network.getCookies", {"urls": [SDKCookie.URL]})
@@ -316,11 +405,19 @@ class SDKIssuer:
     async def issue(self, seed: ServerSeed, *, initial: bool = False) -> ServerSeed:
         seed.cookie.require_fresh(self.clock())
         async with (
-            self.browser.start() as address,
-            BrowserExporter(address).target(extra_events=SDKAcquisition.EVENTS) as protocol,
+            self.browser.start() as browser,
+            browser.target(extra_events=SDKAcquisition.EVENTS) as protocol,
         ):
             return await SDKAcquisition(clock=self.clock, timeout=self.timeout, diagnostics=self.diagnostics).run(
                 protocol, seed.bundle, seed.cookie, initial=initial,
+            )
+
+    async def bootstrap(self, token: str) -> ServerSeed:
+        context = SDKBootstrap.from_token(token)
+        async with (self.browser.start() as browser,
+                    browser.target(extra_events=SDKAcquisition.EVENTS) as protocol):
+            return await SDKAcquisition(clock=self.clock, timeout=self.timeout, diagnostics=self.diagnostics).run(
+                protocol, context, initial=True,
             )
 
 

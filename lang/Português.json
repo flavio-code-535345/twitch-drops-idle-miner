@@ -4,6 +4,7 @@
     "status": {
         "terminated": "\nAplicação Finalizada.\nFeche a janela para sair do programa.",
         "watching": "Assistindo o: {channel}",
+        "mining_resumed": "Mineração retomada",
         "goes_online": "{channel} esta ONLINE, Mudando...",
         "goes_offline": "{channel} ficou OFFLINE, Mudando...",
         "claimed_drop": "Coletou o drop: {drop}",
@@ -126,6 +127,15 @@
             "fetching_campaigns": "Coletando campanhas...",
             "adding_campaigns": "Adicionando as campanhas para o sistema... {counter}",
             "ready": "Pronto",
+            "paused": "Pausado",
+            "pause": "Pausar",
+            "resume": "Retomar",
+            "paused_until": "Pausado até {time}",
+            "pause_10m": "Por 10 minutos",
+            "pause_1h": "Por 1 hora",
+            "pause_tomorrow": "Até amanhã",
+            "pause_indefinite": "Até eu retomar",
+            "pause_error": "Não foi possível alterar o estado de pausa. Tente novamente.",
             "outside_hours": "Fora do horário de mineração"
         },
         "tabs": {
@@ -201,30 +211,47 @@
                 "upcoming": "Próximo",
                 "expired": "Expirado",
                 "finished": "Terminado",
-                "item": "Item",
-                "badge": "Distintivo",
-                "emote": "Emote",
-                "other": "Outro",
+                "item": "Recompensa do jogo",
+                "badge": "Emblema do chat",
+                "emote": "Emote do chat",
+                "other": "Outra recompensa",
                 "clear": "Limpar Filtros",
                 "search_placeholder": "Pesquisar jogos...",
                 "use_tracked_games": "Usar jogos rastreados",
                 "no_tracked_games": "Ainda não há jogos rastreados em Configurações > Jogos para observar.",
                 "account_link": "Vínculo da conta",
+                "status_heading": "Estado",
+                "rewards_heading": "Recompensas",
                 "all": "Todas",
                 "linked": "Vinculada"
-            }
+            },
+            "add_game": "Adicionar à lista de mineração",
+            "adding_game": "A adicionar…",
+            "add_game_error": "Não foi possível salvar a lista de mineração. Tente novamente.",
+            "link_account": "Vincular conta",
+            "card_view": "Visualização em cartões",
+            "list_view": "Visualização em lista"
         },
         "settings": {
             "general": {
                 "name": "Geral",
                 "dark_mode": "Modo Escuro"
             },
+            "tab_mining": "Mineração",
+            "tab_games": "Jogos",
+            "tab_notifications": "Notificações",
+            "tab_account": "Conta e manutenção",
             "reload": "Recarregar",
-            "games_to_watch": "Jogos para assistir",
+            "games_to_watch": "Lista de mineração",
             "games_help": "Selecione os jogos para assistir. A ordem importa - arraste para reordenar a prioridade (topo = maior prioridade).",
             "priority_list_only": "Apenas lista de prioridade (minerar somente jogos selecionados)",
             "priority_list_only_save_error": "Não foi possível salvar a opção de prioridade dos jogos. Tente novamente.",
             "search_games": "Procurar jogos...",
+            "select_linked": "Selecionar vinculados",
+            "game_linked": "VINCULADO",
+            "game_not_linked": "NÃO VINCULADO",
+            "game_linked_title": "A conta está vinculada",
+            "game_not_linked_title": "A conta não está vinculada",
             "select_all": "Selecionar tudo",
             "deselect_all": "Desmarcar tudo",
             "selected_games": "Jogos selecionados (arraste para reordenar)",
@@ -269,8 +296,6 @@
             "drop_name_blacklist_placeholder": "(JP)\n[KR]\nJapan",
             "clear_all_cache": "Limpar todo o cache",
             "clear_all_cache_help": "Limpa o estado local de campanhas, canais e dados derivados do minerador; mantém o login e as configurações e depois recarrega os dados da Twitch.",
-            "mining_benefits": "Benefícios de Mineração",
-            "mining_benefits_help": "Selecione quais tipos de drops você deseja minerar.",
             "farm_mode": "Modo Farm",
             "farm_mode_label": "Farmar todos os emblemas e emotes disponíveis",
             "farm_mode_help": "Também minera drops de emblemas e emotes de qualquer outra campanha disponível, além de Jogos para observar. Jogos para observar sempre mantêm prioridade nas vagas de canal.",
@@ -297,6 +322,7 @@
             "mining_hours_start": "Início",
             "mining_hours_end": "Fim",
             "mining_hours_save_error": "Não foi possível guardar o horário. Tente novamente.",
+            "proxy_save_error": "Não foi possível salvar o proxy. Digite a senha novamente e tente outra vez.",
             "discord": {
                 "name": "Notificações do Discord",
                 "description": "Receba notificações no Discord quando reclamar drops.",
@@ -320,7 +346,13 @@
                 "save_error": "Não foi possível salvar as configurações do Discord.",
                 "save_settings": "Salvar configurações",
                 "test_connection": "Testar Conexão"
-            }
+            },
+            "reward_priority_title": "Tipos de recompensa",
+            "reward_priority_enable": "Preferir tipos de recompensa nesta ordem",
+            "reward_priority_rank": "Posição de {type}",
+            "reward_priority_not_mined": "Não minerado",
+            "reward_priority_error": "Não foi possível salvar a ordem das recompensas. Tente novamente.",
+            "reward_priority_help": "Desmarque um tipo para deixar de minerá-lo. Ative a ordem e arraste as linhas para preferir certos tipos; em caso de empate, os prazos mais próximos vêm primeiro, e os jogos selecionados continuam à frente dos jogos alternativos. Recompensas de jogo vêm do jogo ou da editora, emblemas e emotes são recompensas do chat da Twitch, e Outra é um tipo que a Twitch não identificou."
         },
         "help": {
             "about": "Sobre o Twitch Drops Miner",
@@ -413,7 +445,7 @@
         },
         "browser_login": {
             "title": "Entrar no Twitch",
-            "instructions": "Entre abaixo e conclua a verificação do Twitch. Selecione «Concluir login»; o TDM verifica a sessão e volta ao painel.",
+            "instructions": "Entre abaixo e conclua a verificação do Twitch. O navegador fecha automaticamente e o TDM verifica a sessão. Se continuar aberto, selecione Concluir entrada.",
             "finish": "Concluir login",
             "retry": "Tentar novamente",
             "starting": "Iniciando navegador…",
@@ -445,7 +477,15 @@
             "helper_linux": "Linux (x64)",
             "helper_macos_arm": "macOS (Apple silicon)",
             "helper_macos_intel": "macOS (Intel)",
-            "helper_access_help": "É aceite o primeiro assistente a ligar-se. Voltar ao navegador integrado fecha o acesso do assistente."
+            "helper_access_help": "É aceite o primeiro assistente a ligar-se. Voltar ao navegador integrado fecha o acesso do assistente.",
+            "clipboard_title": "Copiar e colar",
+            "clipboard_help": "Abra a barra esquerda do noVNC e escolha Área de transferência. Cole o texto, volte ao campo da Twitch e pressione Ctrl+V. O texto é apagado após enviar ou fechar.",
+            "clipboard_label": "Texto da área de transferência",
+            "clipboard_send": "Colar no navegador Twitch",
+            "token_title": "Usar uma sessão Twitch existente",
+            "token_help": "Avançado: cole apenas o valor do cookie auth-token do seu próprio navegador conectado à Twitch. Proteja-o como uma senha. O TDM valida a conta e cria uma nova prova; tokens rejeitados ou expirados não permitem entrar.",
+            "token_label": "auth-token da Twitch",
+            "token_send": "Entrar com token"
         }
     },
     "helper": {

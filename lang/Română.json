@@ -4,6 +4,7 @@
     "status": {
         "terminated": "\nAplicația a fost oprită.\nVă rugăm să închideți aplicația.",
         "watching": "Se vizionează : {channel}",
+        "mining_resumed": "Colectarea a fost reluată",
         "goes_online": "{channel} intră ONLINE, se schimbă...",
         "goes_offline": "{channel} intră OFFLINE, se schimbă...",
         "claimed_drop": "Drop-ul a fost recuperat : {drop}",
@@ -126,6 +127,15 @@
             "fetching_campaigns": "Se recuperează campaniile...",
             "adding_campaigns": "S-a adăugat lista de campanii la inventar... {counter}",
             "ready": "Gata",
+            "paused": "În pauză",
+            "pause": "Pauză",
+            "resume": "Reia",
+            "paused_until": "În pauză până la {time}",
+            "pause_10m": "Timp de 10 minute",
+            "pause_1h": "Timp de 1 oră",
+            "pause_tomorrow": "Până mâine",
+            "pause_indefinite": "Până reiau",
+            "pause_error": "Nu s-a putut schimba starea pauzei. Încearcă din nou.",
             "outside_hours": "În afara orelor de minerit"
         },
         "tabs": {
@@ -201,30 +211,47 @@
                 "upcoming": "Viitor",
                 "expired": "Expirat",
                 "finished": "Terminat",
-                "item": "Obiect",
-                "badge": "Insignă",
-                "emote": "Emoticon",
-                "other": "Altele",
+                "item": "Recompensă de joc",
+                "badge": "Insignă chat",
+                "emote": "Emoticon chat",
+                "other": "Altă recompensă",
                 "clear": "Șterge filtre",
                 "search_placeholder": "Caută jocuri...",
                 "use_tracked_games": "Folosește jocurile urmărite",
                 "no_tracked_games": "Niciun joc urmărit încă în Setări > Jocuri de urmărit.",
                 "account_link": "Asocierea contului",
+                "status_heading": "Stare",
+                "rewards_heading": "Recompense",
                 "all": "Toate",
                 "linked": "Asociat"
-            }
+            },
+            "add_game": "Adaugă în lista de minare",
+            "adding_game": "Se adaugă…",
+            "add_game_error": "Lista de minare nu a putut fi salvată. Încearcă din nou.",
+            "link_account": "Asociază contul",
+            "card_view": "Vizualizare carduri",
+            "list_view": "Vizualizare listă"
         },
         "settings": {
             "general": {
                 "name": "General",
                 "dark_mode": "Mod întunecat"
             },
+            "tab_mining": "Minerit",
+            "tab_games": "Jocuri",
+            "tab_notifications": "Notificări",
+            "tab_account": "Cont și întreținere",
             "reload": "Reîncarcă",
-            "games_to_watch": "Jocuri de urmărit",
+            "games_to_watch": "Lista de minare",
             "games_help": "Selectați jocurile de urmărit. Ordinea contează - trageți pentru a reordona prioritatea (sus = prioritate maximă).",
             "priority_list_only": "Doar lista de priorități (minează doar jocurile selectate)",
             "priority_list_only_save_error": "Opțiunea de prioritate a jocurilor nu a putut fi salvată. Încercați din nou.",
             "search_games": "Căutați jocuri...",
+            "select_linked": "Selectează cele conectate",
+            "game_linked": "CONECTAT",
+            "game_not_linked": "NECONECTAT",
+            "game_linked_title": "Contul este conectat",
+            "game_not_linked_title": "Contul nu este conectat",
             "select_all": "Selectați tot",
             "deselect_all": "Deselectați tot",
             "selected_games": "Jocuri selectate (trageți pentru a reordona)",
@@ -269,8 +296,6 @@
             "drop_name_blacklist_placeholder": "(JP)\n[KR]\nJapan",
             "clear_all_cache": "Șterge tot cache-ul",
             "clear_all_cache_help": "Șterge starea locală a campaniilor, canalelor și datele derivate ale minerului; păstrează autentificarea și setările, apoi reîncarcă datele de pe Twitch.",
-            "mining_benefits": "Beneficii Minerit",
-            "mining_benefits_help": "Selectați ce tipuri de drops doriți să minați.",
             "farm_mode": "Mod Farm",
             "farm_mode_label": "Farmează toate insignele și emote-urile disponibile",
             "farm_mode_help": "De asemenea, minează insigne și emote-uri din orice altă campanie disponibilă, dincolo de Jocuri de urmărit. Jocuri de urmărit păstrează întotdeauna prioritatea pentru sloturile de canale.",
@@ -297,6 +322,7 @@
             "mining_hours_start": "Început",
             "mining_hours_end": "Sfârșit",
             "mining_hours_save_error": "Nu s-au putut salva orele. Încercați din nou.",
+            "proxy_save_error": "Proxy-ul nu a putut fi salvat. Introdu din nou parola și încearcă din nou.",
             "discord": {
                 "name": "Notificări Discord",
                 "description": "Primește notificări pe Discord când revendici drop-uri.",
@@ -320,7 +346,13 @@
                 "save_error": "Setările Discord nu au putut fi salvate.",
                 "save_settings": "Salvați setările",
                 "test_connection": "Testare Conexiune"
-            }
+            },
+            "reward_priority_title": "Tipuri de recompense",
+            "reward_priority_enable": "Preferă tipurile de recompense în această ordine",
+            "reward_priority_rank": "Poziția pentru {type}",
+            "reward_priority_not_mined": "Nu se minează",
+            "reward_priority_error": "Ordinea recompenselor nu a putut fi salvată. Încearcă din nou.",
+            "reward_priority_help": "Debifează un tip pentru a nu-l mai mina. Activează ordinea și trage rândurile pentru a prefera anumite tipuri; la egalitate, termenele mai apropiate au prioritate, iar jocurile selectate rămân înaintea jocurilor de rezervă. Recompensele de joc provin de la joc sau editor, insignele și emote-urile sunt recompense de chat Twitch, iar Altele este un tip pe care Twitch nu l-a identificat."
         },
         "help": {
             "about": "Despre Twitch Drops Miner",
@@ -413,7 +445,7 @@
         },
         "browser_login": {
             "title": "Autentificare în Twitch",
-            "instructions": "Autentifică-te mai jos și finalizează verificarea Twitch. Selectează „Finalizează autentificarea”; TDM verifică sesiunea și revine la panou.",
+            "instructions": "Conectează-te mai jos și finalizează verificarea Twitch. Browserul se închide automat, apoi TDM verifică sesiunea. Dacă rămâne deschis, selectează Finalizează conectarea.",
             "finish": "Finalizează autentificarea",
             "retry": "Reîncearcă",
             "starting": "Pornire browser…",
@@ -445,7 +477,15 @@
             "helper_linux": "Linux (x64)",
             "helper_macos_arm": "macOS (Apple silicon)",
             "helper_macos_intel": "macOS (Intel)",
-            "helper_access_help": "Este acceptat primul asistent care se conectează. Revenirea la browserul integrat închide accesul asistentului."
+            "helper_access_help": "Este acceptat primul asistent care se conectează. Revenirea la browserul integrat închide accesul asistentului.",
+            "clipboard_title": "Copiază și lipește",
+            "clipboard_help": "Deschide bara stângă noVNC și alege Clipboard. Lipește textul, revino la câmpul Twitch și apasă Ctrl+V. Textul este șters după trimitere sau închidere.",
+            "clipboard_label": "Text din clipboard",
+            "clipboard_send": "Lipește în browserul Twitch",
+            "token_title": "Folosește o sesiune Twitch existentă",
+            "token_help": "Avansat: lipește doar valoarea cookie-ului auth-token din propriul browser conectat la Twitch. Protejeaz-o ca pe o parolă. TDM verifică contul și creează o dovadă nouă; tokenurile respinse sau expirate nu permit conectarea.",
+            "token_label": "auth-token Twitch",
+            "token_send": "Conectare cu token"
         }
     },
     "helper": {

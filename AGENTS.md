@@ -7,6 +7,14 @@ This file is the canonical harness for AI agents working in this repository.
 `CLAUDE.md` and `GEMINI.md` are relative symbolic links to `AGENTS.md` so every agent
 reads the same guidance. Maintain all shared and agent-specific instructions here.
 
+## Communication
+
+- Use simple, minimal, clear language in all communication.
+- Do not post an issue or PR comment just because you inspected or reviewed it.
+  Comment only to request additional information or report an actual state change,
+  such as starting work, merging a PR, or shipping a fix in a release.
+- When changes are required, list clear action items. Use bullet points when more
+  than one change is required.
 ## About This Fork
 
 This repository (`flavio-code-535345/twitch-drops-idle-miner`) is a private, personal
@@ -37,11 +45,18 @@ project's process, not an active process here.
 - `StreamSelector._get_wanted_game_tree` (upstream 2.3 priority fallback) queues Games to
   Watch, then `_append_unlisted_games` (upstream, only when `priority_list_only` is off),
   then the fork's `_append_farm_games`, each skipping games already queued so a game appears
-  once (`tests/test_farm_mode.py`). Keep that order when syncing upstream selection changes.
+  once (`tests/test_farm_mode.py`). Upstream 2.4's `RewardPriority` is passed to every
+  entry (including Farm Mode's) and, when ordering is enabled, re-sorts the games after
+  Games to Watch; keep that sort at the end of `_get_wanted_game_tree`. Keep that order
+  when syncing upstream selection changes.
 - Upstream 2.3 mining hours and the fork's Campaign Searches log: `_mining_schedule_loop`
   requests the window-opening refresh with `trigger="mining_hours"` and re-broadcasts the
   log at window boundaries; `RefreshLog.snapshot(paused=...)` reports closed windows so the
   dashboard shows "paused" instead of "overdue" (`tests/test_mining_hours_search_log.py`).
+- Upstream 2.4's host allow-list (`WebAuth.origin.trusted_host`, `ALLOWED_HOSTS` /
+  `PUBLIC_BASE_URL`) runs before the `/mcp` exemption, so a public host name must be
+  configured for MCP too. The Settings page is tabbed (`settings-panel-*`); fork sections sit
+  in Mining (Farm Mode) and Account & Maintenance (MCP access).
 - MCP server (fork): `src/web/mcp_server.py` implements the Streamable HTTP transport in
   JSON response mode by hand (no SDK dependency): `POST /mcp` takes one JSON-RPC message or a
   batch, `GET`/`DELETE` return 405, `initialize` negotiates protocol versions up to
@@ -95,14 +110,13 @@ It is the repository's contribution policy, not optional background reading.
   or PR. Never claim completion of checks that did not run or approval not received.
 - Do not declare a PR ready to merge while required checks or review are missing or
   blocking findings remain. Document the gap and keep an incomplete PR in draft.
-- When taking on an issue or PR, first post a comment there acknowledging that work
-  is starting and briefly stating the scope, before investigation, implementation,
-  or review. If both an issue and a PR are being worked on, acknowledge both.
-- Before ending or pausing work, update every issue or PR being worked on with the
-  outcome, relevant evidence or validation, and any remaining action or request for
-  information. Post this update for every outcome, including resolved, closed,
-  no change needed, blocked, or more information needed, even when no code changed
-  or the issue or PR remains open.
+- Visual dashboard changes require current screenshots in the PR description, with
+  personal information hidden as described in CONTRIBUTING.md. Prefer rendering them
+  from mock or sample data; never use screenshots of a real account without masking.
+  "Before" images come from the base branch without any PR change. If you cannot attach
+  images, host already-redacted images on a separate screenshots-only branch of your
+  fork (never the topic branch; pushed images cannot be reliably removed), or state that
+  screenshots are pending, keep the PR in draft and ask the user to attach them.
 
 ## Development Guidelines
 
@@ -288,6 +302,19 @@ lang/                # Translation JSON files (20 languages)
 
 **src/web/app.py** - FastAPI application:
 
+- Inventory uses keyboard-operable campaign toggles with `aria-expanded`/`aria-controls`
+  and page-local expansion state preserved through progress/settings renders. List view
+  keeps compact artwork/title/date rows; card view and saved view preference remain.
+  Linked games absent from Mining list have a translated add action, appending to
+  the current priority order with case-insensitive duplicate protection. Save only the
+  games field and check HTTP/application results. Inventory additions and generic
+  Settings saves share an ordered queue with confirmed/draft watch lists and replayable
+  add/remove/reorder intentions, so unrelated autosaves cannot undo an addition and
+  failures retain later edits. Only initial loads/socket updates replace the watch list;
+  partial-save replies preserve it. Disable duplicate submissions and keep actions
+  outside the campaign toggle. Coverage:
+  `tests/test_inventory_watch_controls.py`. Asset changes need the release cache-key bump.
+
 - REST API endpoints: `/api/status`, `/api/channels`, `/api/campaigns`, `/api/settings`, `/api/session`, `/api/session/finish`, `/api/session/retry`, `/api/session/logout`, `/api/session/vnc`, `/api/reload`, `/api/cache/clear`, `/api/close`, `/api/version`, `/api/history`, `/api/history/export.csv`, `/api/history/stats`
 - Socket.IO server for real-time bi-directional communication
 - Serves static web frontend from `web/` directory
@@ -348,7 +375,7 @@ lang/                # Translation JSON files (20 languages)
 
 - Games to watch list (auto-populated from available campaigns if empty)
 - Available from v2.3.0, `priority_list_only` defaults to true. Disable it to append
-  other eligible games to the runtime wanted queue without changing saved Games to Watch. Both modes use
+  other eligible games to the runtime wanted queue without changing saved Mining list. Both modes use
   the same watch-drop, claim, expiry, mineability, benefit and campaign eligibility
   guards; omit empty campaigns and games. Fallback games sort by earliest remaining
   campaign end, then game name. Selected campaigns take precedence over fallback,
@@ -365,32 +392,59 @@ lang/                # Translation JSON files (20 languages)
   unique partial matches resolve to available game names; ambiguous matches do not
   add a game. Confirmations support keyboard focus and Escape. Select All preserves
   priority order and manual entries, and manual confirmation uses current settings.
-- Games to Watch supports drag ordering and editable integer priority numbers. Clamp valid
+- Mining list supports drag ordering and editable integer priority numbers. Clamp valid
   ranks to the list bounds; reject blank/fractional values without changing settings.
   Keep priority and remove-control labels translated and accessible. Regression tests in
   `tests/test_game_priority.py` cover order, bounds, invalid inputs, and persistence calls.
-- `farm_mode` (bool, default `False`, Settings > Farm Mode): when enabled, mines badge and
+- `farm_mode` (bool, default `False`, Settings > Mining > Farm Mode): when enabled, mines badge and
   emote drops from every other campaign already in `self.inventory` (when Twitch returns
   the catalog, it contains every campaign regardless of `games_to_watch`; while the
   catalog is withheld, see the campaign catalog fallback below). Implemented in
   `StreamSelector._get_wanted_game_tree` (`src/services/stream_selector.py`): games from
-  `games_to_watch` are resolved first, filtered by the Mining Benefits settings as usual;
+  `games_to_watch` are resolved first, filtered by the reward-type (`mining_benefits`) settings as usual;
   farm-mode games are appended afterwards, filtered by a fixed `{BADGE, EMOTE}`-only
-  allowlist regardless of Mining Benefits, and tagged `"farm_mode": True` in the tree (the
+  allowlist regardless of the reward-type settings, and tagged `"farm_mode": True` in the tree (the
   web UI shows a "FARM" pill on these in the Wanted Drops Queue). Because channel priority
   (`ChannelService.get_priority`) is just `wanted_games.index(game)`, appending farm-mode
   games after the explicit list is sufficient to keep Games to Watch always winning channel
   slots - no separate priority mechanism was needed. Claiming is unaffected either way:
   `GAMES_UPDATE` claims any completed drop across the whole inventory regardless of
   `wanted_games` membership. Covered by `tests/test_farm_mode.py`.
+- Mining list shows account-link status per game. Linking belongs to the game account,
+  so `getGameLinkStatus()` treats a game as linked when any campaign for it reports
+  `linked: true` (case-insensitive by `game_name`); games without a known campaign have
+  no badge and count as unknown, not unlinked. Available Games sort linked first, the
+  All / Linked / Not Linked dropdown filters on known status (Not Linked excludes
+  unknown games), and Select Linked appends only missing linked games, keeping the
+  existing order and manual entries and ignoring search/filter like Select All.
+  Keep filter actions and selected-game rows wrapping, and game panels shrinkable,
+  so all controls remain reachable on narrow screens.
+  Re-render the lists only when the link-status signature changes (inventory batch,
+  campaign add/clear), so inventory updates while mining never interrupt a drag or a
+  priority edit. Build badges with safe DOM APIs and keep the five `gui.settings`
+  strings (`select_linked`, `game_linked`, `game_not_linked`, `game_linked_title`,
+  `game_not_linked_title`) in every locale and in `GUISettings`. Coverage lives in
+  `tests/test_account_link_frontend.py` and `tests/test_game_priority.py`.
 - Connection quality multiplier
 - Language selection
 - Proxy support (including verification)
 - Logging and dump flags from command-line arguments
 - Persistence to JSON file (`settings.json`) in DATA_DIR
+- `SettingsManager.update_settings()` validates every field before writing any: a
+  `ValueError` leaves settings unchanged, prints no change lines, and skips save,
+  broadcast and refresh. `InventoryFilterSettings.validate_update()` is shared with
+  the API model. A failed `save()` restores every field from a pre-apply snapshot;
+  change lines, language switching and broadcasts run only after a successful save.
+  Regressions: `test_rejected_update_writes_prints_and_saves_nothing` and
+  `test_failed_save_restores_every_field_and_defers_effects`.
 - Drop-name ignore list (`drop_name_blacklist`), empty by default. Entries are literal,
   case-insensitive substrings entered one per line; whitespace and blanks are removed and
   duplicates are casefolded while preserving the first spelling/order.
+- Inventory filter bar: search, **Reload Campaigns**, Clear Filters and view buttons on
+  top; translated Status and Rewards groups of chip toggles (native checkboxes kept
+  focusable, styles scoped to `.inventory-filters`) and the Account link select below.
+  **Reload Campaigns** lives there and beside the Mining list's Add Game button, not in
+  Settings → Actions; both `.reload-campaigns-btn` buttons share one `/api/reload` request.
 - Inventory filters (Status, Benefit Type, Game Search); Active/Upcoming/Expired use
   OR semantics; All / Linked / Not Linked narrows the result using Twitch-reported
   linkage, independently of mining eligibility. Finished opts claimed campaigns in.
@@ -398,7 +452,7 @@ lang/                # Translation JSON files (20 languages)
   checkbox before merging defaults. The older `show_not_linked` key stays ignored.
 - `allow_unlinked_campaigns` defaults false. Only explicit boolean true bypasses the
   campaign account-link gate; preserve raw `linked` metadata, badge/emote eligibility,
-  timing, ACL/category, Games to Watch, prerequisites, claims, and ignore checks.
+  timing, ACL/category, Mining list, prerequisites, claims, and ignore checks.
   Changes trigger game selection refresh. Keep the warning and save-failure feedback
   translated and safely rendered. Estimated minutes do not prove Twitch progress.
 - Zero-minute subscription rewards are omitted from Inventory and Wanted Drops Queue;
@@ -407,6 +461,26 @@ lang/                # Translation JSON files (20 languages)
   actively watched channel remains visible while game settings are changing
 - Consecutive identical no-active-campaign console prompts are collapsed until another
   console message appears
+- The dashboard pause (`POST /api/pause`, `Twitch.set_paused`) is runtime-only and closes
+  the same `is_mining_time()` gate as mining hours, so every watch/refresh guard applies.
+  Durations are `10m`, `1h` (monotonic elapsed time, unaffected by wall-clock or DST
+  changes), `tomorrow` (next miner-local midnight) or none (until resumed). The schedule
+  loop ends timed pauses and wakes for them. Project fixed-duration resume times from
+  the remaining elapsed time; a clock correction must not expire or extend the pause.
+  Status shows Paused/Paused until. Restarting clears the pause; already-earned reward
+  claims remain available, and mining hours still apply when a pause ends.
+  Increment the server pause revision only for state changes and send it in API/socket
+  state with a random, runtime-only instance ID created once per Twitch client, never
+  derived from account data. Ignore older replies/broadcasts, including delayed initial
+  snapshots from the same instance. A new instance's initial snapshot resets revision
+  tracking and invalidates pending replies from the previous instance. Validate present
+  instance IDs before mutation and retain the fallback for older servers without IDs
+  or revisions. Show only translated, fixed pause errors,
+  never remote response or exception text. Preserve deliberate focus moves while a
+  pause request is pending. Arrow keys, Home and End navigate the duration menu;
+  Escape restores the button and Tab closes the menu without trapping focus.
+  Regressions: `tests/test_pause.py` and
+  `tests/test_pause_frontend.py`.
 - Mining hours default to `always`; `range` uses the miner host's local time (Docker `TZ`),
   inclusive start/exclusive end, supports overnight windows, and treats equal times as all day.
   Validate complete `mode`/`start`/`end` objects before live changes or loading saved values;
@@ -422,6 +496,16 @@ lang/                # Translation JSON files (20 languages)
   never echoes the stored token: `get_settings()` returns only a `telegram_configured`
   flag and a masked placeholder, console logs mask the value, and a submitted value equal
   to the mask (or empty) leaves the stored credential untouched.
+- `mask_url_password()` (`src/utils`) replaces a proxy URL's password with a mask in
+  `get_settings()`, console change logs, the startup log and websocket connect logs.
+  `SettingsManager.resolve_proxy()` restores the stored URL only when the exact masked
+  form is submitted (settings saves and verify-proxy); any other value containing the
+  mask is rejected before any other setting changes, so the stored password never
+  reaches another host and the mask is never saved as a password. Set Proxy
+  (`saveProxy()`) saves only `proxy`, checks the reply and restores the previous value
+  with translated `gui.settings.proxy_save_error`; generic autosaves never send `proxy`.
+  Coverage: `tests/test_proxy_frontend.py`. Verify-proxy and Test Telegram return fixed failure text;
+  Telegram logs only exception class names because aiohttp errors can embed the bot URL.
 - Telegram alerts originate in the shared `BaseDrop.claim()` successful unclaimed-to-claimed
   transition, covering websocket, startup, and inventory-refresh claims without duplicate
   alerts for repeated events. Telegram failures must not change a successful Twitch claim.
@@ -450,6 +534,11 @@ lang/                # Translation JSON files (20 languages)
   success; HTTP, network, and application save failures must remain visible as errors.
 - Discord alerts also originate in the shared `BaseDrop.claim()` transition and must
   preserve Telegram, history and successful Twitch claims on notification failure.
+  Claim embeds may show the first usable benefit image from HTTPS
+  `static-cdn.jtvnw.net`, with no credentials/query/fragment, a 2048-character bound
+  and text-only fallback. Never download artwork on the miner or forward arbitrary
+  hosts, signed URLs or user data. Keep all bundle reward names and image fields intact
+  through embed text escaping. `tests/test_discord_reward_images.py` covers this path.
   `DiscordNotifier` accepts only `https://discord.com/api/webhooks/ID/TOKEN`, refuses
   redirects, disables mentions, bounds transport to ten seconds, and never logs URLs,
   response bodies or exception text. Diagnostics retain only status/outcome metadata.
@@ -480,6 +569,35 @@ progress to an ignored drop while the miner intentionally targets another reward
 7. Loop between CHANNEL_SWITCH and periodic INVENTORY_FETCH (hourly)
 
 ### Authentication and integrated browser login
+
+- The temporary interactive Chromium profile disables password saving before startup.
+  Its bundled completion extension observes only Twitch login-cookie presence, closes
+  the owned profile's windows normally, and never exports cookie values. Treat this as
+  a completion hint: retain all capture/PID/account/catalog checks and manual Finish.
+  Grant cookie host access to both `*://twitch.tv/*` and `*://www.twitch.tv/*`
+  so root-domain events and non-Secure cookies' HTTP event URLs are visible. Keep
+  lookups on HTTPS and do not broaden access to subdomain wildcards or unrelated hosts.
+  Cookie scope and presence trigger completion regardless of its Secure attribute;
+  they are not proof of a valid session. Test domain-wide and host-only cookies in real
+  Chromium with synthetic data, including Secure and non-Secure domain cookies.
+  Disable extensions during capture. Clipboard transfers are explicit, bounded to
+  65,536 characters, page-local and cleared on send/panel close/viewer disconnect; remote
+  clipboard events are ignored unless the panel is open. Never log or persist them.
+  Keep preference-content and launch-argument tests portable: assert POSIX file modes
+  only on POSIX and mock UID lookup in argument-only tests; retain real Linux isolation tests.
+- SDK integrity issuance uses a separate header contract with a fresh 32-character
+  client request ID and canonical X-Device-Id, while renewed GraphQL contexts retain
+  the original allowlisted headers and never store that request ID. Keep downstream
+  catalog validation mandatory; mocked issuance does not prove Twitch accepts a proof.
+- `OwnedChromium` uses `xvfb-run` when available for server SDK issuance and renewal,
+  with a private authenticated display (1280×800) and ordinary 1200×760 browser window.
+  Docker includes `xvfb-run` and `xauth`. Never reuse the interactive VNC display or
+  disable X authentication. Keep profiles owner-only, CDP on the private pipe (POSIX)
+  or loopback (Windows), and process-group cleanup on failure/cancellation. A page
+  session ends when Chromium reports it detached, and all pipe sessions share command
+  ids. Keep Xauthority inside the owned temporary profile
+  so forced shutdown removes it too. Hosts without the runner retain the headless fallback.
+  A valid integrity response alone does not prove account/catalog acceptance.
 
 - Helper admission preserves allowlisted validation codes without printing remote text.
   Catalog rejection logs contain only fixed error categories and field-shape labels.
@@ -516,6 +634,22 @@ progress to an ignored drop while the miner intentionally targets another reward
 - The renewal worker rotates SDK state, normally five minutes before expiry, with
   bounded retries and same-account/freshness validation. Mining GraphQL stays in
   Python. Preserve safe-read retry rules; never replay ambiguous mutations.
+- On POSIX, `OwnedChromium` (renewal/SDK issuance, run as root) uses
+  `--remote-debugging-pipe` and never opens a DevTools TCP port: CDP has no
+  authentication, and the `tdm-browser` login UID shares loopback. A small exec
+  launcher remaps the pipe to fds 3/4 so PID and process-group cleanup are unchanged;
+  it then execs the private `xvfb-run` wrapper when present, which passes fds 3/4
+  through to Chromium untouched (verified in the Alpine image). Xvfb and the wrapper
+  also inherit copies, so a Chromium crash reaches EOF once the wrapper cleans up.
+  `DevToolsPipe` multiplexes flattened `Target.attachToTarget` sessions with
+  NUL-delimited messages, bounds each session's backlog to 16 MiB by bytes (one read
+  can carry hundreds of small events), and closes its target and fds on every exit.
+  Once a protocol reader ends, new commands must fail with `BROWSER_PROTOCOL`
+  before sending, including after target detachment.
+  Windows keeps the loopback port (no `pass_fds`). The login capture Chromium keeps
+  its port because it runs as `tdm-browser` with a profile that UID already owns.
+  `tests/test_server_renewal.py` checks launch arguments and descriptors, and, with a
+  local Chromium on Linux, that the browser process group opens no TCP listener.
 - `SessionAPI` exposes sanitized status and finish/retry/logout actions, plus optional
   desktop-helper enable/cancel actions guarded by dashboard authentication and CSRF.
   There is no general session upload/export or renewal HTTP route. The binary
@@ -607,6 +741,20 @@ progress to an ignored drop while the miner intentionally targets another reward
   set and delete. Preserve CSRF, Fetch Metadata, session/revocation, and rate-limit checks.
   `tests/test_web_public_url.py` covers both Socket.IO transports, production environment
   wiring, cookie lifecycles, hostile origins, and separate proxy-IP trust.
+- `DashboardOrigin.trusted_host()` blocks DNS rebinding before any other check, for HTTP
+  and websockets, with fixed `403 invalid_host` (only liveness-only `/healthz` is exempt;
+  the rejection warning is logged at most once a minute). Accept only IP literals, `localhost`,
+  `*.localhost`, single-label names, `.local`/`.home.arpa`/`.internal`, the
+  `PUBLIC_BASE_URL` host and the optional comma-separated `ALLOWED_HOSTS` names (no
+  schemes, ports or wildcards; invalid values stop startup without echo). Remove one
+  trailing DNS dot from both configured and request hosts for this check, while preserving
+  browser origin serialization and its strict origin checks. Never derive
+  trust from the Host header alone. Private responses other than `/session-viewer`
+  carry a CSP (`script-src 'self' https://cdn.socket.io`, `frame-ancestors 'none'`);
+  every response, static files included, carries `nosniff`. The CDN Socket.IO script
+  keeps its SRI hash. `HelperAPI` keeps its own
+  rate-limit bucket so helper probes cannot exhaust password logins. Regression
+  coverage: `tests/test_security_hardening.py`.
 - Default cookies are HttpOnly, SameSite=Strict session cookies. Remember me adds a fixed
   30-day Max-Age; server sessions also expire after 30 days and survive restarts. Logout
   revokes the current session; password changes require the current password and revoke
@@ -643,8 +791,22 @@ progress to an ignored drop while the miner intentionally targets another reward
   Its HTTP 204 response and a Watching label do not prove Twitch has credited progress.
   Keep fallback CurrentDrop queries and estimated-minute bumps on the existing minute
   cadence when changing playlist polling, including across restarts/channel events.
+- `WatchService.watch_loop` schedules progress queries with its monotonic deadline,
+  independently of the GUI's remaining-seconds value. That value represents total reward
+  time and does not count down on the server. Keep successful-watch, current-broadcast,
+  mining-hours and cancellation guards. The real `CampaignProgressManager` regression
+  covers positive remaining time, exact query cadence, failed watches and stale streams.
 - Twitch reports authoritative progress through User.Drops websocket events and GraphQL
   Inventory/CurrentDrop. Distinguish those readings from dashboard estimates and mocks.
+- `DropsCampaign.progress_revision` advances on every `TimedDrop.update_minutes()`
+  observation, including unchanged values, and before awaiting notification work on a
+  successful claim transition. Sibling progress shares this revision. CurrentDrop polling
+  snapshots drop identity and campaign revision before awaiting Twitch; discard replies
+  superseded by observations, claims or model replacement/removal without estimating a
+  minute. Snapshot the fallback campaign before the request too; null, errored or timed-out
+  replies may estimate only against that same campaign and unchanged revision. Fresh
+  polls can still correct progress downward. Keep this separate from estimated-minute
+  bumps. Regression coverage: `tests/test_stale_progress.py`.
   Playlist/transport, lifecycle, and controlled-clock regressions live in
   `tests/test_playlist_watch.py`, `tests/test_watch_transport.py`, and
   `tests/test_watch_poll_cadence.py`.
@@ -880,7 +1042,7 @@ replaces with `__version__` (i.e. `MY_VERSION`) at serve time; bump `MY_VERSION`
 
 `tests/test_special_game_watch.py` covers Special Events and IRL across streamed categories,
 missing category/drops flags, offline and nonparticipating channels, disabled or absent ACLs,
-Games to Watch selection, campaign/drop eligibility, active-campaign selection, and fallback
+Mining list selection, campaign/drop eligibility, active-campaign selection, and fallback
 priority and failover. It uses mocked Twitch state and does not verify live Twitch progress.
 
 Session persistence tests retain POSIX 0600/0700 assertions only on POSIX; Windows
@@ -933,6 +1095,14 @@ The application uses a web-based interface accessible via browser:
 **web/** - Frontend assets:
 
 - `index.html` - Single-page application layout with tabs (Main, Inventory, History, Settings, Help)
+  - Settings is split into sub-tabs (General, Mining, Games, Notifications, Account &
+    Maintenance): each `.settings-section` lives in exactly one `#settings-panel-*` with a
+    matching `[data-settings-tab]` button; `switchSettingsTab()` toggles `hidden`.
+    Keep one tab stop and support Left/Right, Home and End keys. Settings save failures
+    must remain visible when the originating panel is hidden; retain inline feedback
+    and show a global error notification in that case. Gate the Games panel's full-height
+    layout with `@supports selector(:has(*))`: above 1024 CSS pixels its lists stretch
+    to the footer (300px minimum); unsupported browsers keep the fixed-height fallback.
 - `static/app.js` - Socket.IO client, real-time UI updates, API calls, Inventory Filtering and Drop History logic
 - `static/styles.css` - Responsive design with dark mode support
 
@@ -1023,3 +1193,72 @@ and confirmed local deletion. Date-only filters mean midnight UTC; aware timesta
 preserve their instant. CSV attachment names use UTF-8 percent encoding with an ASCII
 fallback. History text is defined in `gui.history` for every locale and rendered as text.
 Tests cover persistence, filtering, Unicode exports, offsets, and translated UI behavior.
+
+- Existing-session admission accepts only a bounded sole `token` field through
+  dashboard-authenticated, same-origin `POST /api/session/token`. Never echo inputs.
+  Validate WEB identity before fresh SDK bootstrap and revalidate account/catalog
+  before atomic installation; logout and dashboard revocation invalidate admission.
+  Expired SDK cookies are not reused: validate the saved OAuth identity and bootstrap
+  a new owned context. OAuth identity alone never marks a session ready.
+- Native noVNC lives in a same-origin owned iframe, fixed to `/api/session/vnc` with
+  reconnection disabled. Parent messages contain fixed viewer events only. Override
+  native clipboard logging, bound transfers, ignore remote text while the panel is
+  closed, and clear text on send/close/disconnect. Preserve attempt teardown.
+- Settings notification and game action button groups wrap at narrow widths so translated controls
+  remain inside the viewport, including German at 320 CSS pixels.
+- Inventory overview places linkage badges in a reserved top-right grid cell, outside
+  the disclosure button and action group. Keep long translated labels and game names
+  from overlapping. Link account and Add to mining list share outline styling. Visible
+  Mining list naming preserves the `games_to_watch` API/persistence key. Reward labels
+  describe game rewards, Twitch chat badges/emotes and unrecognized Other rewards.
+
+- Inventory campaign names/dates appear once in the overview; equal campaign/drop
+  headings are not repeated. The native disclosure button has an accessible campaign
+  name and sits below the static linkage badge in card mode. Actions share the dates
+  row. Reserve equal overview geometry for linked/unlinked/no-action campaigns; never
+  animate or imply clickability on the linkage status badge. Clicking non-interactive
+  overview space toggles the card; links and buttons keep their own actions. Card mode
+  deals cards round-robin into fixed column stacks (`inventoryColumnCount()` uses the
+  grid width and `--inventory-card-min`; re-rendered on resize, one column in list
+  view), so opening a card only moves cards below it and never reflows others between
+  columns. Game/campaign names stay single-line with ellipsis and a full-text title.
+  Card/list view buttons beside Clear Filters (translated
+  `gui.inventory.card_view`/`list_view`, `aria-pressed`) replace the former Settings
+  checkbox and persist `inventory_list_view` through the shared settings save queue. At
+  480 CSS pixels and below the same layout keeps the badge top-right with the arrow
+  under it, using a 104px control column, smaller artwork, wrapping badges and names
+  clamped to two lines.
+
+- Keep the public reward-type and ordering guide in `docs/usage.md#reward-types`,
+  within the existing eight-guide wiki publication surface.
+- `reward_priority` defaults to `[]` (disabled); enabled values must be an exact
+  permutation of BADGE, EMOTE, DIRECT_ENTITLEMENT, UNKNOWN. `RewardPriority` owns
+  normalization and shared type/deadline ranking. Preserve selected-game precedence
+  over fallback games and all campaign/drop eligibility and mining-benefit filters.
+  Saved game order is unchanged. Failed priority saves restore the prior policy and
+  do not request a selection refresh. SettingsManager validates reward priority before
+  any field changes and includes it in the full settings rollback snapshot.
+  Cover selection and persistence boundaries in
+  `test_reward_priority.py` and translated form behavior in its frontend companion.
+  The Settings UI is one **Reward types** list (`renderRewardPriority()`): each row
+  holds its `mining_benefits` checkbox (optimistic `state.settings` update; `saveSettings()`
+  sends that state, never DOM-derived defaults) and, when ordering is enabled, the
+  Mining-list drag handle plus a position number input as the keyboard/touch
+  alternative. Ordering and benefit changes autosave; there is no Save button. Unticked
+  types stay listed as not mined. Non-authoritative replies keep local
+  `mining_benefits`/`reward_priority`. Shared drag handlers only move rows within their
+  own list. Priority saves restore the replaced control's focus only if the user has
+  not navigated elsewhere while waiting; track focus, pointer and Tab events through
+  success and failure, remove listeners, and never focus a disabled rank input.
+  Give reward checkboxes stable IDs and preserve the currently focused list control
+  across synchronous re-renders, including a checkbox reached with Tab during a save.
+  Game priority inputs, remove buttons and available-game checkboxes also use stable
+  IDs so settings replies preserve the user's current game-list focus. Leave focus
+  outside the lists untouched.
+  Defer rank-change saves to the next task so a blur-triggered change cannot remove
+  the browser's pending Tab target before native focus navigation completes.
+
+- Reward ranking uses currently earnable drops, including prerequisite guards. Keep
+  game, nested campaign and drop queue order consistent with channel and active-campaign
+  selection; selected Special Events/IRL campaigns still outrank fallback campaigns
+  sharing their live channel. Upcoming/sequential queue entries remain visible.
