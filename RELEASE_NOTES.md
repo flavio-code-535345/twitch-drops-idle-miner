@@ -1,3 +1,8 @@
+# Release Notes - v2.4.0.2 (fork)
+
+- Campaign discovery through live channels retries a game once when Twitch rejects its
+  lookup with an integrity error, instead of skipping that game until the next refresh.
+
 # Release Notes - v2.4.0.1 (fork)
 
 - Sign-in and the campaign refresh no longer fail when Twitch rejects only the **Campaigns**

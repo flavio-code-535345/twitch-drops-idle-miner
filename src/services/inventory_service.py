@@ -207,20 +207,27 @@ class InventoryService:
         games = list(self._twitch.settings.games_to_watch)
         offered_on: dict[str, str] = {}  # campaign ID -> a live channel offering it
         for game_name in games:
-            try:
-                for batch in chunk(await self._live_drops_channel_ids(game_name), 20):
-                    responses = await self._twitch.gql_request(
-                        [
-                            GQL_OPERATIONS["AvailableDrops"].with_variables({"channelID": cid})
-                            for cid in batch
-                        ]
-                    )
-                    for channel_id, response in zip(batch, responses, strict=False):
-                        for offer in self._channel_campaigns(response):
-                            if offer["id"] not in known_ids:
-                                offered_on.setdefault(offer["id"], channel_id)
-            except MinerException:
-                logger.exception(f"Campaign discovery failed for game: {game_name}")
+            # Twitch can reject a single query with an integrity error; one retry recovers
+            # most of those (the lookups are idempotent).
+            for attempt in (1, 2):
+                try:
+                    for batch in chunk(await self._live_drops_channel_ids(game_name), 20):
+                        responses = await self._twitch.gql_request(
+                            [
+                                GQL_OPERATIONS["AvailableDrops"].with_variables({"channelID": cid})
+                                for cid in batch
+                            ]
+                        )
+                        for channel_id, response in zip(batch, responses, strict=False):
+                            for offer in self._channel_campaigns(response):
+                                if offer["id"] not in known_ids:
+                                    offered_on.setdefault(offer["id"], channel_id)
+                    break
+                except MinerException:
+                    if attempt == 2:
+                        logger.exception(f"Campaign discovery failed for game: {game_name}")
+                    else:
+                        logger.warning(f"Campaign discovery failed for {game_name}; retrying once")
 
         fresh: dict[str, JsonType] = {}
         for channel_id in dict.fromkeys(offered_on.values()):

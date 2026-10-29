@@ -88,3 +88,29 @@ async def test_other_campaign_errors_still_fail_the_refresh():
     twitch = _make_twitch(gql, [GAME])
     with pytest.raises(GQLException):
         await InventoryService(cast(Twitch, twitch)).fetch_inventory()
+
+
+class FlakyDirectoryGQL(FakeTwitchGQL):
+    """The game directory is rejected once, as Twitch does with integrity errors."""
+
+    failures = 1
+
+    async def __call__(self, request):
+        if isinstance(request, dict) and request.get("operationName") == "DirectoryPage_Game" and self.failures:
+            self.failures -= 1
+            raise GQLException(INTEGRITY)
+        return await super().__call__(request)
+
+
+@pytest.mark.asyncio
+async def test_discovery_retries_a_game_rejected_once():
+    gql = FlakyDirectoryGQL(
+        pages=[["11"]],
+        offers={"11": [_offer("weekend")]},
+        details={"11": [_details("weekend", acl=["11"])]},
+    )
+    twitch = _make_twitch(gql, [GAME])
+
+    await _fetch(InventoryService(cast(Twitch, twitch)), twitch)
+
+    assert [c.name for c in twitch.inventory] == ["weekend"]
