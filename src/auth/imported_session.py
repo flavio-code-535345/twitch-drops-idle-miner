@@ -10,12 +10,14 @@ import secrets
 import time
 from collections.abc import Callable
 from contextlib import suppress
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import aiohttp
 
 from src.auth.browser_session import BrowserIdentity, BrowserSession
+from src.auth.integrity_proof import proof_report as read_proof
 from src.auth.server_seed import SDKCookie, ServerSeed
 from src.auth.session_bundle import PrivateSessionFile, SessionBundle, SessionError
 from src.config import GQL_OPERATIONS, ClientType
@@ -286,6 +288,14 @@ class ImportedSession:
             "expires_at": self._bundle.expires_at if self._bundle else None,
             "paired": bool(self._renewal_digest),
         }
+
+    def proof_report(self) -> dict[str, Any]:
+        """Fork: what the current session proof claims (no secrets), to diagnose integrity refusals."""
+        bundle = self._bundle
+        if bundle is None:
+            return {"available": False}
+        now = datetime.fromtimestamp(self._clock(), timezone.utc)
+        return {"available": True, **read_proof(bundle.headers.get("client-integrity"), bundle.headers, self._user_id, now)}
 
     def _save(self, bundle: SessionBundle | None, user_id: int | None, generation: int,
               digest: str, **changes: Any) -> None:

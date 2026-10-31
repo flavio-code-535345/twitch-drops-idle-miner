@@ -415,6 +415,10 @@ class Twitch:
             "revision": self._pause_revision, "instance_id": self._pause_instance_id,
         }
 
+    def session_proof(self) -> dict[str, Any]:
+        """Fork: what the session's integrity proof claims (no secrets), and whether requests use a proxy."""
+        return {**self._browser.proof_report(), "proxy_for_requests": bool(self.settings.proxy)}
+
     def _pause_seconds_remaining(self) -> float | None:
         if not self._paused:
             return None

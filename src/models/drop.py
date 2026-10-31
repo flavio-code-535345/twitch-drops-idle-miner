@@ -246,7 +246,12 @@ class BaseDrop:
         except GQLException as exc:
             # regardless of the error, we have to assume
             # the claiming operation has potentially failed
-            logger.warning(f"Drop claim request failed ({self.id}): {exc}")
+            proof = ""
+            if "failed integrity check" in str(exc):
+                from src.auth.integrity_proof import summarize_source
+
+                proof = f" | session proof: {summarize_source(self._twitch)}"
+            logger.warning(f"Drop claim request failed ({self.id}): {exc}{proof}")
             self.last_claim_error = f"request failed: {exc}"
             return False
         data = response["data"]

@@ -666,11 +666,20 @@ class MCPServer:
         if not everything:
             rows = [row for row in rows if row["minutes_complete"] or row["has_claim_id"]]
         stuck = [row for row in rows if row["minutes_complete"] and not row["can_claim"]]
+        from src.auth.integrity_proof import summarize
+
+        getter = getattr(client, "session_proof", None)
+        proof = getter() if callable(getter) else {"available": False}
         return {
             "unclaimed_drops": rows,
             "complete_but_not_claimable": len(stuck),
+            "session_proof": proof,
+            "proof_summary": summarize(proof),
             "note": "complete_but_not_claimable drops have all their minutes but no claim ID: "
-                    "claim_drops with generate_missing tries to claim them anyway.",
+                    "claim_drops with generate_missing tries to claim them anyway. session_proof is what the "
+                    "session's integrity proof claims (bot flag, expiry, and whether it was issued for the device, "
+                    "account and client the requests use); Twitch refuses claims with 'failed integrity check' "
+                    "when it does not accept that proof.",
         }
 
     async def claim_drops(self, arguments: dict[str, Any]) -> dict[str, Any]:
@@ -752,7 +761,8 @@ class MCPServer:
                  self.get_recent_messages, True),
             Tool("diagnose_claims", "Diagnose unclaimed drops",
                  "Unclaimed drops whose minutes are complete or that have a claim ID, with whether they can be "
-                 "claimed and why the last claim attempt failed. Use it to find out why drops stay unclaimed.",
+                 "claimed and why the last claim attempt failed, plus what the session's integrity proof claims "
+                 "(no secrets). Use it to find out why drops stay unclaimed.",
                  _schema({"include_in_progress": {"type": "boolean", "description": "Also list drops still being mined"}}),
                  self.diagnose_claims, True),
             Tool("claim_drops", "Claim drops now",

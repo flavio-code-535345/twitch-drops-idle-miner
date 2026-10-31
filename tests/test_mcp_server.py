@@ -404,3 +404,15 @@ def test_set_paused_tool(browser, miner):
     assert is_error
     is_error, _ = tool(browser, token, "set_paused", {})
     assert is_error
+
+
+def test_diagnose_claims_reports_the_session_proof(browser, miner):
+    token = token_for(browser)
+    miner.client.inventory = []
+    _, found = tool(browser, token, "diagnose_claims")
+    assert found["session_proof"] == {"available": False}
+    assert found["proof_summary"] == "no session proof available"
+    miner.client.session_proof = lambda: {"available": True, "readable": True, "bot_flag": True}
+    _, found = tool(browser, token, "diagnose_claims")
+    assert found["session_proof"]["bot_flag"] is True
+    assert found["proof_summary"] == "Twitch flagged it as a bot (is_bad_bot)"

@@ -5,6 +5,6 @@ UPSTREAM_VERSION = "2.4.0"
 
 # Version of this fork (flavio-code-535345/twitch-drops-idle-miner), incremented independently
 # of upstream as changes are made here.
-MY_VERSION = "2.4.0.4"
+MY_VERSION = "2.4.0.5"
 
 __version__ = MY_VERSION

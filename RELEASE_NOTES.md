@@ -1,3 +1,11 @@
+# Release Notes - v2.4.0.5 (fork)
+
+- When Twitch refuses a drop claim with "failed integrity check", the log line now says what is
+  wrong with the session's integrity proof: whether Twitch flagged it as a bot, whether it expired,
+  and whether it was issued for a different device, account or client than the requests use. The
+  MCP `diagnose_claims` tool reports the same. The proof itself and the values it contains (IDs, IP
+  address) are never logged or returned.
+
 # Release Notes - v2.4.0.4 (fork)
 
 - Withdrew the 2.4.0.3 retry of a claim refused for "failed integrity check": a renewed session
