@@ -633,6 +633,76 @@ class MCPServer:
         client.exit_manual_mode("MCP request")
         return {"manual_mode": False}
 
+    def _claim_candidates(self, client: Twitch):
+        """Unclaimed drops of campaigns that have started: (campaign, drop) pairs."""
+        for campaign in client.inventory:
+            if campaign.upcoming:
+                continue
+            for drop in campaign.drops:
+                if not drop.is_claimed:
+                    yield campaign, drop
+
+    @staticmethod
+    def _claim_state(campaign: Any, drop: Any) -> dict[str, Any]:
+        required = getattr(drop, "required_minutes", None)
+        current = getattr(drop, "real_current_minutes", None)
+        return {
+            "campaign": campaign.name,
+            "game": campaign.game.name,
+            "drop": drop.name,
+            "minutes": current,
+            "required_minutes": required,
+            "minutes_complete": current is not None and required is not None and current >= required,
+            "has_claim_id": drop.claim_id is not None,
+            "can_claim": drop.can_claim,
+            "campaign_ends_at": campaign.ends_at.isoformat(),
+            "last_claim_error": getattr(drop, "last_claim_error", None),
+        }
+
+    def diagnose_claims(self, arguments: dict[str, Any]) -> dict[str, Any]:
+        _gui, client = self._require()
+        everything = _bool_arg(arguments, "include_in_progress") or False
+        rows = [self._claim_state(campaign, drop) for campaign, drop in self._claim_candidates(client)]
+        if not everything:
+            rows = [row for row in rows if row["minutes_complete"] or row["has_claim_id"]]
+        stuck = [row for row in rows if row["minutes_complete"] and not row["can_claim"]]
+        return {
+            "unclaimed_drops": rows,
+            "complete_but_not_claimable": len(stuck),
+            "note": "complete_but_not_claimable drops have all their minutes but no claim ID: "
+                    "claim_drops with generate_missing tries to claim them anyway.",
+        }
+
+    async def claim_drops(self, arguments: dict[str, Any]) -> dict[str, Any]:
+        _gui, client = self._require()
+        wanted = _str_arg(arguments, "drop")
+        generate_missing = _bool_arg(arguments, "generate_missing") or False
+        results = []
+        for campaign, drop in list(self._claim_candidates(client)):
+            if wanted and wanted.lower() not in drop.name.lower():
+                continue
+            if drop.claim_id is None:
+                complete = drop.real_current_minutes >= drop.required_minutes
+                if not (generate_missing and complete):
+                    continue
+                await drop.generate_claim()
+            if not drop.can_claim:
+                continue
+            claimed = await drop.claim()
+            results.append({**self._claim_state(campaign, drop), "claimed": claimed})
+        return {"attempted": len(results), "claimed": sum(1 for r in results if r["claimed"]), "results": results}
+
+    def set_paused(self, arguments: dict[str, Any]) -> dict[str, Any]:
+        _gui, client = self._require()
+        paused = _bool_arg(arguments, "paused")
+        if paused is None:
+            raise ToolError("'paused' is required")
+        duration = arguments.get("duration")
+        if duration is not None and duration not in ("10m", "1h", "tomorrow"):
+            raise ToolError("'duration' must be 10m, 1h or tomorrow")
+        client.set_paused(paused, duration if paused else None)
+        return client.pause_info()
+
     # ---------------------------------------------------------------- registry
 
     def _build_tools(self) -> list[Tool]:
@@ -680,6 +750,22 @@ class MCPServer:
                  "The latest lines of the dashboard's message log.",
                  _schema({"limit": {"type": "integer", "minimum": 1, "maximum": 500}}),
                  self.get_recent_messages, True),
+            Tool("diagnose_claims", "Diagnose unclaimed drops",
+                 "Unclaimed drops whose minutes are complete or that have a claim ID, with whether they can be "
+                 "claimed and why the last claim attempt failed. Use it to find out why drops stay unclaimed.",
+                 _schema({"include_in_progress": {"type": "boolean", "description": "Also list drops still being mined"}}),
+                 self.diagnose_claims, True),
+            Tool("claim_drops", "Claim drops now",
+                 "Try to claim ready drops now and report per drop whether it worked and why not. 'generate_missing' "
+                 "also tries drops whose minutes are complete but that Twitch never gave a claim ID.",
+                 _schema({"drop": {"type": "string", "description": "Case-insensitive part of a drop name"},
+                          "generate_missing": {"type": "boolean"}}),
+                 self.claim_drops, False),
+            Tool("set_paused", "Pause or resume mining",
+                 "Pause mining (optionally for 10m, 1h or until tomorrow) or resume it.",
+                 _schema({"paused": {"type": "boolean"},
+                          "duration": {"type": "string", "enum": ["10m", "1h", "tomorrow"]}}, ["paused"]),
+                 self.set_paused, False),
             Tool("set_games_to_watch", "Set Games to Watch",
                  "Replace Games to Watch with this ordered list (first = highest priority).",
                  _schema({"games": {"type": "array", "items": {"type": "string"}}}, ["games"]),

@@ -46,6 +46,8 @@ class BaseDrop:
         self.ends_at: datetime = isoparse(data["endAt"])
         self.claim_id: str | None = None
         self.is_claimed: bool = False
+        # Fork: why the latest claim attempt failed (None when it has not failed), for diagnosis.
+        self.last_claim_error: str | None = None
         if "self" in data:
             self.claim_id = data["self"]["dropInstanceID"]
             self.is_claimed = data["self"]["isClaimed"]
@@ -228,7 +230,13 @@ class BaseDrop:
         if self.is_claimed:
             return True
         if not self.can_claim:
+            self.last_claim_error = (
+                "no claim ID yet (Twitch has not offered this drop for claiming)"
+                if self.claim_id is None
+                else "the claim window (24 hours after the campaign ends) has passed"
+            )
             return False
+        self.last_claim_error = None
         try:
             response = await self._twitch.gql_request(
                 GQL_OPERATIONS["ClaimDrop"].with_variables(
@@ -239,19 +247,25 @@ class BaseDrop:
             # regardless of the error, we have to assume
             # the claiming operation has potentially failed
             logger.warning(f"Drop claim request failed ({self.id}): {exc}")
+            self.last_claim_error = f"request failed: {exc}"
             return False
         data = response["data"]
         if "errors" in data and data["errors"]:
             logger.warning(f"Drop claim was rejected by Twitch ({self.id}): {data['errors']}")
+            self.last_claim_error = f"rejected by Twitch: {data['errors']}"
             return False
         elif "claimDropRewards" in data:
             if not data["claimDropRewards"]:
+                self.last_claim_error = "Twitch returned an empty claim result"
                 return False
             elif data["claimDropRewards"]["status"] in (
                 "ELIGIBLE_FOR_ALL",
                 "DROP_INSTANCE_ALREADY_CLAIMED",
             ):
                 return True
+            self.last_claim_error = f"claim status {data['claimDropRewards']['status']}"
+            return False
+        self.last_claim_error = "unexpected claim response"
         return False
 
 

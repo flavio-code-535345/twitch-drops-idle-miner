@@ -249,7 +249,7 @@ def test_protocol_messages(browser):
 def test_tool_list_marks_read_only_tools(browser):
     token = token_for(browser)
     tools = {t["name"]: t for t in call(browser, token, rpc("tools/list")).json()["result"]["tools"]}
-    assert len(tools) == 15
+    assert len(tools) == 18
     assert tools["get_status"]["annotations"]["readOnlyHint"] is True
     assert tools["add_game_to_watch"]["annotations"]["readOnlyHint"] is False
     assert tools["add_game_to_watch"]["inputSchema"]["required"] == ["game"]
@@ -347,3 +347,60 @@ def test_control_tools(browser, miner):
 
     _, automatic = tool(browser, token, "exit_manual_mode")
     assert automatic["manual_mode"] is False
+
+
+def claim_drop(name, *, minutes, claim_id, claimed=False, result=True):
+    """A drop as the claim tools see it; claim() records why it failed."""
+    drop = SimpleNamespace(name=name, is_claimed=claimed, claim_id=claim_id, real_current_minutes=minutes,
+                           required_minutes=60, last_claim_error=None)
+    drop.can_claim = claim_id is not None and not claimed
+
+    async def claim():
+        drop.last_claim_error = None if result else "rejected by Twitch: integrity"
+        drop.is_claimed = result
+        return result
+
+    async def generate_claim():
+        drop.claim_id = f"44041186#c#{name}"
+        drop.can_claim = True
+
+    drop.claim, drop.generate_claim = claim, generate_claim
+    return drop
+
+
+def test_claim_tools_find_and_claim_stuck_drops(browser, miner):
+    from datetime import datetime, timezone
+
+    token = token_for(browser)
+    ready = claim_drop("Ready", minutes=60, claim_id="id-1")
+    stuck = claim_drop("Stuck", minutes=60, claim_id=None)
+    rejected = claim_drop("Rejected", minutes=60, claim_id="id-2", result=False)
+    mining = claim_drop("Mining", minutes=5, claim_id=None)
+    miner.client.inventory = [SimpleNamespace(
+        name="Weekend", game=SimpleNamespace(name="Arena Breakout"), upcoming=False,
+        ends_at=datetime(2026, 11, 2, tzinfo=timezone.utc), drops=[ready, stuck, rejected, mining])]
+
+    _, found = tool(browser, token, "diagnose_claims")
+    assert [row["drop"] for row in found["unclaimed_drops"]] == ["Ready", "Stuck", "Rejected"]
+    assert found["complete_but_not_claimable"] == 1
+    assert len(tool(browser, token, "diagnose_claims", {"include_in_progress": True})[1]["unclaimed_drops"]) == 4
+
+    _, first = tool(browser, token, "claim_drops")
+    assert {r["drop"]: r["claimed"] for r in first["results"]} == {"Ready": True, "Rejected": False}
+    assert [r for r in first["results"] if r["drop"] == "Rejected"][0]["last_claim_error"] == "rejected by Twitch: integrity"
+
+    _, forced = tool(browser, token, "claim_drops", {"generate_missing": True, "drop": "stuck"})
+    assert forced["claimed"] == 1 and stuck.claim_id.endswith("#Stuck")
+
+
+def test_set_paused_tool(browser, miner):
+    token = token_for(browser)
+    miner.client.set_paused = MagicMock()
+    miner.client.pause_info = lambda: {"paused": True, "resume_at": None}
+    _, paused = tool(browser, token, "set_paused", {"paused": True, "duration": "1h"})
+    miner.client.set_paused.assert_called_with(True, "1h")
+    assert paused["paused"] is True
+    is_error, _ = tool(browser, token, "set_paused", {"paused": True, "duration": "5y"})
+    assert is_error
+    is_error, _ = tool(browser, token, "set_paused", {})
+    assert is_error

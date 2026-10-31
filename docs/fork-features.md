@@ -115,11 +115,14 @@ Claude can then use these tools:
 
 - **Read:** status and current drop, campaigns (filter by game, status or link state),
   the wanted queue, tracked channels, settings (without secrets), the Campaign Searches log,
-  drop history and recent log messages.
+  drop history and recent log messages. **Diagnose unclaimed drops** lists drops that are
+  complete or claimable and why the last claim attempt failed.
 - **Control:** set, add, remove or reorder Games to Watch; change Farm Mode, Priority list
   only, mining of Not Linked campaigns, reward types or mining hours; reload campaigns;
-  watch a specific channel or return to automatic selection. These go through the same code
-  as the dashboard controls.
+  watch a specific channel or return to automatic selection; pause or resume mining; claim
+  ready drops now (**Claim drops now** reports per drop why a claim failed, and can try
+  drops whose minutes are complete but that Twitch never gave a claim ID). These go through
+  the same code as the dashboard controls.
 
 The endpoint is `/mcp` on the dashboard's own address, so a reverse proxy that serves the
 dashboard serves it too. It is off until a token exists. The token gives full control of
