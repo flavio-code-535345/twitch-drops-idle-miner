@@ -465,6 +465,23 @@ class ImportedSession:
             } and "path" not in error for error in row["errors"])
         )
 
+    @staticmethod
+    def _claim_integrity_rejection(row: Any) -> bool:
+        """Fork: Twitch refused claimDropRewards for integrity before running it, so the claim can be tried again.
+
+        Unlike other rejections this one names a path and carries a null result. Claiming is idempotent
+        (a repeated claim answers DROP_INSTANCE_ALREADY_CLAIMED), so a retry cannot claim twice.
+        """
+        if not isinstance(row, dict) or not isinstance(row.get("errors"), list) or not row["errors"]:
+            return False
+        data = row.get("data")
+        if data is not None and not (isinstance(data, dict) and data.get("claimDropRewards") is None):
+            return False
+        return all(
+            isinstance(error, dict) and error.get("message") == "failed integrity check"
+            and error.get("path") == ["claimDropRewards"] for error in row["errors"]
+        )
+
     @classmethod
     def _safe_read(cls, operation: Any) -> bool:
         """Only exact known persisted reads may be replayed after an ambiguous failure."""
@@ -498,6 +515,7 @@ class ImportedSession:
         results: list[Any] = [None] * len(pending)
         request_user_id = self._user_id
         retries = 0
+        claim_renewed = False
         while pending:
             await self.authenticate(self._login)
             delay = None
@@ -535,7 +553,12 @@ class ImportedSession:
                         raise SessionError("RESPONSE")
                     rejected = []
                     for index, row in zip(pending, rows, strict=True):
+                        # Fork: a claim refused for integrity is retried once with a renewed proof;
+                        # after that the refusal is returned instead of waiting on renewals forever.
                         if self._auth_rejection(row):
+                            rejected.append(index)
+                        elif not claim_renewed and self._claim_integrity_rejection(row):
+                            claim_renewed = True
                             rejected.append(index)
                         else:
                             results[index] = row

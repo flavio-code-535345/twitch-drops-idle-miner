@@ -1,3 +1,9 @@
+# Release Notes - v2.4.0.3 (fork)
+
+- A drop claim that Twitch refuses with "failed integrity check" is now retried once with a
+  renewed session proof, instead of being dropped and leaving finished drops unclaimed. If the
+  renewed proof is refused too, the claim fails as before (the log says why).
+
 # Release Notes - v2.4.0.2 (fork)
 
 - Campaign discovery through live channels retries a game once when Twitch rejects its

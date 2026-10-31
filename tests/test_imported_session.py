@@ -384,3 +384,55 @@ async def test_malformed_batch_row_is_a_stable_error(tmp_path):
     session._transport.request.side_effect = [[None]]
     with pytest.raises(SessionError, match="RESPONSE"):
         await session.gql([{"operationName": "Inventory"}])
+
+
+CLAIM_REFUSED = {
+    "data": {"claimDropRewards": None},
+    "errors": [{"message": "failed integrity check", "path": ["claimDropRewards"],
+                "extensions": {"code": "IntegrityCheckFailed"}}],
+}
+
+
+def test_only_a_claim_refused_before_running_is_replayable():
+    assert ImportedSession._claim_integrity_rejection(CLAIM_REFUSED)
+    assert ImportedSession._claim_integrity_rejection({"errors": CLAIM_REFUSED["errors"]})
+    for row in (
+        {"data": {"claimDropRewards": {"status": "ELIGIBLE_FOR_ALL"}}, "errors": CLAIM_REFUSED["errors"]},
+        {"data": {"claimDropRewards": None}, "errors": [{"message": "failed integrity check", "path": ["other"]}]},
+        {"data": {"claimDropRewards": None}, "errors": [{"message": "Unauthorized", "path": ["claimDropRewards"]}]},
+        {"data": {"claimDropRewards": None}, "errors": []},
+        {"data": {"claimDropRewards": None}},
+    ):
+        assert not ImportedSession._claim_integrity_rejection(row)
+
+
+@pytest.mark.asyncio
+async def test_refused_claim_is_retried_once_with_a_renewed_proof_then_returned(tmp_path):
+    clock = [1000]
+    service = transport()
+    session = imported(tmp_path, clock, service)
+    await session.install(bundle_data())
+    await session.authenticate(login())
+    done = {"data": {"claimDropRewards": {"status": "ELIGIBLE_FOR_ALL"}}}
+    service.request.side_effect = [CLAIM_REFUSED]
+    task = asyncio.create_task(session.gql({"operationName": "ClaimDrop"}))
+    await asyncio.sleep(0)
+    assert not task.done() and session.status()["state"] == "waiting"
+    clock[0] = 1100
+    service.request.side_effect = [
+        {"client_id": ClientType.WEB.CLIENT_ID, "user_id": "42"}, catalog(), done,
+    ]
+    await session.install(bundle_data(1100, "new-integrity"))
+    assert await asyncio.wait_for(task, 1) == done
+
+    # Refused again after the renewal: handed back instead of waiting for renewals without end.
+    service.request.side_effect = [CLAIM_REFUSED, CLAIM_REFUSED]
+    task = asyncio.create_task(session.gql({"operationName": "ClaimDrop"}))
+    await asyncio.sleep(0)
+    assert not task.done()
+    clock[0] = 1200
+    service.request.side_effect = [
+        {"client_id": ClientType.WEB.CLIENT_ID, "user_id": "42"}, catalog(), CLAIM_REFUSED,
+    ]
+    await session.install(bundle_data(1200, "newer-integrity"))
+    assert await asyncio.wait_for(task, 1) == CLAIM_REFUSED
