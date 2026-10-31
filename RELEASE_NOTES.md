@@ -1,3 +1,9 @@
+# Release Notes - v2.4.0.7 (fork)
+
+- Wanted Drops Queue: the FARM tag of a farmed game sits at the right of the card header again.
+  Since the dashboard redesign it was placed first, stretched to the header's height and covered by
+  the #1/#2 position badge.
+
 # Release Notes - v2.4.0.6 (fork)
 
 - The MCP `diagnose_claims` and `claim_drops` tools no longer treat drops without required watch
