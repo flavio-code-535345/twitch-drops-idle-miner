@@ -349,10 +349,10 @@ def test_control_tools(browser, miner):
     assert automatic["manual_mode"] is False
 
 
-def claim_drop(name, *, minutes, claim_id, claimed=False, result=True):
+def claim_drop(name, *, minutes, claim_id, claimed=False, result=True, required=60):
     """A drop as the claim tools see it; claim() records why it failed."""
     drop = SimpleNamespace(name=name, is_claimed=claimed, claim_id=claim_id, real_current_minutes=minutes,
-                           required_minutes=60, last_claim_error=None)
+                           required_minutes=required, last_claim_error=None)
     drop.can_claim = claim_id is not None and not claimed
 
     async def claim():
@@ -376,14 +376,18 @@ def test_claim_tools_find_and_claim_stuck_drops(browser, miner):
     stuck = claim_drop("Stuck", minutes=60, claim_id=None)
     rejected = claim_drop("Rejected", minutes=60, claim_id="id-2", result=False)
     mining = claim_drop("Mining", minutes=5, claim_id=None)
+    # Earned by subscribing, not by watching: never "complete", never given a generated claim ID.
+    badge = claim_drop("Sub badge", minutes=0, claim_id=None, required=0)
     miner.client.inventory = [SimpleNamespace(
         name="Weekend", game=SimpleNamespace(name="Arena Breakout"), upcoming=False,
-        ends_at=datetime(2026, 11, 2, tzinfo=timezone.utc), drops=[ready, stuck, rejected, mining])]
+        ends_at=datetime(2026, 11, 2, tzinfo=timezone.utc), drops=[ready, stuck, rejected, mining, badge])]
 
     _, found = tool(browser, token, "diagnose_claims")
     assert [row["drop"] for row in found["unclaimed_drops"]] == ["Ready", "Stuck", "Rejected"]
     assert found["complete_but_not_claimable"] == 1
-    assert len(tool(browser, token, "diagnose_claims", {"include_in_progress": True})[1]["unclaimed_drops"]) == 4
+    assert len(tool(browser, token, "diagnose_claims", {"include_in_progress": True})[1]["unclaimed_drops"]) == 5
+    _, generated = tool(browser, token, "claim_drops", {"generate_missing": True, "drop": "badge"})
+    assert generated["attempted"] == 0 and badge.claim_id is None
 
     _, first = tool(browser, token, "claim_drops")
     assert {r["drop"]: r["claimed"] for r in first["results"]} == {"Ready": True, "Rejected": False}

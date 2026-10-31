@@ -1,3 +1,9 @@
+# Release Notes - v2.4.0.6 (fork)
+
+- The MCP `diagnose_claims` and `claim_drops` tools no longer treat drops without required watch
+  minutes (sub, gift and event badges) as finished: those are earned outside the stream, so they are
+  not listed as complete and never get a generated claim ID.
+
 # Release Notes - v2.4.0.5 (fork)
 
 - When Twitch refuses a drop claim with "failed integrity check", the log line now says what is

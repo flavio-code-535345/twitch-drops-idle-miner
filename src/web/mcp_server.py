@@ -652,7 +652,8 @@ class MCPServer:
             "drop": drop.name,
             "minutes": current,
             "required_minutes": required,
-            "minutes_complete": current is not None and required is not None and current >= required,
+            # Drops without required minutes are earned by subscribing or events, never by watching.
+            "minutes_complete": current is not None and bool(required) and current >= required,
             "has_claim_id": drop.claim_id is not None,
             "can_claim": drop.can_claim,
             "campaign_ends_at": campaign.ends_at.isoformat(),
@@ -691,7 +692,7 @@ class MCPServer:
             if wanted and wanted.lower() not in drop.name.lower():
                 continue
             if drop.claim_id is None:
-                complete = drop.real_current_minutes >= drop.required_minutes
+                complete = drop.required_minutes > 0 and drop.real_current_minutes >= drop.required_minutes
                 if not (generate_missing and complete):
                     continue
                 await drop.generate_claim()
