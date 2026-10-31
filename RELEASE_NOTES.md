@@ -1,8 +1,8 @@
-# Release Notes - v2.4.0.3 (fork)
+# Release Notes - v2.4.0.4 (fork)
 
-- A drop claim that Twitch refuses with "failed integrity check" is now retried once with a
-  renewed session proof, instead of being dropped and leaving finished drops unclaimed. If the
-  renewed proof is refused too, the claim fails as before (the log says why).
+- Withdrew the 2.4.0.3 retry of a claim refused for "failed integrity check": a renewed session
+  proof is refused for claims as well, and waiting for the renewal stalled mining for minutes.
+  A refused claim fails at once again (the log and the MCP `diagnose_claims` tool say why).
 
 # Release Notes - v2.4.0.2 (fork)
 
