@@ -60,6 +60,15 @@ This was added for the v1.3.1/v1.3.2 Smart TV login, which Twitch denied the cat
 The browser-based sessions used since 2.0 normally receive the catalog, so the fallback
 stays idle unless Twitch withholds the catalog again.
 
+An integrity rejection of the Campaigns request means Twitch does not trust the session's
+proof, and it then refuses drop claims for the same reason: mining continues, but finished
+drops stay unclaimed (the log and the MCP `diagnose_claims` tool show
+`failed integrity check`). The usual cause is a sign-in in the embedded browser, which
+Twitch reports as unsupported. Sign in again through the desktop helper with a regular
+browser (see [Signing in again](#signing-in-again)); the full catalog returning in the
+Campaign Searches log confirms the new session is trusted. Claim already finished drops at
+twitch.tv/drops/inventory in the meantime, up to 24 hours after their campaign ends.
+
 ## Signing in again
 
 A saved login keeps working across updates. The **Sign in to Twitch** screen only appears
@@ -92,6 +101,22 @@ matching the **upstream** version in the dashboard footer, which is the helper t
 this fork's unchanged login code. While helper access is open (up to ten minutes), the
 first helper to reach the dashboard is accepted without the dashboard password, so start
 it only right before running the helper.
+
+The helper looks for Chrome, Chromium or Firefox 143+. Another Chromium-based browser can be
+passed explicitly, for example Edge on Windows:
+`tdm-login-helper.exe --tdm https://your-host --browser chrome --chrome "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"`.
+
+### Signing in behind Cloudflare Access
+
+The helper talks to `/api/helper/connect`, `/api/helper/session` and `/api/helper/result`
+on the dashboard's address and never follows redirects, so a login proxy such as Cloudflare
+Access that redirects it to its own sign-in page makes it fail with `SESSION_HELPER_REDIRECT`.
+For the sign-in, let `/api/helper/*` through (in Cloudflare Zero Trust, a self-hosted
+application for that path with a **Bypass** policy, ideally limited to your own IP address),
+or run the helper against the server's local address. Remove the bypass afterwards: renewals
+run on the server and do not need it. `SESSION_HELPER_DISABLED` instead means the request
+reached the miner but helper access is not open: select **Use desktop helper** on the
+sign-in screen first, and start a new attempt after a helper failed.
 
 ## MCP access for Claude Code
 
@@ -157,4 +182,5 @@ to fit that layout.
 
 - The only GitHub workflow builds the Docker image and pushes it to Docker Hub on every
   push to `main`. Upstream's validation, release, contributor and wiki workflows are not
-  used; run Ruff, Mypy and pytest locally instead.
+  used, nor upstream's tests of them (`test_artifact_workflow_contracts.py`); run Ruff,
+  Mypy and pytest locally instead.

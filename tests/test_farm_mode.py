@@ -19,6 +19,11 @@ def _campaign(game_id: int, game_name: str, benefit_type: BenefitType, drop_name
     campaign.can_earn_within.return_value = True
 
     drop = MagicMock(spec=TimedDrop)
+    # Fields the queue rows show since upstream 2.5 (progress and reward artwork).
+    drop.id = f"{game_name}-{drop_name}"
+    drop.current_minutes = 0
+    drop.required_minutes = 60
+    drop.progress = 0.0
     drop.name = drop_name
     drop.is_claimed = False
     drop.ends_at = datetime.max.replace(tzinfo=timezone.utc)
@@ -26,6 +31,7 @@ def _campaign(game_id: int, game_name: str, benefit_type: BenefitType, drop_name
         drop, TimedDrop
     )
     benefit = MagicMock(spec=Benefit)
+    benefit.image_url = f"http://img/{game_name}-benefit.png"
     benefit.name = f"{game_name} Benefit"
     benefit.type = benefit_type
     benefit.is_wanted = Benefit.is_wanted.__get__(benefit, Benefit)

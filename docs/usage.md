@@ -134,7 +134,21 @@ Zero-minute subscription rewards are omitted from Inventory and the Wanted Drops
 Queue because they cannot be earned by watching. The queue also omits individually
 expired rewards and rewards the miner cannot target. Upcoming and sequential rewards
 can remain visible, so a queued reward is not necessarily earnable immediately.
-Successful claims refresh the queue.
+Successful claims refresh the queue. In v2.5.0, each queued reward shows available artwork
+and the same progress as Inventory; a reward named like its drop is listed once.
+
+### Change the queue order temporarily
+
+On **Main**, drag a game card in the Wanted Drops Queue to mine it sooner. On a touch
+screen, press and hold a card first, then drag it. This order takes precedence over
+the Mining list, reward-type order and fallback rules, but it only reorders games that
+are already queued. Games that join the queue later are placed after the games you
+ordered.
+
+The order is temporary: restarting the miner, selecting **Reset to Mining list
+order**, or changing **Mining list** (in Settings or with **Add to mining list** in
+Inventory) returns to the saved order. To change the default order permanently, use
+**Settings → Games → Mining list**.
 
 ## Account-link override
 

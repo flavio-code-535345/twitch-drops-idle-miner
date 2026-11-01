@@ -4,6 +4,7 @@ from src.config.reward_priority import RewardPriority
 from src.config.settings import Settings
 from src.models.campaign import DropsCampaign
 from src.models.game import Game
+from src.services.game_order import TemporaryGameOrder
 
 
 # Farm mode ignores the user's Mining Benefits filter and looks only for badges and
@@ -37,7 +38,17 @@ class StreamSelector:
             filtered_benefits = drop.get_wanted_unclaimed_benefits(mining_benefits)
 
             if len(filtered_benefits) > 0:
-                wanted_drops.append({"name": drop.name, "benefits": filtered_benefits})
+                wanted_drops.append({
+                    "id": drop.id,
+                    "name": drop.name,
+                    "benefits": filtered_benefits,
+                    "image_url": next(
+                        (b.image_url for b in drop.benefits if b.is_wanted(mining_benefits) and b.image_url), None
+                    ),
+                    "current_minutes": drop.current_minutes,
+                    "required_minutes": drop.required_minutes,
+                    "progress": drop.progress,
+                })
         return wanted_drops
 
     def _build_game_entry(
@@ -187,7 +198,8 @@ class StreamSelector:
                 wanted_games.append(entry)
 
     def _get_wanted_game_tree(
-        self, settings: Settings, campaigns: list[DropsCampaign]
+        self, settings: Settings, campaigns: list[DropsCampaign],
+        order: TemporaryGameOrder | None = None,
     ) -> list[dict]:
         """
         Get the hierarchical tree of wanted items (Games -> Campaigns -> Drops -> Benefits).
@@ -199,6 +211,7 @@ class StreamSelector:
         enabled, selected games stay first and the rest (fallback and Farm Mode games alike)
         are ordered by their best preferred reward type. Channel priority follows list
         position, so explicitly tracked games always come before fallback and farmed ones.
+        A temporary dashboard order, when set, takes precedence over every other rule.
         """
         wanted_games: list[dict] = []
         queued_ids: set[int] = set()
@@ -229,14 +242,22 @@ class StreamSelector:
             by_id = {campaign.id: campaign for campaign in campaigns}
             for game in wanted_games:
                 game["campaigns"].sort(key=lambda entry: policy.campaign_key(by_id[entry["id"]]))
+        if isinstance(order, TemporaryGameOrder) and order.active:
+            # Stable: games outside the temporary order keep their default sequence.
+            wanted_games.sort(key=lambda game: order.rank(game["game_name"]))
         return wanted_games
 
     def get_wanted_game_tree(
-        self, settings: Settings, campaigns: list[DropsCampaign]
+        self, settings: Settings, campaigns: list[DropsCampaign],
+        order: TemporaryGameOrder | None = None,
     ) -> list[dict]:
         return [
-            {**game, "game_obj": None} for game in self._get_wanted_game_tree(settings, campaigns)
+            {**game, "game_obj": None}
+            for game in self._get_wanted_game_tree(settings, campaigns, order)
         ]
 
-    def get_wanted_games(self, settings: Settings, campaigns: list[DropsCampaign]) -> list[Game]:
-        return [game["game_obj"] for game in self._get_wanted_game_tree(settings, campaigns)]
+    def get_wanted_games(
+        self, settings: Settings, campaigns: list[DropsCampaign],
+        order: TemporaryGameOrder | None = None,
+    ) -> list[Game]:
+        return [game["game_obj"] for game in self._get_wanted_game_tree(settings, campaigns, order)]
