@@ -153,8 +153,9 @@ and change Games to Watch for you.
 
 Claude can then use these tools:
 
-- **Read:** status and current drop, campaigns (filter by game, status or link state),
-  the wanted queue, tracked channels, settings (without secrets, including the followed-channel
+- **Read:** status and current drop, campaigns (filter by game, status or link state; each
+  lists its reward types, so badges and emotes for Farm Mode stand out), the wanted queue,
+  tracked channels, settings (without secrets, including the followed-channel
   preference and the alert choices), the Campaign Searches log, drop history and recent log
   messages. **Diagnose unclaimed drops** lists drops that are complete or claimable and why
   the last claim attempt failed, plus what the session's integrity proof claims (bot flag,

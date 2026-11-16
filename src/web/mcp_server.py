@@ -429,6 +429,13 @@ class MCPServer:
                 "claimed_drops": campaign.get("claimed_drops"),
                 "total_drops": campaign.get("total_drops"),
                 "mining_finished": campaign.get("mining_finished"),
+                # What Farm Mode keys on (BADGE/EMOTE), visible without every drop's details.
+                "reward_types": sorted({
+                    str(benefit.get("type"))
+                    for drop in campaign.get("drops", [])
+                    for benefit in drop.get("benefits", [])
+                    if benefit.get("type")
+                }),
             }
             if include_drops is not False:
                 data["drops"] = [
@@ -750,7 +757,9 @@ class MCPServer:
                  _schema(), self.get_status, True),
             Tool("list_campaigns", "List campaigns",
                  "Campaigns Twitch currently offers this account, with per-drop progress, sorted by "
-                 "end time. Use 'game' to find a specific game.",
+                 "end time. Use 'game' to find a specific game. Each campaign lists its reward_types "
+                 "(BADGE and EMOTE are what Farm Mode mines); with many campaigns, set include_drops=false "
+                 "for a compact overview.",
                  _schema({
                      "game": game_prop,
                      "status": {"type": "string", "enum": ["active", "upcoming", "expired", "all"],

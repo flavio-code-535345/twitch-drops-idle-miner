@@ -84,7 +84,10 @@ project's process, not an active process here.
   and `claim_drops` skips them before `generate_claim` and lists them. `get_status` and
   `update_mining_settings` cover `prefer_followed_channels`; `get_settings` passes
   `SettingsManager.get_settings()` through minus secrets, so new upstream settings appear
-  there automatically.
+  there automatically. `list_campaigns` gives each campaign its `reward_types` (from the
+  serialized benefits, which omit benefits without an image), because `include_drops`
+  defaults to true and every drop of ~100 active campaigns overflows a client's tool-output
+  limit; a Farm Mode question ("why is no badge campaign queued?") needs only the types.
 - Fork settings read by shared code use `getattr(settings, "<name>", default)` (for example
   `farm_mode` in `StreamSelector`), because upstream tests build minimal settings objects
   without fork-only fields.

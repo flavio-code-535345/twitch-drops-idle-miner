@@ -28,7 +28,9 @@ def rpc(method, params=None, message_id=1):
     return message
 
 
-def campaign(name, game, *, active=True, linked=True, finished=False, ends="2026-10-24T19:59:59+00:00"):
+def campaign(name, game, *, active=True, linked=True, finished=False, ends="2026-10-24T19:59:59+00:00",
+             extra_benefit_types=()):
+    extra = [{"name": f"Extra {kind}", "type": kind, "image_url": "x"} for kind in extra_benefit_types]
     return {
         "id": f"{name}-id", "name": name, "game_name": game, "active": active,
         "upcoming": not active, "expired": False, "linked": linked, "finished": finished,
@@ -38,7 +40,7 @@ def campaign(name, game, *, active=True, linked=True, finished=False, ends="2026
         "drops": [{
             "name": "Common 1", "current_minutes": 5, "required_minutes": 60, "is_claimed": False,
             "can_claim": False, "is_mineable": True, "ignored_reason": None,
-            "benefits": [{"name": "Common case", "type": "DIRECT_ENTITLEMENT", "image_url": "x"}],
+            "benefits": [{"name": "Common case", "type": "DIRECT_ENTITLEMENT", "image_url": "x"}, *extra],
         }],
     }
 
@@ -84,7 +86,8 @@ class FakeMiner:
             progress=SimpleNamespace(get_current_drop=lambda: {"drop_name": "Common 1", "progress": 0.1}),
             inv=SimpleNamespace(get_campaigns=lambda: [
                 campaign("Souer GunGame", "Escape from Tarkov", linked=False),
-                campaign("Arena Weekend", "Arena Breakout"),
+                campaign("Arena Weekend", "Arena Breakout",
+                         extra_benefit_types=("EMOTE", "BADGE", "DIRECT_ENTITLEMENT")),
                 campaign("Old Tarkov", "Escape from Tarkov", finished=True),
                 campaign("Next Week", "Escape from Tarkov", active=False),
             ]),
@@ -279,6 +282,9 @@ def test_read_tools(browser, miner):
                     {"game": "tarkov", "status": "all", "include_finished": True, "include_drops": False})
     assert {c["name"] for c in every["campaigns"]} == {"Souer GunGame", "Old Tarkov", "Next Week"}
     assert "drops" not in every["campaigns"][0]
+    assert every["campaigns"][0]["reward_types"] == ["DIRECT_ENTITLEMENT"]
+    _, arena = tool(browser, token, "list_campaigns", {"game": "arena", "include_drops": False})
+    assert arena["campaigns"][0]["reward_types"] == ["BADGE", "DIRECT_ENTITLEMENT", "EMOTE"]
 
     _, queue = tool(browser, token, "get_wanted_queue")
     assert queue["queue"][0]["campaigns"][0]["drops"][0]["rewards"] == ["Arena badge"]
