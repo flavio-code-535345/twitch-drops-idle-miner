@@ -310,6 +310,9 @@
             "allow_unlinked_campaigns": "Tillad mining af kampagner vist som ikke forbundet",
             "allow_unlinked_campaigns_warning": "Advarsel: Dette omgår kun TDMs kontrol af kontoforbindelsen. Det forbinder ikke konti og garanterer ikke Twitch-fremskridt, afhentning eller belønninger i spillet. TDM kan vise estimerede minutter. Kontrollér Twitch Drops-inventaret, og forbind den korrekte spilkonto for at modtage belønninger.",
             "allow_unlinked_campaigns_save_error": "Kunne ikke gemme indstillingen for mining uden kontoforbindelse. Prøv igen.",
+            "prefer_followed_channels": "Foretræk kanaler, jeg følger",
+            "prefer_followed_channels_help": "Når livekanaler har samme prioritet og tilbyder de samme drops, foretrækkes kanaler, du følger på Twitch.",
+            "prefer_followed_channels_save_error": "Kunne ikke gemme indstillingen for fulgte kanaler. Prøv igen.",
             "dump_diagnostics": "Gem diagnosedata",
             "diagnostics_help": "Gemmer minerens tilstand uden personoplysninger og seneste rensede API-svar i data/diagnostics på din monterede datavolumen.",
             "diagnostics_saving": "Gemmer diagnosedata…",
@@ -324,6 +327,13 @@
             "mining_hours_end": "Slut",
             "mining_hours_save_error": "Kunne ikke gemme minedriftstiden. Prøv igen.",
             "proxy_save_error": "Proxyen kunne ikke gemmes. Indtast adgangskoden igen, og prøv igen.",
+            "notification_events": {
+                "header": "Giv mig besked om",
+                "help": "Gælder for Discord og Telegram, når en af dem er sat op nedenfor.",
+                "drop_claimed": "Indløste drops",
+                "new_release": "Nye TwitchDropsMiner-versioner (tjekkes hver 6. time)",
+                "save_error": "Kunne ikke gemme notifikationsvalg. Prøv igen."
+            },
             "discord": {
                 "name": "Discord-underretninger",
                 "description": "Få besked på Discord, når du gør krav på drops.",
@@ -417,7 +427,12 @@
             "drag_hint": "Træk spil for at ændre rækkefølgen indtil genstart (tryk og hold først på berøringsskærme). Mininglisten i Indstillinger forbliver standarden.",
             "temporary": "Midlertidig rækkefølge indtil genstart.",
             "reset": "Nulstil til mininglistens rækkefølge",
-            "save_error": "Køens rækkefølge kunne ikke ændres. Prøv igen."
+            "save_error": "Køens rækkefølge kunne ikke ændres. Prøv igen.",
+            "order_info": "Hvorfor har køen denne rækkefølge?",
+            "order_mining_list": "Spil på din miningliste følger den gemte rækkefølge.",
+            "order_reward_types": "Spil på din miningliste sorteres efter belønningstype, derefter efter den tidligste frist for den type og til sidst efter listens gemte rækkefølge. Du kan ændre dette under Indstillinger → Mining → Belønningstyper.",
+            "order_fallback": "I standardrækkefølgen kommer andre kvalificerede spil efter spillene på mininglisten.",
+            "order_temporary": "Spil i den midlertidige rækkefølge kommer først. De øvrige spil følger reglerne nedenfor."
         },
         "history": {
             "title": "Drop-historik",

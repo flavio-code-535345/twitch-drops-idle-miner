@@ -26,6 +26,8 @@ def _campaign(game_id: int, game_name: str, benefit_type: BenefitType, drop_name
     drop.progress = 0.0
     drop.name = drop_name
     drop.is_claimed = False
+    # Since upstream 2.6 the queue skips drops waiting for the account link; a bare mock is truthy.
+    drop.awaiting_account_link = False
     drop.ends_at = datetime.max.replace(tzinfo=timezone.utc)
     drop.get_wanted_unclaimed_benefits = TimedDrop.get_wanted_unclaimed_benefits.__get__(
         drop, TimedDrop

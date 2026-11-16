@@ -9,7 +9,12 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING, Any
 
 from src.config.reward_priority import RewardPriority
-from src.config.settings import InventoryFilterSettings, MiningHoursSettings, default_settings
+from src.config.settings import (
+    InventoryFilterSettings,
+    MiningHoursSettings,
+    NotificationEventSettings,
+    default_settings,
+)
 from src.i18n.translator import _
 from src.models.game import Game
 from src.services.discord_service import DiscordNotifier
@@ -75,6 +80,7 @@ class SettingsManager:
             Dictionary containing all user-configurable settings
         """
         settings = vars(self._settings).copy()
+        settings.pop("last_notified_releases", None)
         settings["games_available"] = self._available_games
         configured_webhook = bool(settings.get("discord_webhook_url"))
         settings["discord_configured"] = configured_webhook
@@ -144,6 +150,11 @@ class SettingsManager:
         requested_hours = settings_data.get("mining_hours")
         if requested_hours is not None:
             requested_hours = MiningHoursSettings.normalize(requested_hours)
+        notification_events = settings_data.get("notification_events")
+        if notification_events is not None:
+            notification_events = NotificationEventSettings.normalize(
+                notification_events, self._settings.notification_events
+            )
         previous_webhook = getattr(self._settings, "discord_webhook_url", "")
         new_webhook = previous_webhook
         if settings_data.get("discord_remove_webhook") is True:
@@ -169,6 +180,9 @@ class SettingsManager:
             if isinstance(legacy_value, bool):
                 legacy_show_not_linked = legacy_value
             inventory_filters = self._normalize_inventory_filters(inventory_filters)
+        prefer_followed = settings_data.get("prefer_followed_channels")
+        if prefer_followed is not None and not isinstance(prefer_followed, bool):
+            raise ValueError("invalid_prefer_followed_channels")
         language = settings_data.get("language")
         if language is not None and language not in _.get_languages():
             raise ValueError("invalid_language")
@@ -201,6 +215,10 @@ class SettingsManager:
         should_trigger_update |= self.check_and_update_setting(
             "dark_mode", settings_data.get("dark_mode")
         )
+        follows_changed = self.check_and_update_setting(
+            "prefer_followed_channels", prefer_followed, True
+        )
+        should_trigger_update |= follows_changed
         should_trigger_update |= self.check_and_update_setting(
             "language", language, False, self._set_language
         )
@@ -234,6 +252,9 @@ class SettingsManager:
             self.check_and_update_setting(
                 "telegram_chat_id", settings_data.get("telegram_chat_id") or ""
             )
+        if notification_events is not None and notification_events != self._settings.notification_events:
+            self.check_and_update_setting("notification_events", notification_events)
+            self._settings.notification_events_revision += 1
         should_trigger_update |= self.check_and_update_setting("inventory_filters", inventory_filters)
         should_trigger_update |= self.check_and_update_setting(
             "inventory_list_view", settings_data.get("inventory_list_view")
@@ -253,6 +274,10 @@ class SettingsManager:
 
         if override_changed and isinstance(requested_allow_unlinked, bool):
             self._settings.allow_unlinked_campaigns = requested_allow_unlinked
+        if override_changed or follows_changed:
+            self._settings.mining_opt_ins_revision = getattr(
+                self._settings, "mining_opt_ins_revision", 0
+            ) + 1
         if priority_mode_changed and isinstance(requested_priority_list_only, bool):
             self._settings.priority_list_only = requested_priority_list_only
         if requested_reward_priority is not None:

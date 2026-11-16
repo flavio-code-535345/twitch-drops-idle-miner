@@ -208,6 +208,9 @@ class MessageHandlerService:
                 return
 
             drop.update_claim(message["data"]["drop_instance_id"])
+            if not drop.is_claimed and drop.claim_requires_account_link:
+                drop.defer_claim_until_account_link()
+                return
             await drop.claim()
             # An inventory refresh during the claim may have replaced this drop's object.
             current: TimedDrop | None = self._twitch._drops.get(drop_id)

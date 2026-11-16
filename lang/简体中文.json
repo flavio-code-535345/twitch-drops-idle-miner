@@ -310,6 +310,9 @@
             "allow_unlinked_campaigns": "允许挖掘显示为“未关联”的活动",
             "allow_unlinked_campaigns_warning": "警告：此选项仅跳过 TDM 的账号关联检查。它不会关联账号，也不保证 Twitch 进度、领取成功或游戏内奖励。TDM 可能显示估算的分钟数。请检查 Twitch 的 Drops 库存，并关联正确的游戏账号以接收奖励。",
             "allow_unlinked_campaigns_save_error": "无法保存账号关联挖掘选项，请重试。",
+            "prefer_followed_channels": "优先观看我关注的频道",
+            "prefer_followed_channels_help": "当直播频道的优先级相同、可获得的掉宝也相同时，优先观看你在 Twitch 上关注的频道。",
+            "prefer_followed_channels_save_error": "无法保存关注频道选项。请重试。",
             "dump_diagnostics": "导出诊断数据",
             "diagnostics_help": "将去标识化的矿工状态和已清理敏感信息的近期 API 响应保存到挂载数据卷中的 data/diagnostics。",
             "diagnostics_saving": "正在保存诊断数据…",
@@ -324,6 +327,13 @@
             "mining_hours_end": "结束",
             "mining_hours_save_error": "无法保存运行时段，请重试。",
             "proxy_save_error": "无法保存代理。请重新输入密码后重试。",
+            "notification_events": {
+                "header": "通知我以下内容",
+                "help": "在下方设置 Discord 或 Telegram 后生效。",
+                "drop_claimed": "已领取的掉宝",
+                "new_release": "TwitchDropsMiner 新版本(每 6 小时检查一次)",
+                "save_error": "无法保存通知选项,请重试。"
+            },
             "discord": {
                 "name": "Discord 通知",
                 "description": "领取掉落物时在 Discord 上接收通知。",
@@ -417,7 +427,12 @@
             "drag_hint": "拖动游戏可在重启前更改顺序（触摸屏上请先长按）。设置中的挖掘列表仍为默认顺序。",
             "temporary": "临时顺序，重启后恢复。",
             "reset": "恢复挖掘列表顺序",
-            "save_error": "无法更改队列顺序。请重试。"
+            "save_error": "无法更改队列顺序。请重试。",
+            "order_info": "为什么队列是这个顺序？",
+            "order_mining_list": "挖掘列表中的游戏按已保存的顺序排列。",
+            "order_reward_types": "挖掘列表中的游戏先按奖励类型排序，再按该类型最早的截止时间排序，最后按列表保存的顺序排列。可在「设置 → 挖掘 → 奖励类型」中更改。",
+            "order_fallback": "在默认顺序下，其他符合条件的游戏排在挖掘列表中的游戏之后。",
+            "order_temporary": "临时顺序中的游戏排在最前面。其他游戏按以下规则排列。"
         },
         "history": {
             "title": "掉宝历史",

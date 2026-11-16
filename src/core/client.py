@@ -42,6 +42,7 @@ from src.services.inventory_service import InventoryService
 from src.services.maintenance import MaintenanceService
 from src.services.message_handlers import MessageHandlerService
 from src.services.refresh_log import RefreshLog
+from src.services.release_service import ReleaseService
 from src.services.stream_selector import StreamSelector
 from src.services.watch_service import WatchService
 from src.utils import (
@@ -244,7 +245,7 @@ class Twitch:
             self._resume_mining.set()
 
     async def _stop_channel_tasks(self) -> None:
-        """Drain online checks even after their pending display marker is cleared."""
+        """Drain online checks before discarding account-owned state."""
         tasks = tuple(self._channel_tasks)
         for task in tasks:
             task.cancel()
@@ -553,9 +554,10 @@ class Twitch:
         self.gui.print(message, collapse_key=collapse_key)
 
     def _remove_channel_topics(self, channels: abc.Iterable[Channel]) -> None:
-        """Remove websocket topics for a list of channels."""
+        """Retire websocket topics and outstanding stream checks for channels."""
         topics_to_remove: list[str] = []
         for channel in channels:
+            channel.cancel_online_check()
             topics_to_remove.append(WebsocketTopic.as_str("Channel", "StreamState", channel.id))
             topics_to_remove.append(WebsocketTopic.as_str("Channel", "StreamUpdate", channel.id))
         if topics_to_remove:
@@ -565,6 +567,8 @@ class Twitch:
         """Main entry point for the miner - handles exit requests."""
         self.diagnostics.start_logs()
         self.session_controller.start()
+        # Account-independent, so authentication changes leave it running.
+        release_task = asyncio.create_task(ReleaseService(self).run())
         try:
             while self._state is not State.EXIT:
                 await self._resume_mining.wait()
@@ -584,6 +588,8 @@ class Twitch:
                 except aiohttp.ContentTypeError as exc:
                     raise RequestException(_.t["login"]["unexpected_content"]) from exc
         finally:
+            release_task.cancel()
+            await asyncio.gather(release_task, return_exceptions=True)
             await self._stop_mining_schedule()
             self._channel_service.clear_bans()
             self.diagnostics.stop_logs()
@@ -761,7 +767,9 @@ class Twitch:
                 if self.wanted_games:
                     self.change_state(State.CHANNELS_FETCH)
                 else:
-                    # with no games available, we switch to IDLE after cleanup
+                    # with no games available, we switch to IDLE after cleanup;
+                    # CHANNELS_FETCH won't run, so clear the dashboard list here
+                    self.gui.channels.clear()
                     self.print(
                         _.t["status"]["no_campaign"],
                         collapse_key="status.no_campaign",
@@ -794,6 +802,12 @@ class Twitch:
                     # for every campaign without an ACL, for it's game,
                     # add a list of live channels with drops enabled
                     new_channels.update(await self.get_live_streams(game, drops_enabled=True))
+                # Optional: followed channels outside each game's top directory results.
+                known_ids = {channel.id for channel in new_channels}
+                if (watched := self.watching_channel.get_with_default(None)) is not None:
+                    known_ids.add(watched.id)
+                new_channels.update(await self._channel_service.get_followed_live_channels(known_ids))
+                await self._channel_service.refresh_watched_channel(new_channels)
                 # Filter account-specific bans before priority sorting and the tracking cap.
                 retained_channels = [channel for channel in (
                     self.watching_channel.get_with_default(None), self._manual_target_channel,
@@ -815,6 +829,7 @@ class Twitch:
                 )
                 ordered_channels.sort(key=lambda ch: ch.acl_based, reverse=True)
                 ordered_channels.sort(key=self._channel_service.get_mining_priority)
+                self._channel_service.prioritize_followed(ordered_channels)
                 # ensure that we won't end up with more channels than we can handle
                 # NOTE: we trim from the end because that's where the non-priority,
                 # offline (or online but low viewers) channels end up
@@ -850,6 +865,11 @@ class Twitch:
                         )
                     )
                 self.websocket.add_topics(to_add_topics)
+                # websocket events reach the tracked object, so the manual target must use it
+                if self._manual_target_channel is not None:
+                    self._manual_target_channel = channels.get(
+                        self._manual_target_channel.id, self._manual_target_channel
+                    )
                 # relink watching channel after cleanup
                 # NOTE: this replaces 'self.watching_channel's internal value with the new object
                 # Don't call stop_watching() here - let CHANNEL_SWITCH handle it to avoid clearing drop display
@@ -894,6 +914,7 @@ class Twitch:
                     # Check if this is a game change -> enter manual mode
                     if watching_channel and selected_channel.game != watching_channel.game:
                         self.enter_manual_mode(selected_channel)
+                    self._channel_service.record_watch(selected_channel, picked=True)
                     new_watching = selected_channel
                 # Handle manual mode
                 elif self.is_manual_mode():
@@ -918,11 +939,11 @@ class Twitch:
                         # No channels available for manual game -> exit manual mode
                         if new_watching is None:
                             self.exit_manual_mode("No channels available for manual game")
-                # Auto-select best channel based on priority
-                else:
-                    for channel in sorted(
-                        channels.values(), key=self._channel_service.get_mining_priority
-                    ):
+                # Auto-select best channel based on priority, also right after manual mode ends
+                if new_watching is None and not self.is_manual_mode():
+                    ordered = sorted(channels.values(), key=self._channel_service.get_mining_priority)
+                    self._channel_service.prioritize_followed(ordered)
+                    for channel in ordered:
                         if self.can_watch(channel) and self.should_switch(channel):
                             new_watching = channel
                             break
@@ -1007,10 +1028,12 @@ class Twitch:
     def clear_manual_mode(self, reason: str = "") -> bool:
         """Clear manual targeting without changing the state machine.
 
-        Returns whether any manual target was present.
+        Returns whether manual mode or a protected channel pick was active.
         """
+        picked = self._channel_service.picked_channel_id is not None
+        self._channel_service.picked_channel_id = None
         if self._manual_target_channel is None and self._manual_target_game is None:
-            return False
+            return picked
 
         game_name = self._manual_target_game.name if self._manual_target_game else "Unknown"
         logger.info(

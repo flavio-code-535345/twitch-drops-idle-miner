@@ -310,6 +310,9 @@
             "allow_unlinked_campaigns": "Mining toestaan voor campagnes die als niet gekoppeld worden gemeld",
             "allow_unlinked_campaigns_warning": "Waarschuwing: dit omzeilt alleen de controle van TDM op accountkoppeling. Het koppelt geen accounts en garandeert geen Twitch-voortgang, claims of beloningen in het spel. TDM kan geschatte minuten tonen. Controleer je Twitch Drops-inventaris en koppel het juiste spelaccount om beloningen te ontvangen.",
             "allow_unlinked_campaigns_save_error": "De miningoptie voor niet-gekoppelde accounts kon niet worden opgeslagen. Probeer het opnieuw.",
+            "prefer_followed_channels": "Kanalen die ik volg voorrang geven",
+            "prefer_followed_channels_help": "Geef voorrang aan livekanalen die je op Twitch volgt als de prioriteit en beschikbare drops gelijk zijn.",
+            "prefer_followed_channels_save_error": "De optie voor gevolgde kanalen kon niet worden opgeslagen. Probeer het opnieuw.",
             "dump_diagnostics": "Diagnosegegevens opslaan",
             "diagnostics_help": "Slaat de minerstatus zonder identificerende gegevens en recente opgeschoonde API-antwoorden op in data/diagnostics op het gekoppelde gegevensvolume.",
             "diagnostics_saving": "Diagnosegegevens opslaan…",
@@ -324,6 +327,13 @@
             "mining_hours_end": "Einde",
             "mining_hours_save_error": "De miningtijden konden niet worden opgeslagen. Probeer opnieuw.",
             "proxy_save_error": "De proxy kon niet worden opgeslagen. Voer het wachtwoord opnieuw in en probeer het opnieuw.",
+            "notification_events": {
+                "header": "Waarschuw mij bij",
+                "help": "Geldt voor Discord en Telegram, zodra een van beide hieronder is ingesteld.",
+                "drop_claimed": "Geclaimde drops",
+                "new_release": "Nieuwe TwitchDropsMiner-versies (elke 6 uur gecontroleerd)",
+                "save_error": "Meldingskeuzes konden niet worden opgeslagen. Probeer het opnieuw."
+            },
             "discord": {
                 "name": "Discord-meldingen",
                 "description": "Ontvang meldingen op Discord wanneer je drops opent.",
@@ -417,7 +427,12 @@
             "drag_hint": "Sleep games om de volgorde tot een herstart te wijzigen (op touchscreens eerst ingedrukt houden). De mininglijst in Instellingen blijft de standaard.",
             "temporary": "Tijdelijke volgorde tot herstart.",
             "reset": "Terug naar volgorde van de mininglijst",
-            "save_error": "De volgorde van de wachtrij kon niet worden gewijzigd. Probeer het opnieuw."
+            "save_error": "De volgorde van de wachtrij kon niet worden gewijzigd. Probeer het opnieuw.",
+            "order_info": "Waarom staat de wachtrij in deze volgorde?",
+            "order_mining_list": "Games op je mininglijst volgen de opgeslagen volgorde van die lijst.",
+            "order_reward_types": "Games op je mininglijst worden eerst gesorteerd op beloningstype, dan op de vroegste deadline voor dat type en ten slotte op de opgeslagen lijstvolgorde. Wijzig dit via Instellingen → Mining → Beloningstypen.",
+            "order_fallback": "In de standaardvolgorde komen andere geschikte games na de games op je mininglijst.",
+            "order_temporary": "Games in de tijdelijke volgorde komen eerst. Voor de overige games gelden de onderstaande regels."
         },
         "history": {
             "title": "Dropgeschiedenis",

@@ -397,6 +397,56 @@ def test_claim_tools_find_and_claim_stuck_drops(browser, miner):
     assert forced["claimed"] == 1 and stuck.claim_id.endswith("#Stuck")
 
 
+def test_drops_waiting_for_the_account_link_are_neither_stuck_nor_claimed(browser, miner):
+    """Upstream 2.6.0 never claims a game reward before its campaign is linked on Twitch."""
+    from datetime import datetime, timezone
+    from unittest.mock import AsyncMock
+
+    token = token_for(browser)
+    finished = claim_drop("Crate", minutes=60, claim_id=None)
+    announced = claim_drop("Announced crate", minutes=60, claim_id="id-3")
+    in_progress = claim_drop("Crate in progress", minutes=5, claim_id=None)
+    for drop in (finished, announced, in_progress):
+        drop.claim_requires_account_link, drop.can_claim = True, False
+        drop.claim, drop.generate_claim = AsyncMock(return_value=False), AsyncMock()
+    stuck = claim_drop("Stuck", minutes=60, claim_id=None)
+    miner.client.inventory = [SimpleNamespace(
+        name="Unlinked weekend", game=SimpleNamespace(name="Arena Breakout"), upcoming=False,
+        ends_at=datetime(2026, 11, 2, tzinfo=timezone.utc), drops=[finished, announced, in_progress, stuck])]
+
+    _, found = tool(browser, token, "diagnose_claims")
+    rows = {row["drop"]: row for row in found["unclaimed_drops"]}
+    assert list(rows) == ["Crate", "Announced crate", "Stuck"]
+    assert rows["Crate"]["needs_account_link"] is True and rows["Stuck"]["needs_account_link"] is False
+    assert found["waiting_for_account_link"] == 2 and found["complete_but_not_claimable"] == 1
+    _, everything = tool(browser, token, "diagnose_claims", {"include_in_progress": True})
+    assert len(everything["unclaimed_drops"]) == 4 and everything["waiting_for_account_link"] == 2
+
+    _, attempted = tool(browser, token, "claim_drops", {"generate_missing": True})
+    assert [row["drop"] for row in attempted["waiting_for_account_link"]] == ["Crate", "Announced crate"]
+    assert attempted["waiting_for_account_link"][0]["game"] == "Arena Breakout"
+    assert [row["drop"] for row in attempted["results"]] == ["Stuck"] and attempted["claimed"] == 1
+    for drop in (finished, announced, in_progress):
+        drop.generate_claim.assert_not_awaited()
+        drop.claim.assert_not_awaited()
+    assert finished.claim_id is None
+
+
+def test_followed_channel_preference_in_status_and_mining_settings(browser, miner):
+    token = token_for(browser)
+    _, status = tool(browser, token, "get_status")
+    assert status["prefer_followed_channels"] is False
+    miner.client.settings.prefer_followed_channels = True
+    _, status = tool(browser, token, "get_status")
+    assert status["prefer_followed_channels"] is True
+
+    is_error, text = tool(browser, token, "update_mining_settings", {"prefer_followed_channels": "yes"})
+    assert is_error and "prefer_followed_channels" in text
+    _, changed = tool(browser, token, "update_mining_settings", {"prefer_followed_channels": False})
+    assert changed == {"prefer_followed_channels": False}
+    assert miner.updates[-1] == {"prefer_followed_channels": False}
+
+
 def test_set_paused_tool(browser, miner):
     token = token_for(browser)
     miner.client.set_paused = MagicMock()

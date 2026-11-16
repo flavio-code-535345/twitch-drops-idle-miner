@@ -26,8 +26,23 @@ With upstream's **Mining → Reward types** ordering switched on, Games to Watch
 first in your saved order. Fallback and FARM games after them are then sorted by the best
 reward type they offer (earlier deadlines break ties), instead of by deadline alone.
 
+Upstream's **Settings → Mining → Prefer channels I follow** (v2.6.0) only breaks ties
+between live channels that rank the same and offer the same eligible drops. It never moves
+a FARM game ahead of Games to Watch and does not change the queue order.
+
 Farm Mode relies on Twitch's full campaign list. While Twitch withholds that list (see
 below), it cannot discover games outside Games to Watch.
+
+## Drops waiting for the account link
+
+Since upstream 2.6.0 the miner does not claim a drop that includes a game reward while
+Twitch reports its campaign as not linked, because Twitch claims every reward of a drop at
+once. Such a drop keeps its finished progress in Inventory and leaves the Wanted Drops
+Queue; after you link the game account, the next campaign reload that reports the link can
+claim it, up to 24 hours after the campaign ends (see upstream's
+[account-link override](usage.md#account-link-override)). Drops with only badges or emotes
+are still claimed without a link. In this fork the finished state also survives a campaign
+reload that races the claim event, so the drop is not mined again.
 
 ## Campaign Searches log
 
@@ -139,17 +154,20 @@ and change Games to Watch for you.
 Claude can then use these tools:
 
 - **Read:** status and current drop, campaigns (filter by game, status or link state),
-  the wanted queue, tracked channels, settings (without secrets), the Campaign Searches log,
-  drop history and recent log messages. **Diagnose unclaimed drops** lists drops that are
-  complete or claimable and why the last claim attempt failed, plus what the session's integrity
-  proof claims (bot flag, expiry, and whether it matches the device, account and client the
-  requests use; never the proof itself or its IDs).
+  the wanted queue, tracked channels, settings (without secrets, including the followed-channel
+  preference and the alert choices), the Campaign Searches log, drop history and recent log
+  messages. **Diagnose unclaimed drops** lists drops that are complete or claimable and why
+  the last claim attempt failed, plus what the session's integrity proof claims (bot flag,
+  expiry, and whether it matches the device, account and client the requests use; never the
+  proof itself or its IDs). Drops [waiting for the account link](#drops-waiting-for-the-account-link)
+  are counted separately, not as stuck.
 - **Control:** set, add, remove or reorder Games to Watch; change Farm Mode, Priority list
-  only, mining of Not Linked campaigns, reward types or mining hours; reload campaigns;
-  watch a specific channel or return to automatic selection; pause or resume mining; claim
-  ready drops now (**Claim drops now** reports per drop why a claim failed, and can try
-  drops whose minutes are complete but that Twitch never gave a claim ID). These go through
-  the same code as the dashboard controls.
+  only, mining of Not Linked campaigns, preferring followed channels, reward types or mining
+  hours; reload campaigns; watch a specific channel or return to automatic selection; pause
+  or resume mining; claim ready drops now (**Claim drops now** reports per drop why a claim
+  failed, can try drops whose minutes are complete but that Twitch never gave a claim ID,
+  and skips and lists drops waiting for the account link). These go through the same code
+  as the dashboard controls.
 
 The endpoint is `/mcp` on the dashboard's own address, so a reverse proxy that serves the
 dashboard serves it too. It is off until a token exists. The token gives full control of
@@ -162,7 +180,14 @@ if the dashboard is reachable from the internet.
 ## Update notifier
 
 The dashboard footer shows this fork's version and the upstream version it is synced
-with, and flags a newer release of either on GitHub.
+with, and flags a newer release of either on GitHub. This fork's patch releases add a fourth
+number (for example 2.6.0.1), which the footer compares correctly.
+
+Upstream's optional **Settings → Notifications → Notify me about → New TwitchDropsMiner
+versions** alert (Telegram or Discord, checked every six hours) announces upstream releases. In this fork it
+compares them with the upstream version this fork is synced to, not the fork's own
+version, so a fork patch release cannot silence it: an alert means a sync is due. The
+alert's "Installed" line shows the fork's version.
 
 ## Inventory: Use Tracked Games
 

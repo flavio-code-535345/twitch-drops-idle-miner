@@ -1,3 +1,70 @@
+# Release Notes - v2.6.0 (upstream sync)
+
+This release adds an optional preference for channels you follow, new-version
+notifications, and an explanation of the Wanted Drops Queue order. It also fixes
+missed channel switches, repeated claim notifications, and Docker process buildup.
+
+## What this means for the fork
+
+- **Followed channels:** **Prefer channels I follow** only breaks ties between live
+  channels that rank the same and offer the same eligible drops. Farm Mode games, the
+  temporary queue order, reward priorities and the Mining list still decide first, and
+  it never overrides a channel picked by hand (manual mode).
+- **Version footer:** the dashboard checks this fork's releases and upstream's at the
+  same time, through upstream's hardened GitHub lookup (no redirects, bounded response).
+- **New-release alerts:** they announce new upstream TwitchDropsMiner releases and compare
+  them with the upstream version this fork is synced to, so a fork-only patch version
+  (such as 2.6.0.1) cannot silence them. For this fork an alert means a sync is due;
+  "Installed" shows the fork's version.
+- **Account-link waiting:** a drop that finished while its game account is not linked keeps
+  its completion when Inventory refreshes. MCP `diagnose_claims` lists such drops as
+  waiting for the account link instead of stuck, and `claim_drops` skips them.
+- **MCP:** `get_status` and `get_settings` show `prefer_followed_channels`, and
+  `update_mining_settings` can change it. `get_settings` also shows `notification_events`.
+- **Docker:** the init process and direct health probe below apply to this fork's image.
+- **Sign-in helper:** this fork does not build its own helper binaries. Use upstream's
+  matching 2.6.0 helper, or run `python login_helper.py` from a checkout of this fork.
+
+## Mining and the dashboard
+
+- In **Settings → Mining**, enable **Prefer channels I follow** to favour a followed
+  channel when the candidates have the same priority and offer the same eligible
+  drops. TDM checks up to 100 live followed channels, including streams outside
+  the game directory's top results. The option is off by default.
+- Select **ⓘ** next to the **Wanted Drops Queue** to see how the temporary order,
+  saved Mining list, reward priorities, and fallback games affect the queue.
+- TDM rechecks the current channel when it refreshes channels or a watch request
+  fails. If a stream has ended, the miner can switch even when it missed the Twitch
+  offline event. Reconnecting to the dashboard refreshes the full channel list and
+  clears a stale **Now Watching** card when no channel is being watched.
+
+## Notifications and claims
+
+- **Settings → Notifications** has separate choices for claimed drops and new
+  releases. Claim alerts stay on by default. Release alerts are off by default.
+  When enabled and a provider is configured, TDM checks at startup and every
+  six hours. Discord and Telegram track successful deliveries separately, so one
+  provider can retry without repeating a notification already sent by the other.
+- TDM keeps completed unlinked game rewards in Inventory while waiting for
+  Twitch to report the account link. During that time it removes the completed
+  reward from the mining queue and skips the claim and its notification.
+  Drops containing only badges or emotes can still be claimed without linking.
+
+## Docker
+
+- The Docker image runs a built-in init process and invokes its health probe
+  directly. This prevents timed-out probes from leaving behind zombie processes
+  and exhausting the container's process limit.
+
+## Update
+
+- Pull this fork's image again and recreate the container with
+  `docker compose up -d --force-recreate`, keeping the same data mount, settings,
+  timezone and container options. Reload the dashboard to receive the new versioned
+  frontend assets. Existing valid saved sessions do not require a data reset.
+- Automated tests and browser checks do not guarantee Twitch sign-in, future unattended
+  renewal or reward progress. Twitch's Drops inventory remains authoritative.
+
 # Release Notes - v2.5.0 (upstream sync)
 
 This minor release adds temporary queue ordering, reward artwork and live queue

@@ -386,6 +386,7 @@ class MCPServer:
             "farm_mode": bool(getattr(settings, "farm_mode", False)),
             "priority_list_only": bool(getattr(settings, "priority_list_only", True)),
             "allow_unlinked_campaigns": bool(getattr(settings, "allow_unlinked_campaigns", False)),
+            "prefer_followed_channels": bool(getattr(settings, "prefer_followed_channels", False)),
             "mining_hours": getattr(settings, "mining_hours", None),
             "version": {"fork": __version__, "upstream": UPSTREAM_VERSION},
         }
@@ -571,7 +572,7 @@ class MCPServer:
     def update_mining_settings(self, arguments: dict[str, Any]) -> dict[str, Any]:
         _gui, client = self._require()
         changes: dict[str, Any] = {}
-        for name in ("farm_mode", "priority_list_only", "allow_unlinked_campaigns"):
+        for name in ("farm_mode", "priority_list_only", "allow_unlinked_campaigns", "prefer_followed_channels"):
             if (value := _bool_arg(arguments, name)) is not None:
                 changes[name] = value
         if (benefits := arguments.get("mining_benefits")) is not None:
@@ -656,6 +657,9 @@ class MCPServer:
             "minutes_complete": current is not None and bool(required) and current >= required,
             "has_claim_id": drop.claim_id is not None,
             "can_claim": drop.can_claim,
+            # Since upstream 2.6.0 a drop with a game reward from a campaign that is not linked on
+            # Twitch is never claimed: Twitch claims every reward of a drop at once.
+            "needs_account_link": getattr(drop, "claim_requires_account_link", False) is True,
             "campaign_ends_at": campaign.ends_at.isoformat(),
             "last_claim_error": getattr(drop, "last_claim_error", None),
         }
@@ -666,7 +670,14 @@ class MCPServer:
         rows = [self._claim_state(campaign, drop) for campaign, drop in self._claim_candidates(client)]
         if not everything:
             rows = [row for row in rows if row["minutes_complete"] or row["has_claim_id"]]
-        stuck = [row for row in rows if row["minutes_complete"] and not row["can_claim"]]
+        waiting = [
+            row for row in rows
+            if row["needs_account_link"] and (row["minutes_complete"] or row["has_claim_id"])
+        ]
+        stuck = [
+            row for row in rows
+            if row["minutes_complete"] and not row["can_claim"] and not row["needs_account_link"]
+        ]
         from src.auth.integrity_proof import summarize
 
         getter = getattr(client, "session_proof", None)
@@ -674,13 +685,17 @@ class MCPServer:
         return {
             "unclaimed_drops": rows,
             "complete_but_not_claimable": len(stuck),
+            "waiting_for_account_link": len(waiting),
             "session_proof": proof,
             "proof_summary": summarize(proof),
             "note": "complete_but_not_claimable drops have all their minutes but no claim ID: "
-                    "claim_drops with generate_missing tries to claim them anyway. session_proof is what the "
-                    "session's integrity proof claims (bot flag, expiry, and whether it was issued for the device, "
-                    "account and client the requests use); Twitch refuses claims with 'failed integrity check' "
-                    "when it does not accept that proof.",
+                    "claim_drops with generate_missing tries to claim them anyway. waiting_for_account_link "
+                    "drops (needs_account_link) are finished but include a game reward from a campaign that is "
+                    "not linked on Twitch; Twitch claims every reward of a drop at once, so the miner holds them "
+                    "until the game account is linked. They are not stuck, and claim_drops skips them. "
+                    "session_proof is what the session's integrity proof claims (bot flag, expiry, and whether "
+                    "it was issued for the device, account and client the requests use); Twitch refuses claims "
+                    "with 'failed integrity check' when it does not accept that proof.",
         }
 
     async def claim_drops(self, arguments: dict[str, Any]) -> dict[str, Any]:
@@ -688,11 +703,17 @@ class MCPServer:
         wanted = _str_arg(arguments, "drop")
         generate_missing = _bool_arg(arguments, "generate_missing") or False
         results = []
+        waiting = []
         for campaign, drop in list(self._claim_candidates(client)):
             if wanted and wanted.lower() not in drop.name.lower():
                 continue
+            complete = drop.required_minutes > 0 and drop.real_current_minutes >= drop.required_minutes
+            if getattr(drop, "claim_requires_account_link", False) is True:
+                # Never claimable before the link, so no claim ID is generated for it either.
+                if complete or drop.claim_id is not None:
+                    waiting.append({"campaign": campaign.name, "game": campaign.game.name, "drop": drop.name})
+                continue
             if drop.claim_id is None:
-                complete = drop.required_minutes > 0 and drop.real_current_minutes >= drop.required_minutes
                 if not (generate_missing and complete):
                     continue
                 await drop.generate_claim()
@@ -700,7 +721,12 @@ class MCPServer:
                 continue
             claimed = await drop.claim()
             results.append({**self._claim_state(campaign, drop), "claimed": claimed})
-        return {"attempted": len(results), "claimed": sum(1 for r in results if r["claimed"]), "results": results}
+        return {
+            "attempted": len(results),
+            "claimed": sum(1 for r in results if r["claimed"]),
+            "results": results,
+            "waiting_for_account_link": waiting,
+        }
 
     def set_paused(self, arguments: dict[str, Any]) -> dict[str, Any]:
         _gui, client = self._require()
@@ -763,12 +789,15 @@ class MCPServer:
             Tool("diagnose_claims", "Diagnose unclaimed drops",
                  "Unclaimed drops whose minutes are complete or that have a claim ID, with whether they can be "
                  "claimed and why the last claim attempt failed, plus what the session's integrity proof claims "
-                 "(no secrets). Use it to find out why drops stay unclaimed.",
+                 "(no secrets). Drops held until their game account is linked on Twitch are counted as "
+                 "waiting_for_account_link, not as stuck. Use it to find out why drops stay unclaimed.",
                  _schema({"include_in_progress": {"type": "boolean", "description": "Also list drops still being mined"}}),
                  self.diagnose_claims, True),
             Tool("claim_drops", "Claim drops now",
                  "Try to claim ready drops now and report per drop whether it worked and why not. 'generate_missing' "
-                 "also tries drops whose minutes are complete but that Twitch never gave a claim ID.",
+                 "also tries drops whose minutes are complete but that Twitch never gave a claim ID. Drops that "
+                 "wait for their game account to be linked on Twitch are skipped and listed in "
+                 "waiting_for_account_link.",
                  _schema({"drop": {"type": "string", "description": "Case-insensitive part of a drop name"},
                           "generate_missing": {"type": "boolean"}}),
                  self.claim_drops, False),
@@ -792,11 +821,17 @@ class MCPServer:
                  _schema({"game": {"type": "string"}}, ["game"]), self.remove_game_to_watch, False),
             Tool("update_mining_settings", "Update mining settings",
                  "Change Farm Mode, Priority list only, mining of campaigns reported as Not Linked, "
-                 "wanted reward types or mining hours. Only the given settings change.",
+                 "preferring followed channels, wanted reward types or mining hours. Only the given settings "
+                 "change.",
                  _schema({
                      "farm_mode": {"type": "boolean"},
                      "priority_list_only": {"type": "boolean"},
                      "allow_unlinked_campaigns": {"type": "boolean"},
+                     "prefer_followed_channels": {
+                         "type": "boolean",
+                         "description": "Only breaks ties between live channels that rank the same and offer "
+                                        "the same eligible drops",
+                     },
                      "mining_benefits": {
                          "type": "object",
                          "properties": {key: {"type": "boolean"} for key in

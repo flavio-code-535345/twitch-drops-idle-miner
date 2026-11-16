@@ -40,8 +40,9 @@ project's process, not an active process here.
   to upstream's layout. Keep that order when syncing upstream CSS.
 - Diagnosis data (`src/diagnostics.py`, upstream 2.2.2) lists the fork's raw
   `ChannelDropCampaigns` query in `Diagnostics.OPERATIONS` so discovery calls get their own
-  entry, and `_fetch_latest_release` in `src/web/app.py` records both GitHub update checks
-  (`tests/test_diagnostics_fork_queries.py`). Keep both when syncing upstream.
+  entry (`tests/test_diagnostics_fork_queries.py`), and `/api/version` passes the miner's
+  diagnostics to both GitHub lookups so each one is recorded (`tests/test_update_check.py`).
+  Keep both when syncing upstream.
 - `StreamSelector._get_wanted_game_tree` (upstream 2.3 priority fallback) queues Games to
   Watch, then `_append_unlisted_games` (upstream, only when `priority_list_only` is off),
   then the fork's `_append_farm_games`, each skipping games already queued so a game appears
@@ -51,7 +52,11 @@ project's process, not an active process here.
   temporary dashboard order (`TemporaryGameOrder`) is applied after it as a final stable
   sort, so it moves Farm Mode games too. Keep that order when syncing upstream selection
   changes. Queue rows read each drop's `id`, minutes, `progress` and benefit `image_url`
-  since 2.5, so mocked drops in fork tests must set them.
+  since 2.5, and since 2.6 the queue skips drops whose `awaiting_account_link` is truthy, so
+  mocked drops in fork tests must set these (`awaiting_account_link = False`; a bare
+  `MagicMock` attribute is truthy). Upstream 2.6's followed-channel preference only breaks
+  ties between equally ranked channels with the same eligible drops, so it never moves a
+  Farm Mode game ahead of Games to Watch.
 - Upstream 2.3 mining hours and the fork's Campaign Searches log: `_mining_schedule_loop`
   requests the window-opening refresh with `trigger="mining_hours"` and re-broadcasts the
   log at window boundaries; `RefreshLog.snapshot(paused=...)` reports closed windows so the
@@ -71,7 +76,15 @@ project's process, not an active process here.
   `/api/mcp/token` (dashboard token management) keep full dashboard protection. Tools call
   the same managers as the REST API; add new ones in `_build_tools` with a JSON schema and
   `read_only`. `tests/test_mcp_server.py` drives the production app. The official `mcp`
-  Python client (2.3) was verified against it in both auto and legacy modes.
+  Python client (2.3) was verified against it in both auto and legacy modes. Since upstream
+  2.6, `can_claim` is False for every drop with `claim_requires_account_link`, so the claim
+  tools classify by that property (read with `getattr(..., False) is True`, because test
+  drops are `SimpleNamespace`s): `diagnose_claims` reports `needs_account_link` per drop and
+  counts finished ones as `waiting_for_account_link` instead of `complete_but_not_claimable`,
+  and `claim_drops` skips them before `generate_claim` and lists them. `get_status` and
+  `update_mining_settings` cover `prefer_followed_channels`; `get_settings` passes
+  `SettingsManager.get_settings()` through minus secrets, so new upstream settings appear
+  there automatically.
 - Fork settings read by shared code use `getattr(settings, "<name>", default)` (for example
   `farm_mode` in `StreamSelector`), because upstream tests build minimal settings objects
   without fork-only fields.
@@ -95,9 +108,16 @@ project's process, not an active process here.
   semver release pipeline, contributor-credit automation, and PR validation workflow have
   been removed along with their supporting `.github/scripts/`.
 - The `/api/version` endpoint (`src/web/app.py`) and footer UI check two things
-  independently: this fork's own latest GitHub release (compared against `MY_VERSION`)
-  and upstream's latest release (compared against `UPSTREAM_VERSION`), so it's visible
-  in the dashboard when upstream has shipped something not yet merged here.
+  independently and concurrently, both through upstream 2.6's `ReleaseService.fetch_latest`
+  (no redirects, bounded body): this fork's own latest GitHub release (`ForkReleaseService`,
+  compared against `MY_VERSION` with `_is_newer_version`, which accepts a fourth fork
+  component such as 2.6.0.1) and upstream's latest release (compared against
+  `UPSTREAM_VERSION`), so it's visible in the dashboard when upstream has shipped something
+  not yet merged here. Upstream's strict `parse_version`/`is_newer` read only three
+  components, so never compare fork versions with them. Tests: `tests/test_update_check.py`.
+- Upstream code that compares against `__version__` must use `UPSTREAM_VERSION` in this fork
+  whenever it means "the upstream release we run": `MY_VERSION` can gain a fourth component
+  that upstream's version formats reject.
 
 ## Mandatory Contribution Workflow
 
@@ -275,6 +295,16 @@ lang/                # Translation JSON files (20 languages)
   Keep confirmed bans and expiry callbacks across cache recovery until expiry or a
   confirmed null response. Cancel callbacks and clear account-owned ban state on
   identity replacement and shutdown.
+- Offline detection must not rely only on `stream-down`: a reconnect can lose the event
+  and full cleanup drops topics of channels missing from a game's top 20 directory results.
+  `ChannelService.refresh_watched_channel()` rechecks the watched channel in CHANNELS_FETCH
+  and keeps it tracked while online. A newer observation takes precedence over the earlier
+  discovery snapshot for that channel, preserving its campaign allowlist membership and
+  same-broadcast drop eligibility. A failed watch of the current stream calls `check_online()`.
+  `Channel.refresh_stream()` bounds both checks and preserves known state on an errored
+  response or timeout. A newer stream update invalidates older replies. Keep delayed
+  checks cancellable through the lookup and cancel them when retiring channel topics.
+  Regression: `tests/test_watched_channel_recovery.py`.
 
 **src/models/campaign.py** - Drop campaigns:
 
@@ -325,6 +355,10 @@ lang/                # Translation JSON files (20 languages)
 
 - REST API endpoints: `/api/status`, `/api/channels`, `/api/campaigns`, `/api/settings`, `/api/session`, `/api/session/finish`, `/api/session/retry`, `/api/session/logout`, `/api/session/vnc`, `/api/reload`, `/api/cache/clear`, `/api/close`, `/api/version`, `/api/history`, `/api/history/export.csv`, `/api/history/stats`
 - Socket.IO server for real-time bi-directional communication
+- The dashboard replaces its channel list on Socket.IO reconnect and batch updates.
+  Idle cleanup with no wanted games cancels retired channels' delayed online checks
+  before clearing the list. REST and reconnect snapshots derive the watching flag
+  from the manager's current watched channel ID.
 - Serves static web frontend from `web/` directory
 - Integrates with WebGUIManager via `set_managers()`
 - The Settings **Clear All Cache** action discards local campaign, channel, and other
@@ -440,6 +474,11 @@ lang/                # Translation JSON files (20 languages)
   Long additional reward names must wrap within the artwork row's information column
   rather than overflowing into the card's clipped area.
   Regression: `test_wanted_queue_frontend.py` and `test_wanted_items.py`.
+- The queue title's ⓘ button uses `aria-expanded` to control the ordering help.
+  `renderWantedOrderInfo()` describes the temporary order first, then the default saved
+  list, reward priority and fallback tiers. The temporary order can place a fallback
+  game first. Keep the text in step with `StreamSelector._get_wanted_game_tree()` and
+  the `gui.wanted.order_*` strings in every locale.
 - Mining list supports drag ordering and editable integer priority numbers. Clamp valid
   ranks to the list bounds; reject blank/fractional values without changing settings.
   Keep priority and remove-control labels translated and accessible. Regression tests in
@@ -487,6 +526,28 @@ lang/                # Translation JSON files (20 languages)
   change lines, language switching and broadcasts run only after a successful save.
   Regressions: `test_rejected_update_writes_prints_and_saves_nothing` and
   `test_failed_save_restores_every_field_and_defers_effects`.
+- Persist `mining_opt_ins_revision` atomically with the account-link override and
+  followed-channel option. Return both flags and the revision together. The dashboard
+  accepts complete non-stale snapshots so late POST or socket updates cannot revert
+  another tab's setting. Regressions live in `test_followed_channels*.py`.
+- `prefer_followed_channels` defaults false and accepts only booleans,
+  validated before any write; changes request a games update. When true,
+  `ChannelService.get_followed_live_channels(known_ids)` runs during CHANNELS_FETCH
+  under one 30-second bound: the raw `FOLLOWED_LIVE_QUERY` (`currentUser.followedLiveUsers`,
+  first 100, no pagination), batched stream info for channels not already tracked, and
+  a per-channel AvailableDrops check. Follow-only candidates require positive drop
+  evidence on discovery and later stream checks. The normal watched-stream refresh
+  and ban filtering still run. Apply the follow tie-break only between channels with
+  equal mining and ACL priority and equal sets of eligible (campaign ID, drop ID)
+  pairs. Keep the existing selection order between different reward sets. Manual
+  mode and a current hand-picked channel disable the tie-break. A manual reset,
+  stop, account reset or watching another channel ends hand-pick protection.
+  Failed follow or batch stream results leave the current follow set in place.
+  Failed individual drop checks skip unverified candidates. `ExitRequest` propagates,
+  and in-flight results are discarded after account reset or disabling the setting.
+  Raw GraphQL debugging is suppressed for the optional lookup and its child
+  requests. Tests: `test_followed_channels.py` and
+  `test_followed_channels_frontend.py`.
 - Drop-name ignore list (`drop_name_blacklist`), empty by default. Entries are literal,
   case-insensitive substrings entered one per line; whitespace and blanks are removed and
   duplicates are casefolded while preserving the first spelling/order.
@@ -505,6 +566,13 @@ lang/                # Translation JSON files (20 languages)
   timing, ACL/category, Mining list, prerequisites, claims, and ignore checks.
   Changes trigger game selection refresh. Keep the warning and save-failure feedback
   translated and safely rendered. Estimated minutes do not prove Twitch progress.
+- Automatic claims check Twitch's campaign link status independently of the mining
+  override. Only a nonempty drop containing exclusively badges/emotes can be claimed
+  while unlinked. Completed, link-deferred drops stay unclaimed in Inventory and leave
+  the Wanted Drops Queue. Their prerequisite dependents still require a successful
+  claim. A claim-ready websocket event preserves the claim ID and updates completion
+  without triggering post-claim polling, history or notifications. A later linked
+  inventory can claim the reward within the existing automatic-claim window.
 - Zero-minute subscription rewards are omitted from Inventory and Wanted Drops Queue;
   individually expired and non-mineable rewards are omitted from the queue without hiding
   upcoming or sequential rewards; successful claims refresh the queue immediately; the
@@ -577,8 +645,12 @@ lang/                # Translation JSON files (20 languages)
   claim handler applies a claim that finished on a replaced object to the current one. A
   claim event for an unknown drop requests an inventory refresh so the sweep claims it.
   `DropsCampaign.first_drop` prefers drops still gaining minutes over finished ones
-  awaiting a claim, so progress shows the drop actually being mined. Tests:
-  `tests/test_claim_state_consistency.py`.
+  awaiting a claim, so progress shows the drop actually being mined. Since upstream 2.6,
+  `adopt_claim` also carries `_claim_completion_observed` over (set by
+  `defer_claim_until_account_link` when a claim-ready event arrives for a drop that waits
+  for the account link), so a refresh built from older data cannot make that drop earnable
+  again. The fork's `BaseDrop._claim` records the account-link reason in `last_claim_error`
+  for those drops. Tests: `tests/test_claim_state_consistency.py`.
 - The Telegram form reuses the saved token when its input is blank. Clearing the chat ID
   and saving disables alerts. Test Connection waits for settings persistence before showing
   success; HTTP, network, and application save failures must remain visible as errors.
@@ -597,6 +669,25 @@ lang/                # Translation JSON files (20 languages)
   mutation; restore the previous webhook on save failure. API validation errors must
   not echo submitted settings. Test Connection reports success only after saving.
   Preserve localized safe Help rendering and `tests/test_discord_*` coverage.
+- `notification_events` (`NotificationEventSettings`) selects alert events for both
+  providers: `drop_claimed` (default true) and `new_release` (default false). Only an
+  explicit `drop_claimed: false` suppresses claim alerts; settings problems never block a
+  claim. Partial updates merge; unknown keys or non-booleans fail before any write.
+  Persist the event revision with the choices so late settings responses or broadcasts
+  cannot overwrite newer choices in the dashboard.
+  `ReleaseService` (`src/services/release_service.py`) owns the GitHub latest-release
+  lookup for `/api/version` and the account-independent check task started in
+  `Twitch.run()` (startup, then every six hours). Read bodies through
+  `Diagnostics.read_bounded()`, compare versions numerically, link only to this
+  repository's matching release tag page, and persist each provider's highest
+  accepted version atomically in `last_notified_releases`. Provider failures retry
+  independently. Recheck the opt-in and provider settings after fetching from GitHub.
+  Keep delivery state in server settings only. Coverage: `tests/test_release_notifications.py`.
+  Fork: the alerts watch upstream's releases. `ReleaseService.is_newer` defaults to
+  `UPSTREAM_VERSION` instead of `__version__`, so an alert means a sync is due and a fork-only
+  fourth component in `MY_VERSION` cannot silence it; the alert's "Installed" line still shows
+  `__version__`. `ForkReleaseService` (this fork's releases, fourth component allowed) serves
+  only `/api/version`.
 - `tests/test_telegram_frontend.py`, `tests/test_telegram_api.py`, and
   `tests/test_telegram_integration.py` cover translated Help rendering, stored credentials,
   failed saves, disabling, all shared claim paths, and transport failures without sending
@@ -1242,6 +1333,11 @@ The application uses a web-based interface accessible via browser:
 - Installs dependencies from `pyproject.toml`, then removes installed pip and its vendored
   modules; Python's bundled `ensurepip` bootstrap wheel remains. Dependency changes
   require rebuilding the image.
+- Runs under `tini` as its entrypoint so orphans such as browser helpers are reaped
+  even without Docker's `--init`. Python must not become PID 1: it never reaps orphans,
+  and the zombies eventually exhaust the container's task limit (issue #212). Keep the
+  HEALTHCHECK in exec form so a timeout kills the probe rather than orphaning it.
+  Regression: `tests/test_dockerfile_init.py`.
 - Exposes port 8080
 - Health check on the public `/healthz` endpoint
 

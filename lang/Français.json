@@ -310,6 +310,9 @@
             "allow_unlinked_campaigns": "Autoriser le minage des campagnes signalées comme non liées",
             "allow_unlinked_campaigns_warning": "Attention : ceci contourne uniquement la vérification de liaison de TDM. Cela ne lie pas les comptes et ne garantit ni progression Twitch, ni récupération, ni récompenses en jeu. TDM peut afficher des minutes estimées. Vérifiez votre inventaire de Drops Twitch et liez le bon compte de jeu pour recevoir les récompenses.",
             "allow_unlinked_campaigns_save_error": "Impossible d’enregistrer l’option de minage des comptes non liés. Réessayez.",
+            "prefer_followed_channels": "Privilégier les chaînes que je suis",
+            "prefer_followed_channels_help": "À priorité et drops identiques, les chaînes en direct que vous suivez sur Twitch sont privilégiées.",
+            "prefer_followed_channels_save_error": "Impossible d'enregistrer l'option des chaînes suivies. Veuillez réessayer.",
             "dump_diagnostics": "Enregistrer les données de diagnostic",
             "diagnostics_help": "Enregistre l’état désidentifié du mineur et les réponses récentes des API, expurgées, dans data/diagnostics sur votre volume de données monté.",
             "diagnostics_saving": "Enregistrement des données de diagnostic…",
@@ -324,6 +327,13 @@
             "mining_hours_end": "Fin",
             "mining_hours_save_error": "Impossible d’enregistrer les horaires. Réessayez.",
             "proxy_save_error": "Impossible d’enregistrer le proxy. Saisissez à nouveau son mot de passe et réessayez.",
+            "notification_events": {
+                "header": "Me notifier pour",
+                "help": "S’applique à Discord et Telegram, dès que l’un d’eux est configuré ci-dessous.",
+                "drop_claimed": "Drops récupérés",
+                "new_release": "Nouvelles versions de TwitchDropsMiner (vérifié toutes les 6 heures)",
+                "save_error": "Impossible d’enregistrer les choix de notification. Veuillez réessayer."
+            },
             "discord": {
                 "name": "Notifications Discord",
                 "description": "Recevez des notifications sur Discord lorsque vous réclamez des drops.",
@@ -417,7 +427,12 @@
             "drag_hint": "Faites glisser les jeux pour changer l’ordre jusqu’au redémarrage (sur écran tactile, maintenez d’abord appuyé). La liste de minage dans les Paramètres reste l’ordre par défaut.",
             "temporary": "Ordre temporaire jusqu’au redémarrage.",
             "reset": "Revenir à l’ordre de la liste de minage",
-            "save_error": "Impossible de modifier l’ordre de la file. Veuillez réessayer."
+            "save_error": "Impossible de modifier l’ordre de la file. Veuillez réessayer.",
+            "order_info": "Pourquoi la file est-elle dans cet ordre ?",
+            "order_mining_list": "Les jeux de votre liste de minage suivent l’ordre enregistré.",
+            "order_reward_types": "Les jeux de votre liste de minage sont triés par type de récompense, puis par échéance la plus proche pour ce type et enfin selon l’ordre enregistré de la liste. Vous pouvez modifier ce tri dans Paramètres → Minage → Types de récompenses.",
+            "order_fallback": "Dans l’ordre par défaut, les autres jeux éligibles passent après ceux de la liste de minage.",
+            "order_temporary": "Les jeux inclus dans l’ordre temporaire passent en premier. Les autres suivent les règles ci-dessous."
         },
         "history": {
             "title": "Historique des drops",

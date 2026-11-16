@@ -27,7 +27,9 @@ def _make_cache_test_client() -> tuple[Any, dict[str, object], MagicMock, MagicM
     }
     auth_state = MagicMock(name="auth_state")
     game = SimpleNamespace(name="Game A")
-    channel = SimpleNamespace(id=123, name="channel-a", game=game)
+    channel = SimpleNamespace(
+        id=123, name="channel-a", game=game, cancel_online_check=MagicMock(),
+    )
 
     twitch.settings = settings
     twitch._auth_state = auth_state
@@ -42,6 +44,7 @@ def _make_cache_test_client() -> tuple[Any, dict[str, object], MagicMock, MagicM
     twitch._watching_restart = asyncio.Event()
     twitch._manual_target_channel = channel
     twitch._manual_target_game = game
+    twitch._channel_service = SimpleNamespace(picked_channel_id=channel.id)
 
     twitch.websocket = MagicMock(name="websocket")
     twitch.gui = SimpleNamespace(
@@ -70,6 +73,7 @@ def test_clear_cached_state_discards_only_derived_runtime_state():
     settings_snapshot = settings.copy()
     original_settings = twitch.settings
     original_auth_state = twitch._auth_state
+    channel = twitch.channels[123]
 
     InventoryService(twitch).clear_cached_state()
 
@@ -83,6 +87,7 @@ def test_clear_cached_state_discards_only_derived_runtime_state():
     assert twitch._watching_restart.is_set()
     assert twitch._manual_target_channel is None
     assert twitch._manual_target_game is None
+    assert twitch._channel_service.picked_channel_id is None
     assert twitch._mnt_task is None
 
     twitch.gui.clear_drop.assert_called_once_with()
@@ -95,6 +100,7 @@ def test_clear_cached_state_discards_only_derived_runtime_state():
     twitch.gui.broadcast_wanted_items.assert_called_once_with()
     twitch.gui.broadcast_manual_mode_change.assert_called_once_with({"active": False})
     maintenance_task.cancel.assert_called_once_with()
+    channel.cancel_online_check.assert_called_once_with()
     twitch.websocket.remove_topics.assert_called_once_with(
         [
             WebsocketTopic.as_str("Channel", "StreamState", 123),

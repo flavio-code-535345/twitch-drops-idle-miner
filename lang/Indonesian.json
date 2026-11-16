@@ -310,6 +310,9 @@
             "allow_unlinked_campaigns": "Izinkan penambangan kampanye yang dilaporkan Tidak Tertaut",
             "allow_unlinked_campaigns_warning": "Peringatan: Ini hanya melewati pemeriksaan tautan akun TDM. Ini tidak menautkan akun atau menjamin progres Twitch, klaim, atau hadiah dalam game. TDM dapat menampilkan perkiraan menit. Periksa inventaris Drops Twitch dan tautkan akun game yang benar untuk menerima hadiah.",
             "allow_unlinked_campaigns_save_error": "Tidak dapat menyimpan opsi penambangan akun tidak tertaut. Silakan coba lagi.",
+            "prefer_followed_channels": "Utamakan saluran yang saya ikuti",
+            "prefer_followed_channels_help": "Jika saluran siaran langsung memiliki prioritas dan drop yang sama, dahulukan saluran yang Anda ikuti di Twitch.",
+            "prefer_followed_channels_save_error": "Tidak dapat menyimpan opsi saluran yang diikuti. Silakan coba lagi.",
             "dump_diagnostics": "Simpan data diagnosis",
             "diagnostics_help": "Menyimpan status miner tanpa identitas dan respons API terbaru yang telah disanitasi ke data/diagnostics pada volume data yang terpasang.",
             "diagnostics_saving": "Menyimpan data diagnosis…",
@@ -324,6 +327,13 @@
             "mining_hours_end": "Selesai",
             "mining_hours_save_error": "Gagal menyimpan jam mining. Coba lagi.",
             "proxy_save_error": "Proxy tidak dapat disimpan. Masukkan ulang kata sandinya, lalu coba lagi.",
+            "notification_events": {
+                "header": "Beri tahu saya tentang",
+                "help": "Berlaku untuk Discord dan Telegram, setelah salah satunya diatur di bawah.",
+                "drop_claimed": "Drop yang diklaim",
+                "new_release": "Versi baru TwitchDropsMiner (diperiksa setiap 6 jam)",
+                "save_error": "Tidak dapat menyimpan pilihan notifikasi. Silakan coba lagi."
+            },
             "discord": {
                 "name": "Notifikasi Discord",
                 "description": "Terima notifikasi di Discord saat kamu mengklaim drop.",
@@ -417,7 +427,12 @@
             "drag_hint": "Seret game untuk mengubah urutan hingga dimulai ulang (di layar sentuh, tekan dan tahan terlebih dahulu). Daftar mining di Parameter tetap menjadi default.",
             "temporary": "Urutan sementara hingga dimulai ulang.",
             "reset": "Kembalikan ke urutan daftar mining",
-            "save_error": "Tidak dapat mengubah urutan antrean. Silakan coba lagi."
+            "save_error": "Tidak dapat mengubah urutan antrean. Silakan coba lagi.",
+            "order_info": "Mengapa antrean dalam urutan ini?",
+            "order_mining_list": "Game dalam daftar mining Anda mengikuti urutan yang tersimpan.",
+            "order_reward_types": "Game dalam daftar mining Anda diurutkan berdasarkan jenis hadiah, lalu tenggat terdekat untuk jenis tersebut, lalu urutan daftar yang tersimpan. Ubah pengurutan ini di Parameter → Penambangan → Jenis hadiah.",
+            "order_fallback": "Dalam urutan bawaan, game lain yang memenuhi syarat ditempatkan setelah game dalam daftar mining.",
+            "order_temporary": "Game dalam urutan sementara didahulukan. Game lainnya mengikuti aturan di bawah ini."
         },
         "history": {
             "title": "Riwayat Drop",

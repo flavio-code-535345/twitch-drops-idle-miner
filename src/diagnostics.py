@@ -240,15 +240,22 @@ class Diagnostics:
             self.record(endpoint, payload, status=status,
                         body_bytes=len(body) if body is not None else None)
 
-    async def capture_http(self, method: str, url: str, response: Any) -> None:
-        """For otherwise unread responses, consume at most one byte over the capture limit."""
+    @classmethod
+    async def read_bounded(cls, response: Any) -> bytes:
+        """Read at most one byte over the capture limit, so oversized bodies are detectable."""
         body = bytearray()
-        while len(body) <= self.MAX_BODY_BYTES:
-            chunk = await response.content.read(min(65536, self.MAX_BODY_BYTES + 1 - len(body)))
+        while len(body) <= cls.MAX_BODY_BYTES:
+            chunk = await response.content.read(min(65536, cls.MAX_BODY_BYTES + 1 - len(body)))
             if not chunk:
                 break
             body.extend(chunk)
-        self.record_http(method, url, response.status, body=bytes(body))
+        return bytes(body)
+
+    async def capture_http(self, method: str, url: str, response: Any) -> bytes:
+        """Record an otherwise unread response and return its bounded body."""
+        body = await self.read_bounded(response)
+        self.record_http(method, url, response.status, body=body)
+        return body
 
     def snapshot(self, twitch: Twitch, browser: dict[str, Any] | None = None) -> dict[str, Any]:
         settings = twitch.settings
@@ -298,6 +305,7 @@ class Diagnostics:
             "settings": {
                 "language": settings.language if settings.language in self.LOCALES else self.reference(settings.language),
                 "allow_unlinked_campaigns": self.flag(settings.allow_unlinked_campaigns),
+                "prefer_followed_channels": self.flag(getattr(settings, "prefer_followed_channels", False)),
                 "dark_mode": self.flag(settings.dark_mode),
                 "inventory_list_view": self.flag(settings.inventory_list_view),
                 "connection_quality": self.number(settings.connection_quality),

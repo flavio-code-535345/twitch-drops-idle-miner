@@ -92,6 +92,18 @@ If the channel becomes unavailable, TDM tries another eligible channel for that 
 Use **Return to Auto Mode** to resume normal game priorities. Manual mode also ends
 when its game has no remaining eligible drops or no suitable channel is available.
 
+### Prefer channels you follow
+
+**Settings → Mining → Prefer channels I follow** is available in v2.6.0 and later
+and is off by default. When on, TDM looks up live channels your Twitch account
+follows, including channels outside each game's top directory results, and
+verifies their drop eligibility with Twitch. The
+preference breaks ties between channels with the same mining priority, campaign
+allowlist priority, and currently eligible drops. Your Mining list, temporary
+queue order and reward settings still take precedence. A manually chosen channel
+is protected from the follow tie-break while it stays selected. TDM checks up to
+100 live followed channels each time it reloads channels.
+
 ### Special Events and IRL campaigns
 
 Include the campaign's category in **Mining list**. These campaigns can progress
@@ -150,6 +162,9 @@ order**, or changing **Mining list** (in Settings or with **Add to mining list**
 Inventory) returns to the saved order. To change the default order permanently, use
 **Settings → Games → Mining list**.
 
+Starting in v2.6.0, select **ⓘ** next to the queue title to see which rules currently
+set its order. Games outside the temporary order use the default rules.
+
 ## Account-link override
 
 In **Settings → Mining**, **Allow mining campaigns reported as Not Linked** is off by default.
@@ -164,6 +179,13 @@ in-game rewards. TDM can display estimated minutes even without confirmed Twitch
 progress. Check your [Twitch Drops inventory](https://www.twitch.tv/drops/inventory)
 and link the correct game account to receive rewards. Do not unlink accounts just
 to troubleshoot a reported status disagreement.
+
+TDM waits for Twitch to report the campaign as linked before automatically claiming
+completed game rewards. The mining override applies only to watching. Completed rewards
+waiting for a link stay visible in Inventory and leave the Wanted Drops Queue. TDM can
+claim them after an inventory refresh reports the link, up to 24 hours after the
+campaign ends. Drops containing only Twitch badges or emotes can be claimed without
+linking.
 
 ## Ignore unwanted reward names
 

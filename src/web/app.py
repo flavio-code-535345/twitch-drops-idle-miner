@@ -91,6 +91,7 @@ class SettingsUpdate(BaseModel):
     dark_mode: bool | None = None
     language: str | None = None
     priority_list_only: bool | None = None
+    prefer_followed_channels: StrictBool | None = None
     reward_priority: list[str] | None = None
     proxy: str | None = None
     connection_quality: int | None = None
@@ -104,6 +105,7 @@ class SettingsUpdate(BaseModel):
     mining_benefits: dict[str, bool] | None = None
     farm_mode: bool | None = None
     mining_hours: dict | None = None
+    notification_events: dict[str, StrictBool] | None = None
 
     @field_validator("reward_priority")
     @classmethod
@@ -412,31 +414,10 @@ async def test_telegram(request: TelegramTestRequest):
         return {"success": False, "message": "Telegram connection failed."}
 
 
-async def _fetch_latest_release(session, repo: str) -> tuple[str | None, str | None]:
-    """Return (tag version without leading 'v', release html_url) for a repo's latest release."""
-    url = f"https://api.github.com/repos/{repo}/releases/latest"
-    try:
-        async with session.get(url, timeout=5) as response:
-            if response.status != 200:
-                if twitch_client is not None:
-                    twitch_client.diagnostics.record_http("GET", url, response.status)
-                return None, None
-            data = await response.json()
-            if twitch_client is not None:
-                twitch_client.diagnostics.record_http("GET", url, response.status, payload=data)
-            return data.get("tag_name", "").lstrip("v") or None, data.get("html_url")
-    except Exception as error:
-        if twitch_client is not None:
-            twitch_client.diagnostics.record(
-                "github_version",
-                outcome="timeout" if isinstance(error, TimeoutError) else "connection",
-            )
-        raise
-
-
 def _is_newer_version(candidate: str | None, current: str) -> bool:
     # Compare numerically: as plain strings "1.3.10" < "1.3.9", hiding real updates and
-    # reporting false ones once any version component reaches two digits.
+    # reporting false ones once any version component reaches two digits. Unlike
+    # ReleaseService.is_newer, this accepts the fork's fourth version component (2.6.0.1).
     try:
         return candidate is not None and (
             tuple(map(int, candidate.split("."))) > tuple(map(int, current.split(".")))
@@ -448,49 +429,25 @@ def _is_newer_version(candidate: str | None, current: str) -> bool:
 @app.get("/api/version")
 async def get_version():
     """Get current application version and check for updates, for both this fork and upstream"""
-    import aiohttp
+    from src.services.release_service import ForkReleaseService, ReleaseService
 
-    from src.version import UPSTREAM_VERSION, __version__
-
-    current_version = __version__
-    latest_version = None
-    update_available = False
-    download_url = None
-
-    upstream_version = UPSTREAM_VERSION
-    upstream_latest_version = None
-    upstream_update_available = False
-    upstream_url = None
-
-    async with aiohttp.ClientSession() as session:
-        try:
-            latest_version, download_url = await _fetch_latest_release(
-                session, "flavio-code-535345/twitch-drops-idle-miner"
-            )
-            update_available = _is_newer_version(latest_version, current_version)
-        except Exception as e:
-            logger.warning(f"Failed to check for updates: {str(e)}")
-
-        try:
-            upstream_latest_version, upstream_url = await _fetch_latest_release(
-                session, "rangermix/TwitchDropsMiner"
-            )
-            upstream_update_available = _is_newer_version(
-                upstream_latest_version, upstream_version
-            )
-        except Exception as e:
-            logger.warning(f"Failed to check for upstream updates: {str(e)}")
-
+    diagnostics = twitch_client.diagnostics if twitch_client is not None else None
+    # Fork: this fork's own releases and upstream's are checked independently, so the
+    # dashboard also shows when upstream has shipped something not yet merged here.
+    release, upstream = await asyncio.gather(
+        ForkReleaseService.fetch_latest(diagnostics), ReleaseService.fetch_latest(diagnostics)
+    )
     return {
-        "current_version": current_version,
-        "latest_version": latest_version,
-        "update_available": update_available,
-        "download_url": download_url
-        or "https://github.com/flavio-code-535345/twitch-drops-idle-miner/releases",
-        "upstream_version": upstream_version,
-        "upstream_latest_version": upstream_latest_version,
-        "upstream_update_available": upstream_update_available,
-        "upstream_url": upstream_url or "https://github.com/rangermix/TwitchDropsMiner/releases",
+        "current_version": __version__,
+        "latest_version": release.version if release else None,
+        "update_available": release is not None
+        and _is_newer_version(release.version, __version__),
+        "download_url": release.url if release else ForkReleaseService.RELEASES_URL,
+        "upstream_version": UPSTREAM_VERSION,
+        "upstream_latest_version": upstream.version if upstream else None,
+        "upstream_update_available": upstream is not None
+        and ReleaseService.is_newer(upstream.version, UPSTREAM_VERSION),
+        "upstream_url": upstream.url if upstream else ReleaseService.RELEASES_URL,
     }
 
 

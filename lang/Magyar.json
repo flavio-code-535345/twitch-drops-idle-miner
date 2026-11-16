@@ -265,6 +265,9 @@
             "allow_unlinked_campaigns": "A nem összekapcsoltként jelzett kampányok bányászatának engedélyezése",
             "allow_unlinked_campaigns_warning": "Figyelem: Ez csak a TDM fiók-összekapcsolási ellenőrzését kerüli meg. Nem kapcsol össze fiókokat, és nem garantál Twitch-előrehaladást, igénylést vagy játékon belüli jutalmakat. A TDM becsült perceket jeleníthet meg. Ellenőrizd a Twitch Drops-készletedet, és kapcsold össze a megfelelő játékfiókot a jutalmak átvételéhez.",
             "allow_unlinked_campaigns_save_error": "Nem sikerült menteni a fiók-összekapcsolási bányászati beállítást. Próbáld újra.",
+            "prefer_followed_channels": "Követett csatornák előnyben",
+            "prefer_followed_channels_help": "Azonos prioritás és azonos dropok esetén a Twitchen követett élő csatornák kerülnek előre.",
+            "prefer_followed_channels_save_error": "Nem sikerült menteni a követett csatornák beállítását. Próbáld újra.",
             "dump_diagnostics": "Diagnosztikai adatok mentése",
             "diagnostics_help": "Az azonosítóktól megtisztított bányászállapotot és a legutóbbi szűrt API-válaszokat a csatolt adatkötet data/diagnostics mappájába menti.",
             "diagnostics_saving": "Diagnosztikai adatok mentése…",
@@ -279,6 +282,13 @@
             "mining_hours_end": "Vége",
             "mining_hours_save_error": "A bányászati idő nem menthető. Próbáld újra.",
             "proxy_save_error": "A proxy mentése nem sikerült. Add meg újra a jelszavát, és próbáld újra.",
+            "notification_events": {
+                "header": "Értesítés ezekről",
+                "help": "Discordra és Telegramra vonatkozik, ha valamelyik be van állítva lent.",
+                "drop_claimed": "Begyűjtött dropok",
+                "new_release": "Új TwitchDropsMiner verziók (6 óránként ellenőrizve)",
+                "save_error": "Az értesítési beállítások mentése sikertelen. Próbáld újra."
+            },
             "discord": {
                 "name": "Discord értesítések",
                 "description": "Értesítést kapsz Discordon, amikor lehozod a dropokat.",
@@ -372,7 +382,12 @@
             "drag_hint": "Húzd a játékokat a sorrend módosításához az újraindításig (érintőképernyőn előbb tartsd lenyomva). A Beállítások bányászati listája marad az alapértelmezett.",
             "temporary": "Ideiglenes sorrend az újraindításig.",
             "reset": "Visszaállítás a bányászati lista sorrendjére",
-            "save_error": "Nem sikerült módosítani a sor sorrendjét. Próbáld újra."
+            "save_error": "Nem sikerült módosítani a sor sorrendjét. Próbáld újra.",
+            "order_info": "Miért ilyen a sor sorrendje?",
+            "order_mining_list": "A bányászati listádon szereplő játékok a lista mentett sorrendjét követik.",
+            "order_reward_types": "A bányászati listádon szereplő játékokat először a jutalom típusa, majd az adott típus legkorábbi határideje, végül a lista mentett sorrendje szerint rendezzük. Ezt a Beállítások → Bányászat → Jutalomtípusok alatt módosíthatod.",
+            "order_fallback": "Az alapértelmezett sorrendben a többi jogosult játék a bányászati lista játékai után következik.",
+            "order_temporary": "Az ideiglenes sorrendbe sorolt játékok kerülnek előre. A többi játékra az alábbi szabályok vonatkoznak."
         },
         "inventory": {
             "no_campaigns": "Még nincs betöltött kampány...",

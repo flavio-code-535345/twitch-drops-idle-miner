@@ -37,6 +37,27 @@ def test_adopt_claim_keeps_an_earlier_claim_and_claim_id():
     assert fresh.current_minutes == 300
 
 
+def test_adopt_claim_keeps_a_completion_that_waits_for_the_account_link():
+    # Fork: Twitch reported the drop finished, but its campaign is not linked, so the drop is held
+    # unclaimed. A refresh built from data fetched just before must not make it earnable again.
+    previous_campaign = _campaign("c", [_drop("d5", "Drop 5", 300)])
+    previous_campaign.linked = False
+    previous = previous_campaign.timed_drops["d5"]
+    previous.update_claim("instance-5")
+    previous.defer_claim_until_account_link()
+    assert previous.awaiting_account_link
+    stale = _campaign("c", [_claimed_copy(_drop("d5", "Drop 5", 300), claimed=False, minutes=296, instance=None)])
+    stale.linked = False
+    fresh = stale.timed_drops["d5"]
+    assert not fresh.awaiting_account_link
+
+    fresh.adopt_claim(previous)
+
+    assert fresh.awaiting_account_link and not fresh.is_claimed
+    assert fresh.claim_id == "instance-5" and fresh.current_minutes == 300
+    assert not fresh.can_earn()
+
+
 def test_adopt_claim_never_unclaims():
     previous = _campaign("c", [_drop("d5", "Drop 5", 300)]).timed_drops["d5"]
     fresh = _campaign("c", [_claimed_copy(_drop("d5", "Drop 5", 300), claimed=True, minutes=300, instance="i")])
