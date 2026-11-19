@@ -104,6 +104,7 @@ class SettingsUpdate(BaseModel):
     inventory_list_view: bool | None = None
     mining_benefits: dict[str, bool] | None = None
     farm_mode: bool | None = None
+    idle_watch_games: list[str] | None = None
     mining_hours: dict | None = None
     notification_events: dict[str, StrictBool] | None = None
 

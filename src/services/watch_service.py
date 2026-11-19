@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, NoReturn
 from src.config import CALL, GQL_OPERATIONS, WATCH_INTERVAL
 from src.exceptions import GQLException
 from src.i18n import _
+from src.services.channel_service import idle_watch_rank
 from src.utils import task_wrapper
 
 
@@ -62,6 +63,8 @@ class WatchService:
 
         Campaign eligibility enforces the game match, with a cross-category
         exception for participating channels in special-category campaigns.
+        Fork Watch when idle: a channel streaming a listed category also qualifies;
+        it ranks after every drop channel (see ``ChannelService.get_priority``).
 
         Args:
             channel: The channel to evaluate
@@ -69,11 +72,13 @@ class WatchService:
         Returns:
             True if the channel can be watched, False otherwise
         """
-        wanted_games = self._twitch.wanted_games
-        if not wanted_games or not channel.online or channel.banned:
+        if not channel.online or channel.banned:
             return False
+        return self._can_mine(channel) or idle_watch_rank(self._twitch, channel) is not None
 
-        return any(
+    def _can_mine(self, channel: Channel) -> bool:
+        wanted_games = self._twitch.wanted_games
+        return bool(wanted_games) and any(
             # Respect the user's selection using the campaign's category.
             campaign.game in wanted_games
             and campaign.can_earn(channel)
@@ -81,6 +86,23 @@ class WatchService:
             and (campaign.game.is_special() or channel.drops_enabled)
             for campaign in self._twitch.inventory
         )
+
+    def watches_idle(self, channel: Channel) -> bool:
+        """Fork Watch when idle: watchable only for a listed category, with no drop to mine."""
+        return idle_watch_rank(self._twitch, channel) is not None and not self._can_mine(channel)
+
+    def watching_status(self, channel: Channel) -> str:
+        """The status line for watching ``channel``."""
+        if self._twitch.is_manual_mode() and self._twitch._manual_target_game:
+            return (
+                f"🎯 Manual Mode: Watching {channel.name} "
+                f"for {self._twitch._manual_target_game.name}"
+            )
+        if self.watches_idle(channel) and channel.game is not None:
+            return _.t["status"]["watching_idle"].format(
+                channel=channel.name, game=channel.game.name
+            )
+        return _.t["status"]["watching"].format(channel=channel.name)
 
     def should_switch(self, channel: Channel) -> bool:
         """
@@ -123,13 +145,12 @@ class WatchService:
         self._twitch.gui.channels.set_watching(channel)
         self._twitch.watching_channel.set(channel)
         self._twitch._channel_service.record_watch(channel)
+        if self.watches_idle(channel):
+            # No drop progresses here; don't leave the previous drop on display.
+            self._twitch.gui.clear_drop()
 
         if update_status:
-            # Check if manual mode is active for custom status message
-            if self._twitch.is_manual_mode() and self._twitch._manual_target_game:
-                status_text = f"🎯 Manual Mode: Watching {channel.name} for {self._twitch._manual_target_game.name}"
-            else:
-                status_text = _.t["status"]["watching"].format(channel=channel.name)
+            status_text = self.watching_status(channel)
             self._twitch.print(status_text)
             self._twitch.gui.status.update(status_text)
 

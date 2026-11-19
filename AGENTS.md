@@ -64,7 +64,7 @@ project's process, not an active process here.
 - Upstream 2.4's host allow-list (`WebAuth.origin.trusted_host`, `ALLOWED_HOSTS` /
   `PUBLIC_BASE_URL`) runs before the `/mcp` exemption, so a public host name must be
   configured for MCP too. The Settings page is tabbed (`settings-panel-*`); fork sections sit
-  in Mining (Farm Mode) and Account & Maintenance (MCP access).
+  in Mining (Farm Mode, Watch when idle) and Account & Maintenance (MCP access).
 - MCP server (fork): `src/web/mcp_server.py` implements the Streamable HTTP transport in
   JSON response mode by hand (no SDK dependency): `POST /mcp` takes one JSON-RPC message or a
   batch, `GET`/`DELETE` return 405, `initialize` negotiates protocol versions up to
@@ -82,12 +82,29 @@ project's process, not an active process here.
   drops are `SimpleNamespace`s): `diagnose_claims` reports `needs_account_link` per drop and
   counts finished ones as `waiting_for_account_link` instead of `complete_but_not_claimable`,
   and `claim_drops` skips them before `generate_claim` and lists them. `get_status` and
-  `update_mining_settings` cover `prefer_followed_channels`; `get_settings` passes
+  `update_mining_settings` cover `prefer_followed_channels` and `idle_watch_games`
+  (`get_status.watching_channel.watch_when_idle` comes from `WatchService.watches_idle`); `get_settings` passes
   `SettingsManager.get_settings()` through minus secrets, so new upstream settings appear
   there automatically. `list_campaigns` gives each campaign its `reward_types` (from the
   serialized benefits, which omit benefits without an image), because `include_drops`
   defaults to true and every drop of ~100 active campaigns overflows a client's tool-output
   limit; a Farm Mode question ("why is no badge campaign queued?") needs only the types.
+- Watch when idle (fork, experimental): `settings.idle_watch_games` (normalized by
+  `IdleWatchSettings`: trimmed, deduplicated, at most 10 names) lists Twitch categories to
+  watch while nothing can be mined, for reward campaigns the miner cannot see (Open Reward
+  Campaigns). `ChannelService.get_idle_channels` runs last in CHANNELS_FETCH: each name goes
+  through `SlugRedirect`, then `get_live_streams` (limit `IDLE_CHANNELS_PER_GAME`, drops tag
+  first, any stream as fallback); a failed lookup skips that category, but `ExitRequest` and
+  `LoginException` propagate. The module function `idle_watch_rank` makes a live channel in a
+  listed, non-wanted category watchable in `WatchService.can_watch`, and `get_priority` gives
+  it `len(wanted_games) + rank`, so it sorts after every drop channel under all
+  `get_mining_priority` key shapes. Same-category idle channels tie, and the followed-channel
+  tie-breaks need mineable drops, so they don't flap. A listed category that is also wanted
+  is mined normally. CHANNELS_CLEANUP keeps listed-category channels and, with no wanted
+  games, continues to CHANNELS_FETCH instead of IDLE. A user pick of an idle channel never
+  enters Manual Mode. `WatchService.watches_idle` drives the status text and
+  `gui.clear_drop()`. `idle_watch_names` returns `[]` unless the setting is a real list, so
+  upstream tests with `MagicMock` clients are unaffected. Tests: `tests/test_idle_watch.py`.
 - Fork settings read by shared code use `getattr(settings, "<name>", default)` (for example
   `farm_mode` in `StreamSelector`), because upstream tests build minimal settings objects
   without fork-only fields.

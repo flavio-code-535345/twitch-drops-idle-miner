@@ -9,7 +9,8 @@
         "goes_offline": "{channel} 该频道已离线, 正在切换...",
         "claimed_drop": "已领取掉宝: {drop}",
         "no_channel": "没有可观看的频道，等待一个在线直播频道...",
-        "no_campaign": "没有可用于掉宝的活动，等待一个有效的掉宝活动..."
+        "no_campaign": "没有可用于掉宝的活动，等待一个有效的掉宝活动...",
+        "watching_idle": "正在观看: {channel}（{game}，空闲时观看）"
     },
     "login": {
         "unexpected_content": "返回的内容类型有误通常是由于被重定向.您需要VPN才能登录吗？ ",
@@ -295,6 +296,9 @@
             "drop_name_blacklist": "忽略的掉落名称关键词",
             "drop_name_blacklist_help": "每行输入一个关键词。匹配时不区分大小写，并按字面子串搜索。匹配的掉落及其依赖分支将被忽略；仅作为前置条件的分支将被跳过，而共享的前置条件仍可挖取。",
             "drop_name_blacklist_placeholder": "(JP)\n[KR]\nJapan",
+            "idle_watch": "空闲时观看（实验性）",
+            "idle_watch_help": "当没有可刷取的掉宝时，观看以下任一 Twitch 分类中的直播频道，每行一个（排在前面的优先）。适用于本程序无法追踪的 Twitch 奖励活动：请在 Twitch 上查看进度并领取奖励。包含你正在刷取的掉宝的分类将照常刷取。",
+            "idle_watch_placeholder": "Grand Theft Auto VI",
             "clear_all_cache": "清除所有缓存",
             "clear_all_cache_help": "清除本地活动、频道和挖矿器派生状态；保留登录信息和设置，然后从 Twitch 重新加载。",
             "farm_mode": "刷取模式",

@@ -19,8 +19,9 @@ from src.api.gql_client import private_gql_discovery
 from src.config import GQL_OPERATIONS, MAX_INT, GQLRawQuery
 from src.config.operations import FOLLOWED_LIVE_QUERY
 from src.config.reward_priority import RewardPriority
-from src.exceptions import ExitRequest, GQLException, MinerException
+from src.exceptions import ExitRequest, GQLException, LoginException, MinerException
 from src.models.channel import Channel
+from src.models.game import Game
 from src.services.game_order import TemporaryGameOrder
 from src.utils import chunk
 
@@ -28,11 +29,35 @@ from src.utils import chunk
 if TYPE_CHECKING:
     from src.config import GQLRequest, JsonType
     from src.core.client import Twitch
-    from src.models.game import Game
     from src.services.game_order import TemporaryGameOrder
 
 
 logger = logging.getLogger("TwitchDrops")
+
+
+def idle_watch_names(twitch: Twitch) -> list[str]:
+    """Fork Watch when idle: the categories listed in Settings, or none."""
+    names = getattr(getattr(twitch, "settings", None), "idle_watch_games", None)
+    return names if isinstance(names, list) else []
+
+
+def idle_watch_rank(twitch: Twitch, channel: Channel) -> int | None:
+    """Fork Watch when idle: a live channel's position in that list, or None.
+
+    Only channels streaming a listed category qualify, and never one whose category is
+    mined for drops: those keep the normal rules. A category matches by name, or by the
+    entry it was found under at the last discovery (Twitch may spell it differently).
+    """
+    names = idle_watch_names(twitch)
+    game = channel.game
+    if not names or game is None or not channel.online or channel.banned or game in twitch.wanted_games:
+        return None
+    folded = [name.casefold() for name in names]
+    found = getattr(getattr(twitch, "_channel_service", None), "idle_game_names", None)
+    for entry in (found.get(game.id) if isinstance(found, dict) else None, game.name.casefold()):
+        if entry in folded:
+            return folded.index(entry)
+    return None
 
 
 class ChannelService:
@@ -48,6 +73,8 @@ class ChannelService:
 
     # Bound for the whole optional follows lookup, AvailableDrops checks included.
     FOLLOW_LOOKUP_TIMEOUT = 30
+    # Fork Watch when idle: one stream is watched; the others stand by if it ends.
+    IDLE_CHANNELS_PER_GAME = 5
 
     def __init__(self, twitch: Twitch) -> None:
         """
@@ -64,6 +91,8 @@ class ChannelService:
         self._follow_generation = 0
         # The channel the user last picked by hand; the follow tie-break never undoes it.
         self.picked_channel_id: int | None = None
+        # Fork Watch when idle: category ID -> the (casefolded) entry it was last found under.
+        self.idle_game_names: dict[int, str] = {}
 
     @property
     def banned_channels(self) -> list[Channel]:
@@ -116,6 +145,9 @@ class ChannelService:
             (game := channel.game) is None  # None when OFFLINE or no game set
             or game not in self._twitch.wanted_games  # we don't care about the played game
         ):
+            # Fork Watch when idle: listed categories rank after every mined game.
+            if (idle := idle_watch_rank(self._twitch, channel)) is not None:
+                return len(self._twitch.wanted_games) + idle
             return MAX_INT
         return self._twitch.wanted_games.index(game)
 
@@ -283,6 +315,52 @@ class ChannelService:
         rank, deadline = min((policy.campaign_key(campaign) for campaign in (selected or candidates)),
                              default=(len(policy.TYPES), float("inf")))
         return (tier, rank, deadline, priority)
+
+    async def get_idle_channels(self) -> set[Channel]:
+        """Fork Watch when idle: live channels in the listed categories, for discovery.
+
+        They are watched only while no drop channel can be (see ``get_priority``). A listed
+        category that is mined for drops is skipped. Channels with Twitch's drops tag are
+        preferred, since a reward campaign may count only those; otherwise any live channel
+        is used. A failed lookup skips that category until the next discovery.
+        """
+        wanted = {game.name.casefold() for game in self._twitch.wanted_games}
+        found_names: dict[int, str] = {}
+        found: set[Channel] = set()
+        for name in idle_watch_names(self._twitch):
+            if name.casefold() in wanted:
+                continue
+            try:
+                channels = await self._idle_category_streams(name)
+            except (ExitRequest, LoginException):
+                raise
+            except (MinerException, aiohttp.ClientError, TimeoutError,
+                    KeyError, TypeError, IndexError, ValueError):
+                logger.warning(f"Watch when idle: could not look up live channels in {name}")
+                continue
+            channels = [channel for channel in channels
+                        if channel.game is not None and channel.game not in self._twitch.wanted_games]
+            for channel in channels:
+                found_names.setdefault(channel.game.id, name.casefold())  # type: ignore[union-attr]
+            found.update(channels)
+            logger.info(f"Watch when idle: {len(channels)} live channels in {name}")
+        self.idle_game_names = found_names
+        return found
+
+    async def _idle_category_streams(self, name: str) -> list[Channel]:
+        response = await self._twitch.gql_request(
+            GQL_OPERATIONS["SlugRedirect"].with_variables({"name": name})
+        )
+        slug = ((response.get("data") or {}).get("game") or {}).get("slug")
+        # Without a redirect, the slug is derived from the name as for any other game.
+        category = Game({"id": 0, "name": name, **({"slug": slug} if slug else {})})
+        for drops_enabled in (True, False):
+            channels = await self.get_live_streams(
+                category, limit=self.IDLE_CHANNELS_PER_GAME, drops_enabled=drops_enabled
+            )
+            if channels:
+                return channels
+        return []
 
     @staticmethod
     def get_viewers_key(channel: Channel) -> int:

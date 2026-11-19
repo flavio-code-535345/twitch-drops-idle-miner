@@ -324,6 +324,18 @@ assert.equal(grid.classList['list-view'],true);assert.equal(requests.length,0);
 """)
 
 
+def test_watch_when_idle_categories_save_only_after_settings_load():
+    run_inventory(r"""
+const input=Object.assign(new Element('textarea'),{id:'idle-watch-games',value:''});body.appendChild(input);
+await saveSettings();
+assert.equal('idle_watch_games' in JSON.parse(requests[0].options.body),false);
+updateSettingsUI({games_to_watch:['First','Manual'],idle_watch_games:[]});
+input.value=' Grand Theft Auto VI \n\nJust Chatting\r\n';
+await saveSettings();
+assert.deepEqual(JSON.parse(requests[1].options.body).idle_watch_games,['Grand Theft Auto VI','Just Chatting']);
+""")
+
+
 def test_narrow_cards_keep_badge_top_right_and_allow_two_line_names():
     css = (ROOT / 'web/static/styles.css').read_text(encoding='utf-8')
     narrow = css.split('@media (max-width: 480px) {\n    /* Narrow cards', 1)[1].split('\n}\n', 1)[0]

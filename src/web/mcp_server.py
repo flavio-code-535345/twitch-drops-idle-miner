@@ -32,7 +32,7 @@ from typing import TYPE_CHECKING, Any
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
 
-from src.config.settings import MiningHoursSettings
+from src.config.settings import IdleWatchSettings, MiningHoursSettings
 from src.version import UPSTREAM_VERSION, __version__
 
 
@@ -379,7 +379,8 @@ class MCPServer:
             "mining_window_open": client.is_mining_time(),
             "manual_mode": client.get_manual_mode_info(),
             "watching_channel": watching and {
-                key: watching.get(key) for key in ("name", "game", "viewers", "url", "acl_based")
+                **{key: watching.get(key) for key in ("name", "game", "viewers", "url", "acl_based")},
+                "watch_when_idle": self._watching_idle(client),
             },
             "current_drop": gui.progress.get_current_drop(),
             "games_to_watch": list(settings.games_to_watch),
@@ -388,8 +389,17 @@ class MCPServer:
             "allow_unlinked_campaigns": bool(getattr(settings, "allow_unlinked_campaigns", False)),
             "prefer_followed_channels": bool(getattr(settings, "prefer_followed_channels", False)),
             "mining_hours": getattr(settings, "mining_hours", None),
+            "idle_watch_games": list(getattr(settings, "idle_watch_games", None) or []),
             "version": {"fork": __version__, "upstream": UPSTREAM_VERSION},
         }
+
+    @staticmethod
+    def _watching_idle(client: Any) -> bool:
+        """Fork Watch when idle: the watched channel is there only for its category."""
+        service = getattr(client, "_watch_service", None)
+        holder = getattr(client, "watching_channel", None)
+        channel = holder.get_with_default(None) if holder is not None else None
+        return bool(service is not None and channel is not None and service.watches_idle(channel))
 
     def list_campaigns(self, arguments: dict[str, Any]) -> dict[str, Any]:
         gui, _client = self._require()
@@ -598,6 +608,10 @@ class MCPServer:
                 raise ToolError(
                     "'mining_hours' is {mode: always|range, start: HH:MM, end: HH:MM}"
                 ) from None
+        if (idle := arguments.get("idle_watch_games")) is not None:
+            if not isinstance(idle, list) or not all(isinstance(name, str) for name in idle):
+                raise ToolError("'idle_watch_games' is a list of category names")
+            changes["idle_watch_games"] = IdleWatchSettings.normalize(idle)
         if not changes:
             raise ToolError("Nothing to change; pass at least one setting")
         updated = self._update_settings(changes)
@@ -830,8 +844,8 @@ class MCPServer:
                  _schema({"game": {"type": "string"}}, ["game"]), self.remove_game_to_watch, False),
             Tool("update_mining_settings", "Update mining settings",
                  "Change Farm Mode, Priority list only, mining of campaigns reported as Not Linked, "
-                 "preferring followed channels, wanted reward types or mining hours. Only the given settings "
-                 "change.",
+                 "preferring followed channels, wanted reward types, mining hours or the Watch when idle "
+                 "categories. Only the given settings change.",
                  _schema({
                      "farm_mode": {"type": "boolean"},
                      "priority_list_only": {"type": "boolean"},
@@ -854,6 +868,14 @@ class MCPServer:
                                         "end": {"type": "string", "description": "HH:MM"}},
                          "required": ["mode", "start", "end"],
                          "additionalProperties": False,
+                     },
+                     "idle_watch_games": {
+                         "type": "array",
+                         "items": {"type": "string"},
+                         "maxItems": IdleWatchSettings.MAX_GAMES,
+                         "description": "Experimental Watch when idle: Twitch categories (first listed first) "
+                                        "to watch while no drop can be mined, for reward campaigns the miner "
+                                        "cannot track. Progress shows on Twitch only. [] turns it off",
                      },
                  }), self.update_mining_settings, False),
             Tool("reload_campaigns", "Reload campaigns",

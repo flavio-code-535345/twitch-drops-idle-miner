@@ -174,8 +174,10 @@ its participating channels may be streaming another category. See
 Twitch lists **Open Reward Campaigns** separately from drop campaigns on its Drops
 page; one example is the GTAVI Launch Celebration, with badges for watching on several
 days. TDM does not request these campaigns from Twitch, so they never appear in Inventory
-or the Wanted Drops Queue, and TDM does not watch their channels. Watch those in a browser
-and claim the rewards on Twitch.
+or the Wanted Drops Queue and their progress is not tracked. This fork's experimental
+[Watch when idle](fork-features.md#watch-when-idle-experimental) setting can watch their
+category while nothing else can be mined; otherwise watch in a browser. Either way, check
+progress and claim the rewards on Twitch.
 
 Try **Reload Campaigns** in Inventory or **Settings → Games** after correcting settings.
 **Settings → Account & Maintenance → Clear All Cache** can rebuild local campaign and

@@ -33,6 +33,7 @@ default_settings = {
     "drop_name_blacklist": [],
     "farm_mode": False,
     "games_to_watch": [],
+    "idle_watch_games": [],
     "language": DEFAULT_LANG,
     "last_notified_releases": {"telegram": "", "discord": ""},
     "prefer_followed_channels": False,
@@ -94,6 +95,21 @@ class MiningHoursSettings:
         return dict(value)
 
 
+class IdleWatchSettings:
+    """Fork: categories watched while nothing can be mined (Settings → Mining → Watch when idle)."""
+
+    # Each category costs a few directory requests per channel discovery.
+    MAX_GAMES = 10
+    # Long enough for any Twitch category name.
+    MAX_NAME_LENGTH = 200
+
+    @classmethod
+    def normalize(cls, value: Any) -> list[str]:
+        """Trimmed, nonblank names without case-insensitive duplicates, at most MAX_GAMES."""
+        names = DropIgnorePolicy.normalize_keywords(value)
+        return [name for name in names if len(name) <= cls.MAX_NAME_LENGTH][:cls.MAX_GAMES]
+
+
 class NotificationEventSettings:
     """Validate which events send Discord and Telegram notifications."""
 
@@ -150,6 +166,7 @@ class Settings:
     drop_name_blacklist: list[str]
     farm_mode: bool
     games_to_watch: list[str]
+    idle_watch_games: list[str]
     language: str
     last_notified_releases: dict[str, str]
     reward_priority: list[str]
@@ -195,6 +212,7 @@ class Settings:
         self.drop_name_blacklist = DropIgnorePolicy.normalize_keywords(
             self.drop_name_blacklist
         )
+        self.idle_watch_games = IdleWatchSettings.normalize(self.idle_watch_games)
 
     def save(self) -> None:
         self.reward_priority = RewardPriority.normalize(self.reward_priority)
@@ -202,5 +220,6 @@ class Settings:
         self.drop_name_blacklist = DropIgnorePolicy.normalize_keywords(
             self.drop_name_blacklist
         )
+        self.idle_watch_games = IdleWatchSettings.normalize(self.idle_watch_games)
         values = vars(self).copy()
         json_save(SETTINGS_PATH, values, sort=True)

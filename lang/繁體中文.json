@@ -9,7 +9,8 @@
         "goes_offline": "{channel} 頻道已結束實況，正在跳轉…",
         "claimed_drop": "已領取掉寶：{drop}",
         "no_channel": "沒有可觀看的頻道，正在等待一個正在實況的頻道…",
-        "no_campaign": "沒有可用於掉寶的活動，正在等待一個有效的掉寶活動…"
+        "no_campaign": "沒有可用於掉寶的活動，正在等待一個有效的掉寶活動…",
+        "watching_idle": "正在觀看：{channel}（{game}，閒置時觀看）"
     },
     "login": {
         "unexpected_content": "回傳的內容類型有誤，通常是由於被重新導向導致。您需要設置 VPN 或者確認登入頁面才能上網嗎？",
@@ -295,6 +296,9 @@
             "drop_name_blacklist": "忽略的掉落名稱關鍵字",
             "drop_name_blacklist_help": "每行輸入一個關鍵字。比對時不區分大小寫，並以字面子字串搜尋。符合的掉落及其依賴分支將被忽略；僅作為前置條件的分支將被跳過，而共用的前置條件仍可挖掘。",
             "drop_name_blacklist_placeholder": "(JP)\n[KR]\nJapan",
+            "idle_watch": "閒置時觀看（實驗性）",
+            "idle_watch_help": "當沒有可刷取的掉寶時，觀看以下任一 Twitch 分類中的直播頻道，每行一個（排在前面的優先）。適用於本程式無法追蹤的 Twitch 獎勵活動：請在 Twitch 上查看進度並領取獎勵。包含你正在刷取之掉寶的分類將照常刷取。",
+            "idle_watch_placeholder": "Grand Theft Auto VI",
             "clear_all_cache": "清除所有快取",
             "clear_all_cache_help": "清除本機活動、頻道和挖礦器衍生狀態；保留登入資訊和設定，然後從 Twitch 重新載入。",
             "farm_mode": "刷取模式",

@@ -9,7 +9,8 @@
         "goes_offline": "{channel} menjadi OFF-LINE, ubah...",
         "claimed_drop": "Drop dipulihkan : {drop}",
         "no_channel": "Tidak ada saluran yang tersedia untuk ditonton. Menunggu saluran secara ONLINE...",
-        "no_campaign": "Tidak ada kampanye aktif yang bisa ditambang. Menunggu kampanye aktif..."
+        "no_campaign": "Tidak ada kampanye aktif yang bisa ditambang. Menunggu kampanye aktif...",
+        "watching_idle": "Menonton : {channel} ({game}, Tonton saat menganggur)"
     },
     "login": {
         "error_code": "Kode kesalahan koneksi: {error_code}",
@@ -295,6 +296,9 @@
             "drop_name_blacklist": "Kata Kunci Nama Drop yang Diabaikan",
             "drop_name_blacklist_help": "Masukkan satu kata kunci per baris. Pencocokan mencari substring literal tanpa membedakan huruf besar dan kecil. Drop yang cocok dan cabang yang bergantung padanya diabaikan; cabang yang hanya menjadi prasyarat dilewati, sementara prasyarat bersama tetap dapat ditambang.",
             "drop_name_blacklist_placeholder": "(JP)\n[KR]\nJapan",
+            "idle_watch": "Tonton saat menganggur (eksperimental)",
+            "idle_watch_help": "Saat tidak ada drop yang bisa ditambang, tonton channel live di salah satu kategori Twitch ini, satu per baris (yang pertama diutamakan). Ditujukan untuk kampanye hadiah Twitch yang tidak bisa dilacak miner: periksa progres dan klaim hadiah di Twitch. Kategori dengan drop yang Anda tambang tetap ditambang seperti biasa.",
+            "idle_watch_placeholder": "Grand Theft Auto VI",
             "clear_all_cache": "Hapus Semua Cache",
             "clear_all_cache_help": "Menghapus status kampanye, channel, dan data turunan miner lokal; mempertahankan login dan pengaturan, lalu memuat ulang data dari Twitch.",
             "farm_mode": "Mode Farming",

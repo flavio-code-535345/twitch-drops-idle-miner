@@ -33,6 +33,28 @@ a FARM game ahead of Games to Watch and does not change the queue order.
 Farm Mode relies on Twitch's full campaign list. While Twitch withholds that list (see
 below), it cannot discover games outside Games to Watch.
 
+## Watch when idle (experimental)
+
+Some Twitch reward campaigns are not drop campaigns, for example the **Open Reward
+Campaigns** on Twitch's Drops page (the GTAVI Launch Celebration gives badges for watching
+on several days). The miner cannot see these campaigns or their progress. **Settings →
+Mining → Watch when idle** lets it watch them anyway: list Twitch categories one per line,
+spelled as Twitch shows them, for example `Grand Theft Auto VI`.
+
+While no drop can be mined, the miner watches a live channel in the first listed category
+that has one, the one with the most viewers. Channels with Twitch's drops tag are used when
+the category has any. A channel with a drop to mine always takes priority, and a listed
+category whose drops you mine is mined as usual. The status line then reads
+"Watching: *channel* (*category*, Watch when idle)", and the drop progress panel stays empty.
+
+- The miner cannot track or claim these rewards. Check your progress on the campaign's
+  Twitch page and claim the rewards there.
+- Whether Twitch counts the miner's watching for such a campaign is not known yet. Check
+  your progress on Twitch after about an hour.
+- Up to five live channels per category are looked up whenever the miner searches for
+  channels: at startup and after each campaign reload. Up to ten categories can be listed.
+- Mining Hours apply as usual. Leave the list empty to turn the feature off.
+
 ## Drops waiting for the account link
 
 Since upstream 2.6.0 the miner does not claim a drop that includes a game reward while
@@ -153,22 +175,23 @@ and change Games to Watch for you.
 
 Claude can then use these tools:
 
-- **Read:** status and current drop, campaigns (filter by game, status or link state; each
-  lists its reward types, so badges and emotes for Farm Mode stand out), the wanted queue,
-  tracked channels, settings (without secrets, including the followed-channel
-  preference and the alert choices), the Campaign Searches log, drop history and recent log
-  messages. **Diagnose unclaimed drops** lists drops that are complete or claimable and why
-  the last claim attempt failed, plus what the session's integrity proof claims (bot flag,
-  expiry, and whether it matches the device, account and client the requests use; never the
-  proof itself or its IDs). Drops [waiting for the account link](#drops-waiting-for-the-account-link)
-  are counted separately, not as stuck.
+- **Read:** status and current drop (including whether the channel is watched only for
+  [Watch when idle](#watch-when-idle-experimental)), campaigns (filter by game, status or
+  link state; each lists its reward types, so badges and emotes for Farm Mode stand out),
+  the wanted queue, tracked channels, settings (without secrets, including the
+  followed-channel preference and the alert choices), the Campaign Searches log, drop
+  history and recent log messages. **Diagnose unclaimed drops** lists drops that are
+  complete or claimable and why the last claim attempt failed, plus what the session's
+  integrity proof claims (bot flag, expiry, and whether it matches the device, account and
+  client the requests use; never the proof itself or its IDs). Drops [waiting for the
+  account link](#drops-waiting-for-the-account-link) are counted separately, not as stuck.
 - **Control:** set, add, remove or reorder Games to Watch; change Farm Mode, Priority list
-  only, mining of Not Linked campaigns, preferring followed channels, reward types or mining
-  hours; reload campaigns; watch a specific channel or return to automatic selection; pause
-  or resume mining; claim ready drops now (**Claim drops now** reports per drop why a claim
-  failed, can try drops whose minutes are complete but that Twitch never gave a claim ID,
-  and skips and lists drops waiting for the account link). These go through the same code
-  as the dashboard controls.
+  only, mining of Not Linked campaigns, preferring followed channels, reward types, mining
+  hours or the Watch when idle categories; reload campaigns; watch a specific channel or
+  return to automatic selection; pause or resume mining; claim ready drops now (**Claim
+  drops now** reports per drop why a claim failed, can try drops whose minutes are complete
+  but that Twitch never gave a claim ID, and skips and lists drops waiting for the account
+  link). These go through the same code as the dashboard controls.
 
 The endpoint is `/mcp` on the dashboard's own address, so a reverse proxy that serves the
 dashboard serves it too. It is off until a token exists. The token gives full control of

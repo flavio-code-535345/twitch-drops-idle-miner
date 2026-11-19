@@ -36,7 +36,7 @@ from src.exceptions import (
 from src.i18n import _
 from src.models.campaign import DropsCampaign
 from src.models.channel import Channel
-from src.services.channel_service import ChannelService
+from src.services.channel_service import ChannelService, idle_watch_names, idle_watch_rank
 from src.services.game_order import TemporaryGameOrder
 from src.services.inventory_service import InventoryService
 from src.services.maintenance import MaintenanceService
@@ -740,7 +740,9 @@ class Twitch:
                 self.change_state(State.CHANNELS_CLEANUP)
             elif self._state is State.CHANNELS_CLEANUP:
                 self.gui.status.update(_.t["gui"]["status"]["cleanup"])
-                if not self.wanted_games or full_cleanup:
+                # Fork Watch when idle: listed categories are discovered without wanted games.
+                idle_watch = bool(idle_watch_names(self))
+                if full_cleanup or not (self.wanted_games or idle_watch):
                     # no games selected or we're doing full cleanup: remove everything
                     to_remove_channels: list[Channel] = list(channels.values())
                 else:
@@ -749,11 +751,15 @@ class Twitch:
                         channel
                         for channel in channels.values()
                         if (
-                            not channel.acl_based  # aren't ACL-based
+                            # aren't ACL-based (ACL channels need a wanted game)
+                            (not channel.acl_based or not self.wanted_games)
                             and (
                                 channel.offline  # and are offline
                                 # or online but aren't streaming the game we want anymore
-                                or (channel.game is None or channel.game not in self.wanted_games)
+                                or (
+                                    (channel.game is None or channel.game not in self.wanted_games)
+                                    and idle_watch_rank(self, channel) is None
+                                )
                             )
                         )
                     ]
@@ -765,6 +771,13 @@ class Twitch:
                         # Don't remove from GUI - batch_update in CHANNELS_FETCH will handle it atomically
                     del to_remove_channels
                 if self.wanted_games:
+                    self.change_state(State.CHANNELS_FETCH)
+                elif idle_watch:
+                    # nothing to mine, but Watch when idle looks for its categories
+                    self.print(
+                        _.t["status"]["no_campaign"],
+                        collapse_key="status.no_campaign",
+                    )
                     self.change_state(State.CHANNELS_FETCH)
                 else:
                     # with no games available, we switch to IDLE after cleanup;
@@ -807,6 +820,8 @@ class Twitch:
                 if (watched := self.watching_channel.get_with_default(None)) is not None:
                     known_ids.add(watched.id)
                 new_channels.update(await self._channel_service.get_followed_live_channels(known_ids))
+                # Fork Watch when idle: channels in the listed categories, watched last.
+                new_channels.update(await self._channel_service.get_idle_channels())
                 await self._channel_service.refresh_watched_channel(new_channels)
                 # Filter account-specific bans before priority sorting and the tracking cap.
                 retained_channels = [channel for channel in (
@@ -912,7 +927,11 @@ class Twitch:
                 # Handle user selection
                 if selected_channel is not None and self.can_watch(selected_channel):
                     # Check if this is a game change -> enter manual mode
-                    if watching_channel and selected_channel.game != watching_channel.game:
+                    # (not for a Watch when idle channel: its category has no drops to target)
+                    if (
+                        watching_channel and selected_channel.game != watching_channel.game
+                        and idle_watch_rank(self, selected_channel) is None
+                    ):
                         self.enter_manual_mode(selected_channel)
                     self._channel_service.record_watch(selected_channel, picked=True)
                     new_watching = selected_channel
@@ -959,13 +978,7 @@ class Twitch:
                     self._state_change.clear()
                 elif watching_channel is not None and self.can_watch(watching_channel):
                     # Continue watching current channel
-                    if self.is_manual_mode() and self._manual_target_game:
-                        status_text = f"🎯 Manual Mode: Watching {watching_channel.name} for {self._manual_target_game.name}"
-                    else:
-                        status_text = _.t["status"]["watching"].format(
-                            channel=watching_channel.name
-                        )
-                    self.gui.status.update(status_text)
+                    self.gui.status.update(self._watch_service.watching_status(watching_channel))
                     self._state_change.clear()
                 else:
                     # No channels available to watch

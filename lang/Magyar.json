@@ -9,7 +9,8 @@
         "goes_offline": "{channel} offline lett, váltás...",
         "claimed_drop": "Átvett jutalom: {drop}",
         "no_channel": "Nincsenek elérhető csatornák a nézéshez. Várakozás online csatornára...",
-        "no_campaign": "Nincsenek aktív kampányok jutalmak bányászásához. Várakozás aktív kampányra..."
+        "no_campaign": "Nincsenek aktív kampányok jutalmak bányászásához. Várakozás aktív kampányra...",
+        "watching_idle": "Nézés: {channel} ({game}, Nézés tétlenségben)"
     },
     "login": {
         "unexpected_content": "Váratlan tartalomtípus érkezett, általában átirányítás miatt. Szükséges bejelentkezni az internethez való hozzáféréshez?",
@@ -205,6 +206,9 @@
             "drop_name_blacklist": "Figyelmen kívül hagyott dropkulcsszavak",
             "drop_name_blacklist_help": "Adjon meg soronként egy kulcsszót. Az egyezés kis- és nagybetűtől független, literális részkarakterláncot keres. Az egyező dropok és a tőlük függő ágak figyelmen kívül maradnak; a csak előfeltételként szolgáló ágak kimaradnak, míg a megosztott előfeltételek továbbra is megszerezhetők.",
             "drop_name_blacklist_placeholder": "(JP)\n[KR]\nJapan",
+            "idle_watch": "Nézés tétlenségben (kísérleti)",
+            "idle_watch_help": "Ha egyetlen drop sem bányászható, egy élő csatornát néz a felsorolt Twitch-kategóriák egyikében, soronként egyet (az első elsőbbséget élvez). A miner által nem követhető Twitch-jutalomkampányokhoz készült: a haladást a Twitchen ellenőrizd, és ott váltsd be a jutalmakat. Az olyan kategória, amelynek dropjait bányászod, a szokásos módon bányászódik.",
+            "idle_watch_placeholder": "Grand Theft Auto VI",
             "clear_all_cache": "Teljes gyorsítótár törlése",
             "clear_all_cache_help": "Törli a helyi kampány-, csatorna- és származtatott bányászállapotot; megtartja a bejelentkezést és a beállításokat, majd újratölti az adatokat a Twitchről.",
             "games_to_watch": "Bányászati lista",

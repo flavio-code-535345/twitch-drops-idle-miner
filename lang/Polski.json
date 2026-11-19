@@ -9,7 +9,8 @@
         "goes_offline": "Nowy status kanału {channel}: OFFLINE, zmieniam...",
         "claimed_drop": "Odebrano drop: {drop}",
         "no_channel": "Brak możliwych kanałów do oglądania. Oczekiwanie na nową kampanię...",
-        "no_campaign": "Brak dostępnych aktywnych kampanii. Oczekiwanie na nową kampanię..."
+        "no_campaign": "Brak dostępnych aktywnych kampanii. Oczekiwanie na nową kampanię...",
+        "watching_idle": "Oglądam kanał: {channel} ({game}, Oglądanie w bezczynności)"
     },
     "login": {
         "unexpected_content": "Nieoczekiwany błąd zawartości, zwykle z powodu przekierowania.\nUpewnij się że nie jest wymagane dodatkowe logowanie bądź potwierdzenie dostępu do internetu.",
@@ -295,6 +296,9 @@
             "drop_name_blacklist": "Ignorowane słowa kluczowe nazw dropów",
             "drop_name_blacklist_help": "Wpisz jedno słowo kluczowe w każdym wierszu. Dopasowanie wyszukuje dosłowny podciąg bez rozróżniania wielkości liter. Pasujące dropy i zależne od nich gałęzie są ignorowane; gałęzie będące tylko warunkami wstępnymi są pomijane, a wspólne warunki wstępne nadal można zdobywać.",
             "drop_name_blacklist_placeholder": "(JP)\n[KR]\nJapan",
+            "idle_watch": "Oglądanie w bezczynności (eksperymentalne)",
+            "idle_watch_help": "Gdy nie można zdobywać żadnego dropu, oglądany jest kanał na żywo w jednej z tych kategorii Twitcha, jedna w wierszu (pierwsza ma pierwszeństwo). Przeznaczone dla kampanii nagród Twitcha, których miner nie może śledzić: sprawdzaj postęp i odbieraj nagrody na Twitchu. Kategoria z dropami, które zdobywasz, jest farmiona jak zwykle.",
+            "idle_watch_placeholder": "Grand Theft Auto VI",
             "clear_all_cache": "Wyczyść całą pamięć podręczną",
             "clear_all_cache_help": "Usuwa lokalny stan kampanii, kanałów i pochodne dane minera; zachowuje logowanie i ustawienia, a następnie ponownie pobiera dane z Twitcha.",
             "farm_mode": "Tryb farmienia",

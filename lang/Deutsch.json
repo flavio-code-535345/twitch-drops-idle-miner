@@ -9,7 +9,8 @@
         "goes_offline": "{channel} ist OFFLINE gegangen, wechseln...",
         "claimed_drop": "Drop abgeholt: {drop}",
         "no_channel": "Keine teilnehmenden Kanäle online. Warten auf Kanäle...",
-        "no_campaign": "Keine aktiven Kampagnen verfügbar. Warten auf neue Kampagne..."
+        "no_campaign": "Keine aktiven Kampagnen verfügbar. Warten auf neue Kampagne...",
+        "watching_idle": "{channel} wird zugesehen ({game}, Im Leerlauf zusehen)"
     },
     "login": {
         "error_code": "Login-Fehlercode: {error_code}",
@@ -293,6 +294,9 @@
             "drop_name_blacklist": "Ignorierte Schlüsselwörter in Drop-Namen",
             "drop_name_blacklist_help": "Geben Sie ein Schlüsselwort pro Zeile ein. Der Abgleich sucht ohne Beachtung der Groß-/Kleinschreibung nach einer wörtlichen Teilzeichenfolge. Passende Drops und ihre abhängigen Zweige werden ignoriert; reine Voraussetzungzweige werden übersprungen, während gemeinsame Voraussetzungen weiterhin erspielt werden können.",
             "drop_name_blacklist_placeholder": "(JP)\n[KR]\nJapan",
+            "idle_watch": "Im Leerlauf zusehen (experimentell)",
+            "idle_watch_help": "Wenn kein Drop gemint werden kann, wird ein Live-Kanal in einer dieser Twitch-Kategorien angesehen, eine pro Zeile (die erste zuerst). Gedacht für Twitch-Belohnungskampagnen, die der Miner nicht verfolgen kann: Fortschritt auf Twitch prüfen und Belohnungen dort einlösen. Eine Kategorie mit Drops, die du minst, wird wie gewohnt gemint.",
+            "idle_watch_placeholder": "Grand Theft Auto VI",
             "clear_all_cache": "Gesamten Cache leeren",
             "clear_all_cache_help": "Löscht lokale Kampagnen-, Kanal- und abgeleitete Miner-Daten; Anmeldung und Einstellungen bleiben erhalten, anschließend werden die Daten von Twitch neu geladen.",
             "add_game": "Add Game",

@@ -9,7 +9,8 @@
         "goes_offline": "Kanál {channel} je offline, přepínám na další...",
         "claimed_drop": "Drop vyzvednut: {drop}",
         "no_channel": "Žádný kanál není dostupný, čekání na další...",
-        "no_campaign": "Žádné dropy k dispozici, čekání na další dostupné dropy..."
+        "no_campaign": "Žádné dropy k dispozici, čekání na další dostupné dropy...",
+        "watching_idle": "Sledování kanálu: {channel} ({game}, Sledovat při nečinnosti)"
     },
     "login": {
         "unexpected_content": "Chyba při přesměrování. Nepoužíváte VPN?",
@@ -295,6 +296,9 @@
             "drop_name_blacklist": "Ignorovaná klíčová slova v názvech odměn",
             "drop_name_blacklist_help": "Zadejte jedno klíčové slovo na řádek. Hledá se jako doslovný podřetězec bez rozlišení velikosti písmen. Odpovídající odměny a jejich závislé větve budou ignorovány; větve sloužící pouze jako předpoklad budou přeskočeny, zatímco sdílené předpoklady zůstanou získatelné.",
             "drop_name_blacklist_placeholder": "(JP)\n[KR]\nJapan",
+            "idle_watch": "Sledovat při nečinnosti (experimentální)",
+            "idle_watch_help": "Když nelze těžit žádnou odměnu, sleduje se živý kanál v jedné z těchto kategorií Twitche, jedna na řádek (první má přednost). Určeno pro kampaně odměn Twitche, které miner nedokáže sledovat: průběh kontrolujte a odměny vyzvedávejte na Twitchi. Kategorie s odměnami, které těžíte, se těží jako obvykle.",
+            "idle_watch_placeholder": "Grand Theft Auto VI",
             "clear_all_cache": "Vymazat veškerou mezipaměť",
             "clear_all_cache_help": "Vymaže místní stav kampaní, kanálů a odvozený stav mineru; zachová přihlášení a nastavení a poté znovu načte data z Twitche.",
             "farm_mode": "Farm režim",

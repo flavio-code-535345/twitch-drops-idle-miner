@@ -9,7 +9,8 @@
         "goes_offline": "{channel} è OFFLINE, cambiando...",
         "claimed_drop": "Contenuti riscattati: {drop}",
         "no_channel": "Nessun canale disponibile da guardare. In attesa di un canale ONLINE...",
-        "no_campaign": "Nessuna campagna attiva per ottenere i premi. In attesa di una campagna attiva..."
+        "no_campaign": "Nessuna campagna attiva per ottenere i premi. In attesa di una campagna attiva...",
+        "watching_idle": "Guardando: {channel} ({game}, Guarda quando inattivo)"
     },
     "login": {
         "unexpected_content": "Tipo di contenuto inaspettato restituito, di solito a causa di un reindirizzamento. Hai bisogno di fare il login per accedere a internet?",
@@ -295,6 +296,9 @@
             "drop_name_blacklist": "Parole chiave dei drop ignorati",
             "drop_name_blacklist_help": "Inserisci una parola chiave per riga. La corrispondenza cerca una sottostringa letterale senza distinguere maiuscole e minuscole. I drop corrispondenti e i relativi rami dipendenti vengono ignorati; i rami che servono solo da prerequisito vengono saltati, mentre i prerequisiti condivisi restano ottenibili.",
             "drop_name_blacklist_placeholder": "(JP)\n[KR]\nJapan",
+            "idle_watch": "Guarda quando inattivo (sperimentale)",
+            "idle_watch_help": "Quando nessun drop può essere ottenuto, guarda un canale in diretta in una di queste categorie di Twitch, una per riga (la prima ha la precedenza). Pensato per le campagne di ricompense di Twitch che il miner non può seguire: controlla i progressi e riscatta le ricompense su Twitch. Una categoria con drop che ottieni viene minata come al solito.",
+            "idle_watch_placeholder": "Grand Theft Auto VI",
             "clear_all_cache": "Svuota tutta la cache",
             "clear_all_cache_help": "Cancella lo stato locale di campagne, canali e i dati derivati del miner; mantiene l’accesso e le impostazioni, quindi ricarica i dati da Twitch.",
             "farm_mode": "Modalità Farming",

@@ -9,7 +9,8 @@
         "goes_offline": "{channel} passe HORS LIGNE, changement...",
         "claimed_drop": "Drop récupéré : {drop}",
         "no_channel": "Aucune chaîne disponible à regarder. En attente d'une chaîne EN LIGNE...",
-        "no_campaign": "Aucune campagne active pour laquelle miner des drops. En attente d'une campagne active..."
+        "no_campaign": "Aucune campagne active pour laquelle miner des drops. En attente d'une campagne active...",
+        "watching_idle": "En train de regarder : {channel} ({game}, Regarder en veille)"
     },
     "login": {
         "error_code": "Code d'erreur de connexion : {error_code}",
@@ -293,6 +294,9 @@
             "drop_name_blacklist": "Mots-clés de drops ignorés",
             "drop_name_blacklist_help": "Saisissez un mot-clé par ligne. La recherche porte sur une sous-chaîne littérale sans tenir compte de la casse. Les drops correspondants et leurs branches dépendantes sont ignorés ; les branches servant uniquement de prérequis sont passées, tandis que les prérequis partagés restent obtenables.",
             "drop_name_blacklist_placeholder": "(JP)\n[KR]\nJapan",
+            "idle_watch": "Regarder en veille (expérimental)",
+            "idle_watch_help": "Quand aucun drop ne peut être miné, regarde une chaîne en direct dans l'une de ces catégories Twitch, une par ligne (la première en priorité). Prévu pour les campagnes de récompenses Twitch que le mineur ne peut pas suivre : vérifiez la progression et réclamez les récompenses sur Twitch. Une catégorie avec des drops que vous minez est minée comme d'habitude.",
+            "idle_watch_placeholder": "Grand Theft Auto VI",
             "clear_all_cache": "Vider tout le cache",
             "clear_all_cache_help": "Efface l’état local des campagnes, des chaînes et les données dérivées du mineur ; conserve la connexion et les paramètres, puis recharge les données depuis Twitch.",
             "add_game": "Add Game",

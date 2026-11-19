@@ -16,6 +16,7 @@ class StatusMessages(TypedDict):
     claimed_drop: str
     no_channel: str
     no_campaign: str
+    watching_idle: str
 
 
 class LoginStatus(TypedDict):
@@ -326,6 +327,9 @@ class GUISettings(TypedDict):
     drop_name_blacklist: str
     drop_name_blacklist_help: str
     drop_name_blacklist_placeholder: str
+    idle_watch: str
+    idle_watch_help: str
+    idle_watch_placeholder: str
     clear_all_cache: str
     clear_all_cache_help: str
     dump_diagnostics: str

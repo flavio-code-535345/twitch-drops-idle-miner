@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any
 
 from src.config.reward_priority import RewardPriority
 from src.config.settings import (
+    IdleWatchSettings,
     InventoryFilterSettings,
     MiningHoursSettings,
     NotificationEventSettings,
@@ -191,6 +192,11 @@ class SettingsManager:
             drop_name_blacklist = DropIgnorePolicy.normalize_keywords(
                 drop_name_blacklist
             )
+        idle_watch_games = settings_data.get("idle_watch_games")
+        if idle_watch_games is not None:
+            if not isinstance(idle_watch_games, list):
+                raise ValueError("invalid_idle_watch_games")
+            idle_watch_games = IdleWatchSettings.normalize(idle_watch_games)
 
         snapshot = {
             key: copy.deepcopy(value)
@@ -264,6 +270,9 @@ class SettingsManager:
         )
         should_trigger_update |= self.check_and_update_setting(
             "farm_mode", settings_data.get("farm_mode"), True
+        )
+        should_trigger_update |= self.check_and_update_setting(
+            "idle_watch_games", idle_watch_games, True
         )
         should_trigger_update |= self.check_and_update_setting(
             "mining_hours",

@@ -9,7 +9,8 @@
         "goes_offline": "{channel} is OFFLINE gegaan, wijzig...",
         "claimed_drop": "Drop verkregen: {drop}",
         "no_channel": "Geen deelnemende kanalen online. Wachten op steamers...",
-        "no_campaign": "Geen actieve campagnes beschikbaar. Wachten op nieuwe campagne..."
+        "no_campaign": "Geen actieve campagnes beschikbaar. Wachten op nieuwe campagne...",
+        "watching_idle": "{channel} wordt gekeken ({game}, Kijken bij inactiviteit)"
     },
     "login": {
         "error_code": "Login Foutcode: {error_code}",
@@ -295,6 +296,9 @@
             "drop_name_blacklist": "Genegeerde trefwoorden in dropnamen",
             "drop_name_blacklist_help": "Voer één trefwoord per regel in. Er wordt hoofdletterongevoelig gezocht naar een letterlijke tekenreeks. Overeenkomende drops en hun afhankelijke takken worden genegeerd; takken die alleen als voorwaarde dienen worden overgeslagen, terwijl gedeelde voorwaarden te verdienen blijven.",
             "drop_name_blacklist_placeholder": "(JP)\n[KR]\nJapan",
+            "idle_watch": "Kijken bij inactiviteit (experimenteel)",
+            "idle_watch_help": "Als er geen drop gemined kan worden, wordt een livekanaal in een van deze Twitch-categorieën bekeken, één per regel (de eerste eerst). Bedoeld voor Twitch-beloningscampagnes die de miner niet kan volgen: controleer de voortgang en claim beloningen op Twitch. Een categorie met drops die je mint, wordt zoals gewoonlijk gemined.",
+            "idle_watch_placeholder": "Grand Theft Auto VI",
             "clear_all_cache": "Volledige cache wissen",
             "clear_all_cache_help": "Wist de lokale campagne-, kanaal- en afgeleide minerstatus; behoudt je aanmelding en instellingen en laadt daarna opnieuw vanaf Twitch.",
             "farm_mode": "Farm-modus",

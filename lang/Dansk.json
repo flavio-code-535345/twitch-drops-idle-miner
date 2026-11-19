@@ -9,7 +9,8 @@
         "goes_offline": "{channel} går OFFLINE, skifter...",
         "claimed_drop": "Hentet belønning: {drop}",
         "no_channel": "Ingen tilgængelige kanaler at se. Venter på en ONLINE kanal...",
-        "no_campaign": "Der er ingen aktive kampagner at hente. Venter på en aktiv kampagne..."
+        "no_campaign": "Der er ingen aktive kampagner at hente. Venter på en aktiv kampagne...",
+        "watching_idle": "Ser på: {channel} ({game}, Se når inaktiv)"
     },
     "login": {
         "unexpected_content": "Uventet indholdstype returneres, normalt på grund af at blive omdirigeret. Skal du logge ind for internetadgang?",
@@ -295,6 +296,9 @@
             "drop_name_blacklist": "Ignorerede nøgleord i dropnavne",
             "drop_name_blacklist_help": "Angiv ét nøgleord pr. linje. Der søges efter en bogstavelig delstreng uden forskel på store og små bogstaver. Matchende drops og deres afhængige grene ignoreres; grene, der kun er forudsætninger, springes over, mens delte forudsætninger stadig kan optjenes.",
             "drop_name_blacklist_placeholder": "(JP)\n[KR]\nJapan",
+            "idle_watch": "Se når inaktiv (eksperimentel)",
+            "idle_watch_help": "Når ingen drop kan hentes, ses en live kanal i en af disse Twitch-kategorier, én pr. linje (den første først). Beregnet til Twitch-belønningskampagner, som mineren ikke kan følge: tjek fremskridt og indløs belønninger på Twitch. En kategori med drops, du henter, hentes som normalt.",
+            "idle_watch_placeholder": "Grand Theft Auto VI",
             "clear_all_cache": "Ryd hele cachen",
             "clear_all_cache_help": "Rydder lokal kampagne-, kanal- og afledt minerstatus; bevarer login og indstillinger og genindlæser derefter data fra Twitch.",
             "farm_mode": "Farm-tilstand",

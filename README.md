@@ -87,9 +87,11 @@ This is a personal fork of [rangermix/TwitchDropsMiner](https://github.com/range
 synced with upstream releases (the dashboard footer shows both versions and flags new
 releases of either; the optional **New TwitchDropsMiner versions** alert announces upstream
 releases newer than the synced one, so for this fork it means a sync is due). It adds Farm
-Mode, a Campaign Searches log in the Output panel, a channel-based campaign discovery
-fallback, and its own dashboard colours and sign-in card styling on top of upstream's
-refreshed layout; see [fork features](docs/fork-features.md). Its Docker image is built by this repository's
+Mode, an experimental Watch when idle mode (it watches chosen categories while nothing can
+be mined, for reward campaigns the miner cannot track), a Campaign Searches log in the
+Output panel, a channel-based campaign discovery fallback, and its own dashboard colours
+and sign-in card styling on top of upstream's refreshed layout; see
+[fork features](docs/fork-features.md). Its Docker image is built by this repository's
 Docker Hub workflow as `<your-docker-hub-user>/twitch-drops-idle-miner:latest`; use it in
 place of `rangermix/twitch-drops-miner` below; the image includes the Chromium and display
 components that the dashboard sign-in below needs. The optional desktop helper is not built

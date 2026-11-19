@@ -453,6 +453,31 @@ def test_followed_channel_preference_in_status_and_mining_settings(browser, mine
     assert miner.updates[-1] == {"prefer_followed_channels": False}
 
 
+def test_watch_when_idle_in_status_and_mining_settings(browser, miner):
+    token = token_for(browser)
+    _, status = tool(browser, token, "get_status")
+    assert status["idle_watch_games"] == []
+    assert status["watching_channel"]["watch_when_idle"] is False
+
+    watched = miner.client.channels[7]
+    miner.client.settings.idle_watch_games = ["Escape from Tarkov"]
+    miner.client.watching_channel = SimpleNamespace(get_with_default=lambda default: watched)
+    miner.client._watch_service = SimpleNamespace(watches_idle=lambda channel: channel is watched)
+    _, status = tool(browser, token, "get_status")
+    assert status["idle_watch_games"] == ["Escape from Tarkov"]
+    assert status["watching_channel"]["watch_when_idle"] is True
+
+    for invalid in ("Grand Theft Auto VI", [1]):
+        is_error, text = tool(browser, token, "update_mining_settings", {"idle_watch_games": invalid})
+        assert is_error and "idle_watch_games" in text
+    _, changed = tool(browser, token, "update_mining_settings",
+                      {"idle_watch_games": [" Grand Theft Auto VI ", "grand theft auto vi"]})
+    assert changed == {"idle_watch_games": ["Grand Theft Auto VI"]}
+    assert miner.updates[-1] == {"idle_watch_games": ["Grand Theft Auto VI"]}
+    _, changed = tool(browser, token, "update_mining_settings", {"idle_watch_games": []})
+    assert changed == {"idle_watch_games": []}
+
+
 def test_set_paused_tool(browser, miner):
     token = token_for(browser)
     miner.client.set_paused = MagicMock()

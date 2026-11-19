@@ -1717,6 +1717,13 @@ function updateSettingsUI(settings, authoritative = false, changedFields = []) {
             : '';
     }
 
+    const idleWatchGames = document.getElementById('idle-watch-games');
+    if (idleWatchGames) {
+        idleWatchGames.value = Array.isArray(settings.idle_watch_games)
+            ? settings.idle_watch_games.join('\n')
+            : '';
+    }
+
     // Update proxy settings and indicator
     const proxyUrl = settings.proxy || '';
     const proxyInput = document.getElementById('proxy-url');
@@ -2852,6 +2859,10 @@ async function saveSettings() {
         drop_name_blacklist: parseDropNameBlacklist(
             document.getElementById('drop-name-blacklist')?.value
         ),
+        // Omitted until settings load, so an early save cannot clear the categories.
+        idle_watch_games: Array.isArray(state.settings.idle_watch_games)
+            ? parseDropNameBlacklist(document.getElementById('idle-watch-games')?.value)
+            : undefined,
         inventory_filters: getInventoryFilters(),
         // Omitted until settings load, so an early save cannot overwrite the saved types.
         mining_benefits: state.settings.mining_benefits,
@@ -3176,6 +3187,17 @@ function applyTranslations(t) {
 
         const dropBlacklistInput = document.getElementById('drop-name-blacklist');
         if (dropBlacklistInput) dropBlacklistInput.placeholder = t.gui.settings.drop_name_blacklist_placeholder;
+
+        const idleWatchHeader = document.getElementById('settings-idle-watch-header');
+        if (idleWatchHeader && t.gui.settings.idle_watch) idleWatchHeader.textContent = t.gui.settings.idle_watch;
+
+        const idleWatchHelp = document.getElementById('settings-idle-watch-help');
+        if (idleWatchHelp && t.gui.settings.idle_watch_help) idleWatchHelp.textContent = t.gui.settings.idle_watch_help;
+
+        const idleWatchInput = document.getElementById('idle-watch-games');
+        if (idleWatchInput && t.gui.settings.idle_watch_placeholder) {
+            idleWatchInput.placeholder = t.gui.settings.idle_watch_placeholder;
+        }
 
         const gamesHeader = document.getElementById('settings-games-header');
         if (gamesHeader) gamesHeader.textContent = t.gui.settings.games_to_watch;
@@ -3828,6 +3850,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ['mining-hours-always', 'mining-hours-range', 'mining-hours-start', 'mining-hours-end']
         .forEach(id => document.getElementById(id).addEventListener('change', onMiningHoursChange));
     document.getElementById('drop-name-blacklist').addEventListener('change', saveSettings);
+    document.getElementById('idle-watch-games').addEventListener('change', saveSettings);
     document.getElementById('allow-unlinked-campaigns').addEventListener('change', onUnlinkedMiningChange);
     document.getElementById('prefer-followed-channels').addEventListener('change', onPreferFollowedChange);
     document.querySelectorAll('.notification-event')

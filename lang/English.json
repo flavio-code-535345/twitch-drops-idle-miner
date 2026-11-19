@@ -9,7 +9,8 @@
         "goes_offline": "{channel} goes OFFLINE, switching...",
         "claimed_drop": "Claimed drop: {drop}",
         "no_channel": "No available channels to watch. Waiting for an ONLINE channel...",
-        "no_campaign": "No active campaigns to mine drops for. Waiting for an active campaign..."
+        "no_campaign": "No active campaigns to mine drops for. Waiting for an active campaign...",
+        "watching_idle": "Watching: {channel} ({game}, Watch when idle)"
     },
     "login": {
         "unexpected_content": "Unexpected content type returned, usually due to being redirected. Do you need to login for internet access?",
@@ -205,6 +206,9 @@
             "drop_name_blacklist": "Ignored Drop Keywords",
             "drop_name_blacklist_help": "Enter one keyword per line. Matching is a case-insensitive literal substring. Matching drops and their dependent branches are ignored; prerequisite-only branches are skipped while shared prerequisites remain mineable.",
             "drop_name_blacklist_placeholder": "(JP)\n[KR]\nJapan",
+            "idle_watch": "Watch when idle (experimental)",
+            "idle_watch_help": "When no drop can be mined, watch a live channel in one of these Twitch categories, one per line (first listed first). Meant for Twitch reward campaigns the miner cannot track: check progress and claim rewards on Twitch. A category with drops you mine is mined as usual.",
+            "idle_watch_placeholder": "Grand Theft Auto VI",
             "clear_all_cache": "Clear All Cache",
             "clear_all_cache_help": "Clears local campaign, channel, and derived miner state; keeps your login and settings, then reloads from Twitch.",
             "games_to_watch": "Mining list",

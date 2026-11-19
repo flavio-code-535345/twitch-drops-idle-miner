@@ -9,7 +9,8 @@
         "goes_offline": "El canal {channel} se ha desconectado, cambiando...",
         "claimed_drop": "Drop reclamado: {drop}",
         "no_channel": "No se ha encontrado un canal en vivo para mirar. \nEsperando un canal en vivo...",
-        "no_campaign": "No se ha encontrado una campaña activa. \nEsperando una nueva campaña..."
+        "no_campaign": "No se ha encontrado una campaña activa. \nEsperando una nueva campaña...",
+        "watching_idle": "Mirando el canal: {channel} ({game}, Ver en inactividad)"
     },
     "login": {
         "unexpected_content": "Se produjo un error inesperado, \ngeneralmente debido a una redirección.\n¿Necesitas un VPN o iniciar sesión para acceder a internet?",
@@ -293,6 +294,9 @@
             "drop_name_blacklist": "Palabras clave de drops ignorados",
             "drop_name_blacklist_help": "Introduce una palabra clave por línea. La coincidencia busca una subcadena literal sin distinguir mayúsculas de minúsculas. Se ignoran los drops coincidentes y sus ramas dependientes; se omiten las ramas que solo son requisitos previos, mientras que los requisitos compartidos siguen siendo obtenibles.",
             "drop_name_blacklist_placeholder": "(JP)\n[KR]\nJapan",
+            "idle_watch": "Ver en inactividad (experimental)",
+            "idle_watch_help": "Cuando no se pueda minar ningún drop, mira un canal en directo de una de estas categorías de Twitch, una por línea (la primera tiene prioridad). Pensado para campañas de recompensas de Twitch que el minero no puede seguir: comprueba el progreso y reclama las recompensas en Twitch. Una categoría con drops que minas se mina como siempre.",
+            "idle_watch_placeholder": "Grand Theft Auto VI",
             "clear_all_cache": "Borrar toda la caché",
             "clear_all_cache_help": "Borra el estado local de campañas, canales y los datos derivados del minero; conserva el inicio de sesión y la configuración, y luego vuelve a cargar los datos desde Twitch.",
             "add_game": "Add Game",

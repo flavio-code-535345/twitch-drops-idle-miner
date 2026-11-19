@@ -9,7 +9,8 @@
         "goes_offline": "{channel} ÇEVRİMDIŞI duruma geçti, geçiş yapın...",
         "claimed_drop": "Alınan drop: {drop}",
         "no_channel": "Çevrimiçi katılımcı kanal yok. Kanallar bekleniyor...",
-        "no_campaign": "Etkin kampanya yok. Yeni kampanya bekleniyor..."
+        "no_campaign": "Etkin kampanya yok. Yeni kampanya bekleniyor...",
+        "watching_idle": "{channel} izleniyor ({game}, Boştayken izle)"
     },
     "login": {
         "error_code": "Giriş Hata Kodu: {error_code}",
@@ -295,6 +296,9 @@
             "drop_name_blacklist": "Yoksayılan Drop Anahtar Kelimeleri",
             "drop_name_blacklist_help": "Her satıra bir anahtar kelime girin. Eşleştirme, büyük/küçük harfe duyarsız gerçek bir alt dize arar. Eşleşen droplar ve bunlara bağlı dallar yoksayılır; yalnızca ön koşul olan dallar atlanırken ortak ön koşulların madenciliği yapılabilir.",
             "drop_name_blacklist_placeholder": "(JP)\n[KR]\nJapan",
+            "idle_watch": "Boştayken izle (deneysel)",
+            "idle_watch_help": "Hiçbir drop toplanamadığında bu Twitch kategorilerinden birinde canlı bir kanal izlenir, her satıra bir tane (ilk yazılan önce gelir). Madencinin takip edemediği Twitch ödül kampanyaları için tasarlandı: ilerlemeyi Twitch'te kontrol edin ve ödülleri orada alın. Topladığınız droplara sahip bir kategori her zamanki gibi toplanır.",
+            "idle_watch_placeholder": "Grand Theft Auto VI",
             "clear_all_cache": "Tüm Önbelleği Temizle",
             "clear_all_cache_help": "Yerel kampanya, kanal ve türetilmiş madenci durumunu temizler; oturum açma bilgilerini ve ayarları korur, ardından Twitch'ten yeniden yükler.",
             "farm_mode": "Farm Modu",
