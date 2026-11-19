@@ -49,8 +49,9 @@ category whose drops you mine is mined as usual. The status line then reads
 
 - The miner cannot track or claim these rewards. Check your progress on the campaign's
   Twitch page and claim the rewards there.
-- Whether Twitch counts the miner's watching for such a campaign is not known yet. Check
-  your progress on Twitch after about an hour.
+- Twitch counts this watching: in a test on 19 November 2026, the GTAVI Launch Celebration
+  awarded a badge while the miner watched `Grand Theft Auto VI` this way. Other campaigns
+  are untested, so check your progress on Twitch after about an hour.
 - Up to five live channels per category are looked up whenever the miner searches for
   channels: at startup and after each campaign reload. Up to ten categories can be listed.
 - Mining Hours apply as usual. Leave the list empty to turn the feature off.
