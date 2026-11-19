@@ -773,11 +773,14 @@ class Twitch:
                 if self.wanted_games:
                     self.change_state(State.CHANNELS_FETCH)
                 elif idle_watch:
-                    # nothing to mine, but Watch when idle looks for its categories
-                    self.print(
-                        _.t["status"]["no_campaign"],
-                        collapse_key="status.no_campaign",
-                    )
+                    # nothing to mine, but Watch when idle looks for its categories;
+                    # a reload while it watches one doesn't log the waiting line under it
+                    idle_channel = self.watching_channel.get_with_default(None)
+                    if idle_channel is None or not self._watch_service.watches_idle(idle_channel):
+                        self.print(
+                            _.t["status"]["no_campaign"],
+                            collapse_key="status.no_campaign",
+                        )
                     self.change_state(State.CHANNELS_FETCH)
                 else:
                     # with no games available, we switch to IDLE after cleanup;

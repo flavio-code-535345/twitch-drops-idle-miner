@@ -4,7 +4,7 @@ import asyncio
 import copy
 import logging
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, call
 
 import aiohttp
 import pytest
@@ -293,6 +293,31 @@ async def test_with_nothing_to_mine_the_miner_watches_a_listed_category(tmp_path
     client.print.assert_any_call(
         _.t["status"]["watching_idle"].format(channel=watched.name, game="Grand Theft Auto VI")
     )
+
+
+@pytest.mark.asyncio
+async def test_a_reload_while_watching_a_listed_category_does_not_log_the_waiting_line(
+    tmp_path, monkeypatch
+):
+    client = _running_miner(tmp_path, monkeypatch, mining=False)
+    watched = _live(client, 2, GTA)
+    client.channels[2] = watched
+    client.watching_channel.set(watched)
+    client._channel_service.get_live_streams = AsyncMock(return_value=[_live(client, 2, GTA)])
+    status = client._watch_service.watching_status(watched)
+    task = asyncio.create_task(client._run())
+    for _attempt in range(100):
+        await asyncio.sleep(0)
+        if call(status) in client.gui.status.update.call_args_list:
+            break
+    client.close()
+    await asyncio.wait_for(task, 1)
+
+    # The miner kept watching, and the log shows no "waiting for a campaign" line under it.
+    client.gui.status.update.assert_any_call(status)
+    assert client.watching_channel.get_with_default(None) is watched
+    waiting = call(_.t["status"]["no_campaign"], collapse_key="status.no_campaign")
+    assert waiting not in client.print.call_args_list
 
 
 @pytest.mark.asyncio
