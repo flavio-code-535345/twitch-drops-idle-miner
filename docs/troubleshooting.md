@@ -171,6 +171,12 @@ For **Special Events** or **IRL**, keep the campaign's category in Mining list;
 its participating channels may be streaming another category. See
 [channel selection](usage.md#special-events-and-irl-campaigns).
 
+Twitch lists **Open Reward Campaigns** separately from drop campaigns on its Drops
+page; one example is the GTAVI Launch Celebration, with badges for watching on several
+days. TDM does not request these campaigns from Twitch, so they never appear in Inventory
+or the Wanted Drops Queue, and TDM does not watch their channels. Watch those in a browser
+and claim the rewards on Twitch.
+
 Try **Reload Campaigns** in Inventory or **Settings → Games** after correcting settings.
 **Settings → Account & Maintenance → Clear All Cache** can rebuild local campaign and
 channel data while keeping login, settings, and dashboard protection. It cannot repair

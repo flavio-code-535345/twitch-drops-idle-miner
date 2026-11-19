@@ -1006,6 +1006,14 @@ Persisted operations are defined in `src/config/operations.py` as `GQL_OPERATION
 - **AvailableDrops** - Check which campaigns a channel qualifies for (badge validation)
 - **NotificationsDelete** - Delete Twitch notifications
 
+**Inventory** and **Campaigns** send `fetchRewardCampaigns: False`, so Twitch's Open Reward
+Campaigns, which its Drops page lists separately, are neither fetched nor mined. Example: the
+GTAVI Launch Celebration (Nov 18–30, 2026) gives badges for watching 60 minutes a day on 6
+days. Upstream declined support: they are a different system (DevilXD/TwitchDropsMiner#1150);
+rangermix/TwitchDropsMiner#233 asks again. If a Games to Watch entry's only event is one of
+these, it gets no campaign, no tracked channels and no queue entry, and the dashboard reports
+"No active campaigns".
+
 **Campaign catalog fallback (fork-specific):** added when the v1.3.1/v1.3.2 `SMARTBOX`
 client got `dropCampaigns: null` for **Campaigns** and a null `dropCampaign` for
 **CampaignDetails** (also as raw queries; upstream rangermix/TwitchDropsMiner#118). The
