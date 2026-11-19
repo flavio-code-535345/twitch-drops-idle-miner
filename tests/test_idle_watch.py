@@ -17,8 +17,12 @@ from src.models.channel import Channel, Stream
 from src.models.game import Game
 from src.services.channel_service import idle_watch_rank
 from src.services.watch_service import WatchService
+from src.web.managers.channels import ChannelListManager
 from src.web.managers.settings import SettingsManager
+from tests.javascript_helpers import NODE
+from tests.test_priority_fallback_frontend import DOM
 from tests.test_session_lifecycle import miner
+from tests.test_telegram_frontend import run_javascript
 
 
 GTA = {"id": "100", "name": "Grand Theft Auto VI"}
@@ -234,6 +238,59 @@ def test_watching_an_idle_channel_says_so_and_clears_the_previous_drop(tmp_path,
     client._watch_service.watch(drop)
     client.gui.clear_drop.assert_not_called()
     assert client._watch_service.watching_status(drop) == _.t["status"]["watching"].format(channel=drop.name)
+
+
+# ------------------------------------------------------------------ dashboard
+
+
+def test_channel_data_marks_listed_category_standbys(tmp_path, monkeypatch):
+    client = _idle_miner(tmp_path, monkeypatch)
+    manager = ChannelListManager(MagicMock())
+    assert manager._channel_data(_live(client, 2, GTA))["watch_when_idle"] is True
+    assert manager._channel_data(_live(client, 1, DROPS))["watch_when_idle"] is False
+    assert manager._channel_data(MagicMock())["watch_when_idle"] is False
+
+
+@pytest.mark.skipif(NODE is None, reason="Node.js is required for frontend tests")
+def test_channels_list_shows_standbys_below_the_mined_channels_under_a_label():
+    run_javascript(
+        ["makeElement", "channelMatchesGameFilter", "renderChannels"],
+        DOM + r"""
+const container = new Element('div');
+const document = {
+    getElementById: id => id === 'channels-list' ? container : null,
+    createElement: tag => new Element(tag),
+    createTextNode: text => ({textContent: String(text)}),
+};
+function updateNowWatching() {}
+function selectChannel() {}
+const gta = 'Grand Theft Auto VI', tarkov = 'Escape from Tarkov';
+const state = {
+    settings: {games_to_watch: []},
+    translations: {gui: {settings: {idle_watch: 'Watch when idle (experimental)'}}},
+    channels: {
+        1: {id: 1, name: 'BigGta', game: gta, online: true, viewers: 70000, watch_when_idle: true},
+        2: {id: 2, name: 'Tarkov', game: tarkov, online: true, viewers: 5000},
+        3: {id: 3, name: 'Watched', game: tarkov, online: true, viewers: 6000, watching: true},
+        4: {id: 4, name: 'SmallGta', game: gta, online: true, viewers: 3000, watch_when_idle: true},
+        5: {id: 5, name: 'OfflineAcl', game: tarkov, online: false, viewers: null},
+    },
+};
+const rows = () => container.children.map(row =>
+    row.children.length ? row.children[1].children[0].textContent : `[${row.textContent}]`);
+renderChannels();
+assert.deepEqual(rows(), [
+    'Watched', 'Tarkov', 'OfflineAcl', '[Watch when idle (experimental)]', 'BigGta', 'SmallGta',
+]);
+// While Watch when idle watches, every channel is a standby, so no label is needed.
+state.channels = {
+    1: {id: 1, name: 'Watched', game: gta, online: true, viewers: 10, watching: true, watch_when_idle: true},
+    2: {id: 2, name: 'Other', game: gta, online: true, viewers: 500, watch_when_idle: true},
+};
+renderChannels();
+assert.deepEqual(rows(), ['Watched', 'Other']);
+""",
+    )
 
 
 # ------------------------------------------------------------------ state machine

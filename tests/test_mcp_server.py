@@ -466,6 +466,12 @@ def test_watch_when_idle_in_status_and_mining_settings(browser, miner):
     _, status = tool(browser, token, "get_status")
     assert status["idle_watch_games"] == ["Escape from Tarkov"]
     assert status["watching_channel"]["watch_when_idle"] is True
+    miner.gui.channels = SimpleNamespace(get_channels=lambda: [
+        {"id": 8, "name": "caseoh_", "game": "Grand Theft Auto VI", "online": True,
+         "watch_when_idle": True},
+    ])
+    _, listed = tool(browser, token, "list_channels")
+    assert listed["channels"][0]["watch_when_idle"] is True
 
     for invalid in ("Grand Theft Auto VI", [1]):
         is_error, text = tool(browser, token, "update_mining_settings", {"idle_watch_games": invalid})

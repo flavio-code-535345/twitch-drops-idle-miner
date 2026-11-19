@@ -3443,6 +3443,16 @@ header h1 {
     padding: 20px;
 }
 
+/* Fork Watch when idle: standbys of the listed categories, below the mined channels */
+.channel-group-label {
+    margin: 10px 10px 4px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+}
+
 .game-group-header {
     margin: 8px 0 4px;
     padding: 8px;

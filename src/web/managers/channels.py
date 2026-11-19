@@ -5,6 +5,8 @@ from __future__ import annotations
 import asyncio
 from typing import TYPE_CHECKING, Any
 
+from src.services.channel_service import idle_watch_rank
+
 
 if TYPE_CHECKING:
     from src.models.channel import Channel
@@ -41,6 +43,8 @@ class ChannelListManager:
 
     def _channel_data(self, channel: Channel) -> dict[str, Any]:
         """Use the same public identity in incremental, batch and reconnect state."""
+        # fork Watch when idle: test doubles may lack the client, which marks nothing
+        twitch = getattr(channel, "_twitch", None)
         return {
             "id": channel.id,
             "name": channel.name,
@@ -54,6 +58,8 @@ class ChannelListManager:
             "drops_enabled": channel.drops_enabled,
             "acl_based": channel.acl_based,
             "watching": channel.id == self._watching_id,
+            # fork Watch when idle: a standby of a listed category, not a drop channel
+            "watch_when_idle": twitch is not None and idle_watch_rank(twitch, channel) is not None,
         }
 
     def remove(self, channel: Channel):

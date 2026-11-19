@@ -731,12 +731,16 @@ function renderChannels() {
         return;
     }
 
-    // Flat list: watching first, then online, then by viewers
+    // Flat list: watching first, then online, then by viewers. Watch when idle standbys
+    // follow the other channels under their own label, so mixed games read as two groups.
     const sortedChannels = [...filteredChannels].sort((a, b) => {
         if (Boolean(a.watching) !== Boolean(b.watching)) return b.watching ? 1 : -1;
+        if (Boolean(a.watch_when_idle) !== Boolean(b.watch_when_idle)) return a.watch_when_idle ? 1 : -1;
         if (Boolean(a.online) !== Boolean(b.online)) return b.online ? 1 : -1;
         return (b.viewers || 0) - (a.viewers || 0);
     });
+    // A list of standbys alone needs no label: the status line already says Watch when idle.
+    let idleLabel = sortedChannels.some(channel => !channel.watch_when_idle);
 
     const formatViewers = n => {
         if (n >= 1e6) return `${+(n / 1e6).toFixed(2)}M`;
@@ -745,6 +749,11 @@ function renderChannels() {
     };
 
     sortedChannels.forEach(channel => {
+        if (idleLabel && channel.watch_when_idle && !channel.watching) {
+            idleLabel = false;
+            container.appendChild(makeElement('div', { class: 'channel-group-label' },
+                t.gui?.settings?.idle_watch || 'Watch when idle'));
+        }
         const div = document.createElement('div');
         div.className = 'channel-item';
         if (channel.watching) div.classList.add('watching');

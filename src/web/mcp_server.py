@@ -495,7 +495,8 @@ class MCPServer:
         game = _str_arg(arguments, "game")
         channels = [
             {key: channel.get(key) for key in
-             ("id", "name", "game", "online", "viewers", "drops_enabled", "acl_based", "watching", "url")}
+             ("id", "name", "game", "online", "viewers", "drops_enabled", "acl_based", "watching",
+              "watch_when_idle", "url")}
             for channel in gui.channels.get_channels()
             if (channel.get("online") or not online_only)
             and (not game or game.lower() in str(channel.get("game") or "").lower())

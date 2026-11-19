@@ -46,6 +46,9 @@ that has one, the one with the most viewers. Channels with Twitch's drops tag ar
 the category has any. A channel with a drop to mine always takes priority, and a listed
 category whose drops you mine is mined as usual. The status line then reads
 "Watching: *channel* (*category*, Watch when idle)", and the drop progress panel stays empty.
+In the Channels list, the listed categories' live channels appear below the other channels
+under a "Watch when idle" label. They are standbys: the miner watches one of them only when
+no drop can be mined.
 
 - The miner cannot track or claim these rewards. Check your progress on the campaign's
   Twitch page and claim the rewards there.
@@ -179,13 +182,14 @@ Claude can then use these tools:
 - **Read:** status and current drop (including whether the channel is watched only for
   [Watch when idle](#watch-when-idle-experimental)), campaigns (filter by game, status or
   link state; each lists its reward types, so badges and emotes for Farm Mode stand out),
-  the wanted queue, tracked channels, settings (without secrets, including the
-  followed-channel preference and the alert choices), the Campaign Searches log, drop
-  history and recent log messages. **Diagnose unclaimed drops** lists drops that are
-  complete or claimable and why the last claim attempt failed, plus what the session's
-  integrity proof claims (bot flag, expiry, and whether it matches the device, account and
-  client the requests use; never the proof itself or its IDs). Drops [waiting for the
-  account link](#drops-waiting-for-the-account-link) are counted separately, not as stuck.
+  the wanted queue, tracked channels (with Watch when idle standbys marked), settings
+  (without secrets, including the followed-channel preference and the alert choices), the
+  Campaign Searches log, drop history and recent log messages. **Diagnose unclaimed drops**
+  lists drops that are complete or claimable and why the last claim attempt failed, plus
+  what the session's integrity proof claims (bot flag, expiry, and whether it matches the
+  device, account and client the requests use; never the proof itself or its IDs). Drops
+  [waiting for the account link](#drops-waiting-for-the-account-link) are counted
+  separately, not as stuck.
 - **Control:** set, add, remove or reorder Games to Watch; change Farm Mode, Priority list
   only, mining of Not Linked campaigns, preferring followed channels, reward types, mining
   hours or the Watch when idle categories; reload campaigns; watch a specific channel or

@@ -103,8 +103,12 @@ project's process, not an active process here.
   is mined normally. CHANNELS_CLEANUP keeps listed-category channels and, with no wanted
   games, continues to CHANNELS_FETCH instead of IDLE. A user pick of an idle channel never
   enters Manual Mode. `WatchService.watches_idle` drives the status text and
-  `gui.clear_drop()`. `idle_watch_names` returns `[]` unless the setting is a real list, so
-  upstream tests with `MagicMock` clients are unaffected. Tests: `tests/test_idle_watch.py`.
+  `gui.clear_drop()`. `ChannelListManager._channel_data` sets `watch_when_idle` on channels
+  with an `idle_watch_rank` (dashboard and MCP `list_channels`); `renderChannels` lists them
+  after the other channels under the `gui.settings.idle_watch` label, unlabeled when every
+  shown channel has the flag. `idle_watch_names` returns `[]` unless the setting is a real
+  list, so upstream tests with `MagicMock` clients are unaffected. Tests:
+  `tests/test_idle_watch.py`.
 - Fork settings read by shared code use `getattr(settings, "<name>", default)` (for example
   `farm_mode` in `StreamSelector`), because upstream tests build minimal settings objects
   without fork-only fields.
